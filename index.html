@@ -28,9 +28,25 @@
             --md-sys-color-error: #B3261E;
         }
 
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
-        
-        #sync-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--md-sys-color-surface); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--md-sys-color-surface);
+            color: var(--md-sys-color-on-surface);
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body.no-scroll { overflow: hidden; }
+
+        #sync-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--md-sys-color-surface);
+            z-index: 9999; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 40px; box-sizing: border-box;
+        }
 
         .summary-header { background-color: var(--md-sys-color-surface-container); margin: 16px; padding: 24px; border-radius: 32px; }
         .month-selector { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
@@ -46,16 +62,21 @@
         .small-segment-btn { flex: 1; border: none; background: none; padding: 6px; border-radius: 100px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--md-sys-color-on-surface-variant); }
         .small-segment-btn.active { background: white; color: var(--md-sys-color-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-        .main-chart-container { background: white; margin: 0 16px 16px 16px; padding: 10px 16px; border-radius: 24px; height: 160px; display: flex; justify-content: center; align-items: center; }
+        .main-chart-container {
+            background: white; margin: 0 16px 16px 16px;
+            padding: 10px 16px; border-radius: 24px;
+            height: 160px; display: flex; justify-content: center; align-items: center;
+        }
+
         .list-card { background: white; border-radius: 24px; padding: 8px 0; margin-bottom: 120px; }
         .item { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--md-sys-color-surface-container); cursor: pointer; }
+        .item:last-child { border-bottom: none; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; align-items: flex-end; }
         .modal-overlay.active { display: flex; }
         .bottom-sheet { background: var(--md-sys-color-surface); width: 100%; border-radius: 32px 32px 0 0; padding: 24px; box-sizing: border-box; max-height: 85vh; overflow-y: auto; }
         .sheet-handle { width: 32px; height: 4px; background: var(--md-sys-color-outline); border-radius: 2px; margin: 0 auto 24px auto; opacity: 0.4; }
 
-        /* 修正區域：Sheet Header 佈局 */
         .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .cat-action-group { display: flex; gap: 12px; }
         
@@ -161,7 +182,7 @@
     </div>
 
     <script>
-        // --- Firebase Config (您提供的金鑰) ---
+        // --- Firebase Config ---
         const firebaseConfig = {
             apiKey: "AIzaSyAi5Kqw8RFddkF1B2P0NjMpQEc0puYqFyw",
             authDomain: "pay-4a919.firebaseapp.com",
@@ -239,7 +260,13 @@
             mainChartObj = new Chart(ctx, {
                 type: 'pie',
                 data: { labels, datasets: [{ data, backgroundColor: ['#FFB3BA','#BAFFC9','#BAE1FF','#FFFFBA','#FFDFBA','#E0BBE4','#D4F0F0','#FFC3A0'], borderWidth: 1, borderColor:'#fff' }] },
-                options: { maintainAspectRatio: false, plugins: { legend: { position:'right', labels:{ color:'#000', font:{size:14}, boxWidth:10, padding:8 } }, datalabels:{display:false} } }
+                options: { 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { position:'right', labels:{ color:'#000', font:{size:14}, boxWidth:10, padding:8 } }, 
+                        datalabels:{display:false} 
+                    } 
+                }
             });
         }
 
@@ -254,10 +281,12 @@
             state.records.filter(r => { const d = new Date(r.date); return d.getFullYear() === year && d.getMonth() === month; }).forEach(r => { if(r.type==='income') ti+=r.amt; else te+=r.amt; });
             document.getElementById('totalIncome').innerText = `$${ti.toLocaleString()}`;
             document.getElementById('totalExpense').innerText = `$${te.toLocaleString()}`;
+            
+            // 修正區域：修正 strong 標籤顯示錯誤
             let html = filtered.sort((a,b) => new Date(b.date) - new Date(a.date)).map(r => {
                 const insLabel = r.ins > 1 ? ` (分期 ${r.insIndex}/${r.ins})` : '';
                 return `<div class="item" onclick="openDrawer('edit', ${r.id})">
-                    <div style="display:flex; flex-direction:column;">strong${r.cat}</strong><small>${r.date}${insLabel}${r.note ? ' · '+r.note : ''}</small></div>
+                    <div style="display:flex; flex-direction:column;"><strong>${r.cat}</strong><small>${r.date}${insLabel}${r.note ? ' · '+r.note : ''}</small></div>
                     <span style="color:${r.type==='income'?'#2E7D32':'#C62828'}; font-weight:700;">$${r.amt.toLocaleString()}</span>
                 </div>`;
             }).join('');
@@ -272,8 +301,7 @@
             
             const title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), catActions = document.getElementById('catActions'), modalActions = document.getElementById('modalActions');
             
-            overlay = document.getElementById('modalOverlay');
-            overlay.classList.add('active');
+            document.getElementById('modalOverlay').classList.add('active');
             document.body.classList.add('no-scroll');
 
             delBtn.style.display = id ? 'block' : 'none';
@@ -337,7 +365,7 @@
                 let ed = `$${groups[key].e.toLocaleString()}`;
                 if (state.statsView === 'yearly') { const m = new Set(groups[key].raw.map(r => new Date(r.date).getMonth())).size; ed += ` ($${m > 0 ? Math.round(groups[key].e / m).toLocaleString() : 0})`; }
                 return `<div class="stats-report-item" onclick="showStatsDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})">
-                    <div style="display:flex; justify-content:space-between;"><strong>${key}</strong><span class="material-symbols-outlined">chevron_right</span></div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key}</strong><span class="material-symbols-outlined">chevron_right</span></div>
                     <div style="display:flex; gap:12px; margin-top:8px; font-size:14px;"><span style="color:#2E7D32">收: $${groups[key].i.toLocaleString()}</span><span style="color:#C62828">支: ${ed}</span></div>
                 </div>`;
             }).join('');
@@ -348,7 +376,7 @@
                 const g = {}; let t = 0; items.forEach(r => { g[r.cat] = (g[r.cat] || 0) + r.amt; t += r.amt; });
                 return Object.entries(g).sort((a,b) => b[1] - a[1]).map(([c, a]) => `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${t > 0 ? ((a/t)*100).toFixed(0) : 0}%)</span></div>`).join('');
             };
-            document.getElementById('sheetBody').innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:var(--md-sys-color-primary); margin-bottom:16px;"><span class="material-symbols-outlined">arrow_back</span> 返回</div>
+            document.getElementById('sheetBody').innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:var(--md-sys-color-primary); margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div>
                 <h3 style="margin:0 0 16px 0;">${title} 細項</h3>
                 <div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">收入分佈</div>${getRows(data.filter(r => r.type === 'income')) || '無數據'}</div>
                 <div class="stats-detail-card"><div class="input-label" style="color:#C62828">支出分佈</div>${getRows(data.filter(r => r.type === 'expense')) || '無數據'}</div>
