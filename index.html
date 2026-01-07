@@ -34,15 +34,12 @@
         #sync-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--md-sys-color-surface); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; }
 
         .summary-header { background-color: var(--md-sys-color-surface-container); margin: 16px; padding: 24px 24px 16px 24px; border-radius: 32px; position: relative; }
-        
-        /* 版本號 */
         .version-tag { position: absolute; right: 20px; bottom: 12px; font-size: 8px; color: #555555; opacity: 0.8; font-weight: 500; }
 
         .month-selector { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .month-label { font-size: 20px; font-weight: 700; color: var(--md-sys-color-primary); }
         .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         
-        /* 修正 1: 點擊切換顯示 */
         .summary-item { background: white; padding: 16px; border-radius: 20px; cursor: pointer; transition: background 0.2s; }
         .summary-item:active { background: #F0F0F0; }
         .summary-item small { display: block; color: var(--md-sys-color-on-surface-variant); font-size: 12px; pointer-events: none; }
@@ -75,9 +72,7 @@
         .fab-left { position: fixed; left: 20px; bottom: 32px; width: 64px; height: 64px; border-radius: 20px; background: var(--md-sys-color-secondary-container); display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer; }
         .fab-menu { position: fixed; right: 20px; bottom: 105px; display: none; flex-direction: column; gap: 12px; z-index: 100; align-items: flex-end; }
         
-        /* 修正 2: 選項背景改為淡灰色 */
         .fab-item { background: #F5F5F5; padding: 12px 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: 500; cursor: pointer; color: var(--md-sys-color-on-surface); }
-        .fab-item:active { background: #E0E0E0; }
 
         .sync-status { font-size: 9px; text-align: center; color: var(--md-sys-color-outline); height: 24px; display: flex; align-items: center; justify-content: center; margin-top: 4px; }
         .category-row { display: flex; align-items: center; background: var(--md-sys-color-surface-container-high); margin-bottom: 8px; padding: 12px; border-radius: 16px; gap: 12px; cursor: move; }
@@ -94,7 +89,7 @@
 
     <div id="sync-overlay">
         <h2 style="color:var(--md-sys-color-primary); margin-bottom:8px;">GooglePay</h2>
-        <input type="text" id="account-id" class="md-input" placeholder="例如: mypay2026" style="margin-bottom:24px; text-align:center;">
+        <input type="text" id="account-id" class="md-input" placeholder="帳號 ID" style="margin-bottom:24px; text-align:center;">
         <button class="btn-filled" style="width:200px;" onclick="startApp()">開始同步</button>
     </div>
 
@@ -116,7 +111,7 @@
                 </div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag">v26.2</div>
+            <div class="version-tag">v26.3</div>
         </div>
 
         <div class="transaction-section">
@@ -190,7 +185,7 @@
             statsView: 'monthly',
             editingId: null,
             currentMode: '',
-            showIncome: false // 修正 1: 控制收入顯示狀態
+            showIncome: false
         };
 
         let db = null;
@@ -231,7 +226,6 @@
             db.ref('users/' + state.accountId).set({ records: state.records, cats: state.cats });
         }
 
-        // 修正 1: 切換收入顯示功能
         function toggleIncomeDisplay() {
             state.showIncome = !state.showIncome;
             render();
@@ -249,7 +243,6 @@
             let ti = 0, te = 0;
             state.records.filter(r => { const d = new Date(r.date); return d.getFullYear() === year && d.getMonth() === month; }).forEach(r => { if(r.type==='income') ti+=r.amt; else te+=r.amt; });
             
-            // 修正 1: 收入顯示邏輯
             document.getElementById('totalIncome').innerText = state.showIncome ? `$${ti.toLocaleString()}` : '-----';
             document.getElementById('totalExpense').innerText = `$${te.toLocaleString()}`;
             
@@ -385,11 +378,22 @@
                 if(r.type === 'income') groups[key].i += r.amt; else groups[key].e += r.amt; groups[key].raw.push(r);
             });
             container.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a, undefined, {numeric: true})).map(key => {
-                let ed = `$${groups[key].e.toLocaleString()}`;
-                if (state.statsView === 'yearly') { const m = new Set(groups[key].raw.map(r => new Date(r.date).getMonth())).size; ed += ` ($${m > 0 ? Math.round(groups[key].e / m).toLocaleString() : 0})`; }
+                let idDisp = `$${groups[key].i.toLocaleString()}`;
+                let edDisp = `$${groups[key].e.toLocaleString()}`;
+                if (state.statsView === 'yearly') {
+                    const mSet = new Set(groups[key].raw.map(r => new Date(r.date).getMonth()));
+                    const mCount = mSet.size;
+                    const avgE = mCount > 0 ? Math.round(groups[key].e / mCount) : 0;
+                    const avgI = mCount > 0 ? Math.round(groups[key].i / mCount) : 0;
+                    edDisp += ` ($${avgE.toLocaleString()})`;
+                    idDisp += ` ($${avgI.toLocaleString()})`; // 修正 1: 新增平均收入
+                }
                 return `<div class="stats-report-item" onclick="showStatsDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})">
                     <div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key}</strong><span class="material-symbols-outlined">chevron_right</span></div>
-                    <div style="display:flex; gap:12px; margin-top:8px; font-size:14px;"><span style="color:#2E7D32">收: $${groups[key].i.toLocaleString()}</span><span style="color:#C62828">支: ${ed}</span></div>
+                    <div style="display:flex; flex-direction:column; gap:4px; margin-top:8px; font-size:14px;">
+                        <span style="color:#2E7D32">收: ${idDisp}</span>
+                        <span style="color:#C62828">支: ${edDisp}</span>
+                    </div>
                 </div>`;
             }).join('');
         }
