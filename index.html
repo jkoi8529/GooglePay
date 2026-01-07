@@ -28,25 +28,10 @@
             --md-sys-color-error: #B3261E;
         }
 
-        body {
-            font-family: 'Noto Sans TC', sans-serif;
-            background-color: var(--md-sys-color-surface);
-            color: var(--md-sys-color-on-surface);
-            margin: 0; padding: 0;
-            display: flex; flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         body.no-scroll { overflow: hidden; }
 
-        #sync-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--md-sys-color-surface);
-            z-index: 9999; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; padding: 40px; box-sizing: border-box;
-        }
+        #sync-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--md-sys-color-surface); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; }
 
         .summary-header { background-color: var(--md-sys-color-surface-container); margin: 16px; padding: 24px; border-radius: 32px; }
         .month-selector { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
@@ -62,15 +47,9 @@
         .small-segment-btn { flex: 1; border: none; background: none; padding: 6px; border-radius: 100px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--md-sys-color-on-surface-variant); }
         .small-segment-btn.active { background: white; color: var(--md-sys-color-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-        .main-chart-container {
-            background: white; margin: 0 16px 16px 16px;
-            padding: 10px 16px; border-radius: 24px;
-            height: 160px; display: flex; justify-content: center; align-items: center;
-        }
-
+        .main-chart-container { background: white; margin: 0 16px 16px 16px; padding: 10px 16px; border-radius: 24px; height: 160px; display: flex; justify-content: center; align-items: center; }
         .list-card { background: white; border-radius: 24px; padding: 8px 0; margin-bottom: 120px; }
         .item { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--md-sys-color-surface-container); cursor: pointer; }
-        .item:last-child { border-bottom: none; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; align-items: flex-end; }
         .modal-overlay.active { display: flex; }
@@ -79,19 +58,11 @@
 
         .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .cat-action-group { display: flex; gap: 12px; }
-        
-        .circle-btn { 
-            width: 40px; height: 40px; border-radius: 50%; border: none; 
-            display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; transition: background 0.2s; 
-        }
+        .circle-btn { width: 40px; height: 40px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
         .btn-add-cat { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-primary); }
         .btn-close-sheet { background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); }
 
-        .input-group { margin-bottom: 20px; }
-        .input-label { font-size: 14px; font-weight: 500; color: var(--md-sys-color-primary); margin-bottom: 8px; display: block; }
         .md-input { width: 100%; padding: 16px; border: 1px solid var(--md-sys-color-outline); border-radius: 14px; font-size: 16px; background: transparent; box-sizing: border-box; }
-
         .btn-filled { background: var(--md-sys-color-primary); color: white; border: none; padding: 16px; width: 100%; border-radius: 100px; font-size: 16px; font-weight: 700; cursor: pointer; }
         .btn-text-error { background: none; color: var(--md-sys-color-error); border: none; padding: 16px; width: 100%; font-weight: 700; cursor: pointer; }
 
@@ -100,20 +71,20 @@
         .fab-menu { position: fixed; right: 20px; bottom: 105px; display: none; flex-direction: column; gap: 12px; z-index: 100; align-items: flex-end; }
         .fab-item { background: white; padding: 12px 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: 500; }
 
-        .sync-status { font-size: 10px; text-align: center; color: var(--md-sys-color-outline); padding: 8px; }
-        .stats-report-item { background: white; padding: 16px; border-radius: 20px; margin-bottom: 12px; border: 1px solid var(--md-sys-color-surface-container-high); }
-        .stats-detail-card { background: var(--md-sys-color-surface-container-high); padding: 16px; border-radius: 20px; margin-bottom: 16px; }
-        .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed var(--md-sys-color-outline); opacity: 0.8; }
-        .category-row { display: flex; align-items: center; background: var(--md-sys-color-surface-container-high); margin-bottom: 8px; padding: 12px; border-radius: 16px; gap: 12px; }
+        .category-row { display: flex; align-items: center; background: var(--md-sys-color-surface-container-high); margin-bottom: 8px; padding: 12px; border-radius: 16px; gap: 12px; cursor: move; }
+        .category-row.dragging { opacity: 0.4; background: var(--md-sys-color-primary-container); }
         .segmented-control { display: flex; background: var(--md-sys-color-surface-container-high); padding: 4px; border-radius: 100px; margin-bottom: 24px; }
         .segment-btn { flex: 1; border: none; background: none; padding: 10px; border-radius: 100px; font-size: 14px; font-weight: 500; cursor: pointer; }
         .segment-btn.active { background: white; color: var(--md-sys-color-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .stats-report-item { background: white; padding: 16px; border-radius: 20px; margin-bottom: 12px; border: 1px solid var(--md-sys-color-surface-container-high); }
+        .stats-detail-card { background: var(--md-sys-color-surface-container-high); padding: 16px; border-radius: 20px; margin-bottom: 16px; }
+        .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed var(--md-sys-color-outline); opacity: 0.8; }
     </style>
 </head>
 <body>
 
     <div id="sync-overlay">
-        <h2 style="color:var(--md-sys-color-primary); margin-bottom:8px;">智慧記帳雲端版</h2>
+        <h2 style="color:var(--md-sys-color-primary); margin-bottom:8px;">GooglePay</h2>
         <p style="text-align:center; color:var(--md-sys-color-on-surface-variant); font-size:14px; margin-bottom:32px;">請輸入帳號 ID 進行同步，手機與電腦請輸入同一個 ID。</p>
         <input type="text" id="account-id" class="md-input" placeholder="例如: mypay2026" style="margin-bottom:24px; text-align:center;">
         <button class="btn-filled" style="width:200px;" onclick="startApp()">開始同步</button>
@@ -212,6 +183,7 @@
 
         let db = null;
         let mainChartObj = null;
+        let dragSrcIndex = null;
         Chart.register(ChartDataLabels);
 
         function startApp() {
@@ -237,7 +209,7 @@
                     document.getElementById('cloud-status').innerText = '雲端已同步 ✓';
                     render();
                 } else {
-                    document.getElementById('cloud-status').innerText = '雲端連線成功 (新帳號)';
+                    document.getElementById('cloud-status').innerText = '雲端連線成功';
                     saveToCloud();
                 }
             });
@@ -260,13 +232,7 @@
             mainChartObj = new Chart(ctx, {
                 type: 'pie',
                 data: { labels, datasets: [{ data, backgroundColor: ['#FFB3BA','#BAFFC9','#BAE1FF','#FFFFBA','#FFDFBA','#E0BBE4','#D4F0F0','#FFC3A0'], borderWidth: 1, borderColor:'#fff' }] },
-                options: { 
-                    maintainAspectRatio: false, 
-                    plugins: { 
-                        legend: { position:'right', labels:{ color:'#000', font:{size:14}, boxWidth:10, padding:8 } }, 
-                        datalabels:{display:false} 
-                    } 
-                }
+                options: { maintainAspectRatio: false, plugins: { legend: { position:'right', labels:{ color:'#000', font:{size:14}, boxWidth:10, padding:8 } }, datalabels:{display:false} } }
             });
         }
 
@@ -282,7 +248,6 @@
             document.getElementById('totalIncome').innerText = `$${ti.toLocaleString()}`;
             document.getElementById('totalExpense').innerText = `$${te.toLocaleString()}`;
             
-            // 修正區域：修正 strong 標籤顯示錯誤
             let html = filtered.sort((a,b) => new Date(b.date) - new Date(a.date)).map(r => {
                 const insLabel = r.ins > 1 ? ` (分期 ${r.insIndex}/${r.ins})` : '';
                 return `<div class="item" onclick="openDrawer('edit', ${r.id})">
@@ -291,6 +256,66 @@
                 </div>`;
             }).join('');
             document.getElementById('listContent').innerHTML = html || `<div style="padding:40px; text-align:center; color:#999;">本月無${state.listTab==='expense'?'支出':'收入'}紀錄</div>`;
+        }
+
+        // --- 拖曳排序實作 ---
+        function handleDragStart(e, index) {
+            dragSrcIndex = index;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            return false;
+        }
+
+        function handleDrop(e, targetIndex) {
+            e.stopPropagation();
+            if (dragSrcIndex !== targetIndex) {
+                // 取得目前顯示類別的完整清單 (依照類型過濾)
+                const typeCats = state.cats.filter(c => c.type === state.activeCatType).sort((a,b) => a.sort - b.sort);
+                const otherCats = state.cats.filter(c => c.type !== state.activeCatType);
+                
+                // 搬移元素
+                const [movedItem] = typeCats.splice(dragSrcIndex, 1);
+                typeCats.splice(targetIndex, 0, movedItem);
+                
+                // 重新分配 sort 值
+                typeCats.forEach((c, i) => c.sort = i);
+                
+                // 組合回原狀態並儲存
+                state.cats = [...otherCats, ...typeCats];
+                saveToCloud();
+                renderCatManager();
+            }
+            return false;
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function renderCatManager() {
+            const filtered = state.cats.filter(c => c.type === state.activeCatType).sort((a,b)=>a.sort-b.sort);
+            document.getElementById('sheetBody').innerHTML = `
+                <div class="small-segmented-control" style="width:100%; margin-bottom:20px;">
+                    <button class="small-segment-btn ${state.activeCatType==='expense'?'active':''}" onclick="state.activeCatType='expense';renderCatManager()">支出</button>
+                    <button class="small-segment-btn ${state.activeCatType==='income'?'active':''}" onclick="state.activeCatType='income';renderCatManager()">收入</button>
+                </div>
+                <div id="dragContainer">
+                    ${filtered.map((c, index) => `
+                        <div class="category-row" draggable="true" 
+                             ondragstart="handleDragStart(event, ${index})" 
+                             ondragover="handleDragOver(event)" 
+                             ondrop="handleDrop(event, ${index})"
+                             ondragend="handleDragEnd(event)">
+                            <span class="material-symbols-outlined" style="opacity:0.5;">drag_indicator</span>
+                            <input type="text" class="md-input" style="border:none;background:none;flex:1;" value="${c.name}" onchange="upCat(${c.id},this.value)">
+                            <span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:var(--md-sys-color-error); cursor:pointer;">delete</span>
+                        </div>
+                    `).join('')}
+                </div>`;
         }
 
         function openDrawer(mode, id=null) {
@@ -383,14 +408,6 @@
                 <button class="btn-filled" onclick="closeDrawer()">關閉</button>`;
         }
 
-        function renderCatManager() {
-            const filtered = state.cats.filter(c => c.type === state.activeCatType).sort((a,b)=>a.sort-b.sort);
-            document.getElementById('sheetBody').innerHTML = `<div class="small-segmented-control" style="width:100%; margin-bottom:20px;">
-                <button class="small-segment-btn ${state.activeCatType==='expense'?'active':''}" onclick="state.activeCatType='expense';renderCatManager()">支出</button>
-                <button class="small-segment-btn ${state.activeCatType==='income'?'active':''}" onclick="state.activeCatType='income';renderCatManager()">收入</button>
-                </div><div id="dragContainer">${filtered.map(c=>`<div class="category-row"><span class="material-symbols-outlined">drag_indicator</span><input type="text" class="md-input" style="border:none;background:none;flex:1;" value="${c.name}" onchange="upCat(${c.id},this.value)"><span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:var(--md-sys-color-error); cursor:pointer;">delete</span></div>`).join('')}</div>`;
-        }
-
         function upCat(id,v){ const c=state.cats.find(x=>x.id===id); if(c){c.name=v; saveToCloud();}}
         function delCat(id){ if(confirm('確定刪除類別？')){state.cats=state.cats.filter(x=>x.id!==id); saveToCloud(); renderCatManager();}}
         function addCat(){ const n=prompt('類別名稱:'); if(n){state.cats.push({id:Date.now(), name:n, type:state.activeCatType, sort:state.cats.length}); saveToCloud(); renderCatManager();}}
@@ -407,4 +424,3 @@
     </script>
 </body>
 </html>
-
