@@ -79,6 +79,7 @@
         .stats-report-item { background: white; padding: 16px; border-radius: 20px; margin-bottom: 12px; border: 1px solid var(--md-sys-color-surface-container-high); }
         .stats-detail-card { background: var(--md-sys-color-surface-container-high); padding: 16px; border-radius: 20px; margin-bottom: 16px; }
         .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed var(--md-sys-color-outline); opacity: 0.8; }
+        .input-label { font-size: 14px; font-weight: 500; color: var(--md-sys-color-primary); margin-bottom: 8px; display: block; }
     </style>
 </head>
 <body>
@@ -247,7 +248,6 @@
             state.records.filter(r => { const d = new Date(r.date); return d.getFullYear() === year && d.getMonth() === month; }).forEach(r => { if(r.type==='income') ti+=r.amt; else te+=r.amt; });
             document.getElementById('totalIncome').innerText = `$${ti.toLocaleString()}`;
             document.getElementById('totalExpense').innerText = `$${te.toLocaleString()}`;
-            
             let html = filtered.sort((a,b) => new Date(b.date) - new Date(a.date)).map(r => {
                 const insLabel = r.ins > 1 ? ` (分期 ${r.insIndex}/${r.ins})` : '';
                 return `<div class="item" onclick="openDrawer('edit', ${r.id})">
@@ -258,43 +258,22 @@
             document.getElementById('listContent').innerHTML = html || `<div style="padding:40px; text-align:center; color:#999;">本月無${state.listTab==='expense'?'支出':'收入'}紀錄</div>`;
         }
 
-        // --- 拖曳排序實作 ---
-        function handleDragStart(e, index) {
-            dragSrcIndex = index;
-            e.target.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-            return false;
-        }
-
+        function handleDragStart(e, index) { dragSrcIndex = index; e.target.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
+        function handleDragOver(e) { e.preventDefault(); return false; }
         function handleDrop(e, targetIndex) {
             e.stopPropagation();
             if (dragSrcIndex !== targetIndex) {
-                // 取得目前顯示類別的完整清單 (依照類型過濾)
                 const typeCats = state.cats.filter(c => c.type === state.activeCatType).sort((a,b) => a.sort - b.sort);
                 const otherCats = state.cats.filter(c => c.type !== state.activeCatType);
-                
-                // 搬移元素
                 const [movedItem] = typeCats.splice(dragSrcIndex, 1);
                 typeCats.splice(targetIndex, 0, movedItem);
-                
-                // 重新分配 sort 值
                 typeCats.forEach((c, i) => c.sort = i);
-                
-                // 組合回原狀態並儲存
                 state.cats = [...otherCats, ...typeCats];
-                saveToCloud();
-                renderCatManager();
+                saveToCloud(); renderCatManager();
             }
             return false;
         }
-
-        function handleDragEnd(e) {
-            e.target.classList.remove('dragging');
-        }
+        function handleDragEnd(e) { e.target.classList.remove('dragging'); }
 
         function renderCatManager() {
             const filtered = state.cats.filter(c => c.type === state.activeCatType).sort((a,b)=>a.sort-b.sort);
@@ -303,43 +282,50 @@
                     <button class="small-segment-btn ${state.activeCatType==='expense'?'active':''}" onclick="state.activeCatType='expense';renderCatManager()">支出</button>
                     <button class="small-segment-btn ${state.activeCatType==='income'?'active':''}" onclick="state.activeCatType='income';renderCatManager()">收入</button>
                 </div>
-                <div id="dragContainer">
-                    ${filtered.map((c, index) => `
-                        <div class="category-row" draggable="true" 
-                             ondragstart="handleDragStart(event, ${index})" 
-                             ondragover="handleDragOver(event)" 
-                             ondrop="handleDrop(event, ${index})"
-                             ondragend="handleDragEnd(event)">
+                <div id="dragContainer">${filtered.map((c, index) => `
+                        <div class="category-row" draggable="true" ondragstart="handleDragStart(event, ${index})" ondragover="handleDragOver(event)" ondrop="handleDrop(event, ${index})" ondragend="handleDragEnd(event)">
                             <span class="material-symbols-outlined" style="opacity:0.5;">drag_indicator</span>
                             <input type="text" class="md-input" style="border:none;background:none;flex:1;" value="${c.name}" onchange="upCat(${c.id},this.value)">
                             <span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:var(--md-sys-color-error); cursor:pointer;">delete</span>
-                        </div>
-                    `).join('')}
-                </div>`;
+                        </div>`).join('')}</div>`;
         }
+
+        // --- 修正 1：類別更名後，同步更新所有紀錄 ---
+        function upCat(id, v) { 
+            const catObj = state.cats.find(x => x.id === id); 
+            if(catObj) {
+                const oldName = catObj.name;
+                const newName = v.trim();
+                if (oldName === newName || !newName) return;
+                
+                // 掃描並替換所有紀錄中的名稱
+                state.records.forEach(r => {
+                    if (r.cat === oldName) r.cat = newName;
+                });
+                
+                catObj.name = newName; 
+                saveToCloud(); 
+                render(); // 重新渲染主清單
+            }
+        }
+
+        function delCat(id){ if(confirm('確定刪除類別？')){state.cats=state.cats.filter(x=>x.id!==id); saveToCloud(); renderCatManager();}}
+        function addCat(){ const n=prompt('類別名稱:'); if(n){state.cats.push({id:Date.now(), name:n, type:state.activeCatType, sort:state.cats.length}); saveToCloud(); renderCatManager();}}
 
         function openDrawer(mode, id=null) {
             state.currentMode = mode; state.editingId = id;
             if(document.getElementById('fabMenu').style.display==='flex') toggleFab();
             const record = id ? state.records.find(r => r.id === id) : null;
             if(id && record && record.ins > 1 && record.insIndex !== 1) return alert('請至第一個月作編輯');
-            
             const title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), catActions = document.getElementById('catActions'), modalActions = document.getElementById('modalActions');
-            
             document.getElementById('modalOverlay').classList.add('active');
             document.body.classList.add('no-scroll');
-
             delBtn.style.display = id ? 'block' : 'none';
             catActions.style.display = mode==='category' ? 'flex' : 'none';
             modalActions.style.display = (mode==='category' || mode==='stats') ? 'none' : 'flex';
-
-            if(mode === 'category') {
-                title.innerText = '類別管理';
-                renderCatManager();
-            } else if(mode === 'stats') {
-                title.innerText = '收支統計報告';
-                renderStatsReport();
-            } else {
+            if(mode === 'category') { title.innerText = '類別管理'; renderCatManager(); }
+            else if(mode === 'stats') { title.innerText = '收支統計報告'; renderStatsReport(); }
+            else {
                 title.innerText = id ? '編輯紀錄' : (mode==='expense'?'新增支出':'新增收入');
                 let displayAmt = record ? record.amt : '';
                 if(record && record.ins > 1) displayAmt = state.records.filter(r=>r.gid===record.gid).reduce((s,x)=>s+x.amt,0);
@@ -408,10 +394,6 @@
                 <button class="btn-filled" onclick="closeDrawer()">關閉</button>`;
         }
 
-        function upCat(id,v){ const c=state.cats.find(x=>x.id===id); if(c){c.name=v; saveToCloud();}}
-        function delCat(id){ if(confirm('確定刪除類別？')){state.cats=state.cats.filter(x=>x.id!==id); saveToCloud(); renderCatManager();}}
-        function addCat(){ const n=prompt('類別名稱:'); if(n){state.cats.push({id:Date.now(), name:n, type:state.activeCatType, sort:state.cats.length}); saveToCloud(); renderCatManager();}}
-        
         function toggleFab() { const m = document.getElementById('fabMenu'), i = document.getElementById('fabIcon'); const v = m.style.display==='flex'; m.style.display=v?'none':'flex'; i.innerText=v?'add':'close'; }
         function closeDrawer() { document.getElementById('modalOverlay').classList.remove('active'); document.body.classList.remove('no-scroll'); }
         function setListTab(t) { state.listTab = t; render(); }
