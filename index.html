@@ -28,7 +28,27 @@
             --md-sys-color-error: #B3261E;
         }
 
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--md-sys-color-surface);
+            color: var(--md-sys-color-on-surface);
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body.no-scroll { overflow: hidden; }
+
+        /* 帳號同步引導頁 */
+        #sync-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--md-sys-color-surface);
+            z-index: 9999; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 40px; box-sizing: border-box;
+        }
+
         .summary-header { background-color: var(--md-sys-color-surface-container); margin: 16px; padding: 24px; border-radius: 32px; }
         .month-selector { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .month-label { font-size: 20px; font-weight: 700; color: var(--md-sys-color-primary); }
@@ -36,41 +56,58 @@
         .summary-item { background: white; padding: 16px; border-radius: 20px; }
         .summary-item small { display: block; color: var(--md-sys-color-on-surface-variant); font-size: 12px; }
         .summary-item span { font-size: 18px; font-weight: 700; }
+
         .transaction-section { padding: 0 16px; flex-grow: 1; }
         .list-toggle-container { display: flex; justify-content: center; margin-bottom: 12px; }
         .small-segmented-control { display: flex; background: var(--md-sys-color-surface-container-high); padding: 2px; border-radius: 100px; width: 160px; }
         .small-segment-btn { flex: 1; border: none; background: none; padding: 6px; border-radius: 100px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--md-sys-color-on-surface-variant); }
         .small-segment-btn.active { background: white; color: var(--md-sys-color-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .main-chart-container { background: white; margin: 0 16px 16px 16px; padding: 10px 16px; border-radius: 24px; height: 160px; display: flex; justify-content: center; align-items: center; }
+
+        /* 圓餅圖縮小 20% 佈局維持一致 */
+        .main-chart-container {
+            background: white; margin: 0 16px 16px 16px;
+            padding: 10px 16px; border-radius: 24px;
+            height: 160px; display: flex; justify-content: center; align-items: center;
+        }
+
         .list-card { background: white; border-radius: 24px; padding: 8px 0; margin-bottom: 120px; }
         .item { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--md-sys-color-surface-container); cursor: pointer; }
+        .item:last-child { border-bottom: none; }
+
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; align-items: flex-end; }
         .modal-overlay.active { display: flex; }
-        .bottom-sheet { background: var(--md-sys-color-surface); width: 100%; border-radius: 32px 32px 0 0; padding: 24px; box-sizing: border-box; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); max-height: 85vh; overflow-y: auto; }
-        .modal-overlay.active .bottom-sheet { transform: translateY(0); }
-        .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .circle-btn { width: 40px; height: 40px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .btn-add-cat { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-primary); }
-        .btn-close-sheet { background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); }
-        .md-input { width: 100%; padding: 16px; border: 1px solid var(--md-sys-color-outline); border-radius: 14px; font-size: 16px; box-sizing: border-box; }
+        .bottom-sheet { background: var(--md-sys-color-surface); width: 100%; border-radius: 32px 32px 0 0; padding: 24px; box-sizing: border-box; max-height: 85vh; overflow-y: auto; }
+        .sheet-handle { width: 32px; height: 4px; background: var(--md-sys-color-outline); border-radius: 2px; margin: 0 auto 24px auto; opacity: 0.4; }
+
+        .input-group { margin-bottom: 20px; }
+        .input-label { font-size: 14px; font-weight: 500; color: var(--md-sys-color-primary); margin-bottom: 8px; display: block; }
+        .md-input { width: 100%; padding: 16px; border: 1px solid var(--md-sys-color-outline); border-radius: 14px; font-size: 16px; background: transparent; box-sizing: border-box; }
+
+        .btn-filled { background: var(--md-sys-color-primary); color: white; border: none; padding: 16px; width: 100%; border-radius: 100px; font-size: 16px; font-weight: 700; cursor: pointer; }
+        .btn-text-error { background: none; color: var(--md-sys-color-error); border: none; padding: 16px; width: 100%; font-weight: 700; cursor: pointer; }
+
         .fab { position: fixed; right: 20px; bottom: 32px; width: 64px; height: 64px; border-radius: 20px; background: var(--md-sys-color-primary-container); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; }
         .fab-left { position: fixed; left: 20px; bottom: 32px; width: 64px; height: 64px; border-radius: 20px; background: var(--md-sys-color-secondary-container); display: flex; align-items: center; justify-content: center; z-index: 100; }
         .fab-menu { position: fixed; right: 20px; bottom: 105px; display: none; flex-direction: column; gap: 12px; z-index: 100; align-items: flex-end; }
-        .fab-item { background: white; padding: 12px 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: 500; }
+        .fab-item { background: white; padding: 12px 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: 500; cursor: pointer; }
+
         .sync-status { font-size: 10px; text-align: center; color: var(--md-sys-color-outline); padding: 8px; }
-        .category-row { display: flex; align-items: center; background: var(--md-sys-color-surface-container-high); margin-bottom: 8px; padding: 12px; border-radius: 16px; gap: 12px; }
         .stats-report-item { background: white; padding: 16px; border-radius: 20px; margin-bottom: 12px; border: 1px solid var(--md-sys-color-surface-container-high); }
-        .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed var(--md-sys-color-outline); opacity: 0.8; }
         .stats-detail-card { background: var(--md-sys-color-surface-container-high); padding: 16px; border-radius: 20px; margin-bottom: 16px; }
+        .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed var(--md-sys-color-outline); opacity: 0.8; }
+        .category-row { display: flex; align-items: center; background: var(--md-sys-color-surface-container-high); margin-bottom: 8px; padding: 12px; border-radius: 16px; gap: 12px; }
+        .segmented-control { display: flex; background: var(--md-sys-color-surface-container-high); padding: 4px; border-radius: 100px; margin-bottom: 24px; }
+        .segment-btn { flex: 1; border: none; background: none; padding: 10px; border-radius: 100px; font-size: 14px; font-weight: 500; cursor: pointer; }
+        .segment-btn.active { background: white; color: var(--md-sys-color-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
-    <div id="sync-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; box-sizing:border-box;">
-        <h2 style="color:var(--md-sys-color-primary);">雲端同步帳號</h2>
-        <p style="text-align:center; color:var(--md-sys-color-outline);">請輸入 ID 進行同步，手機與電腦請輸入同一個 ID。</p>
-        <input type="text" id="account-id" class="md-input" placeholder="自訂帳號 ID" style="margin-bottom:20px;">
-        <button class="circle-btn btn-add-cat" style="width:auto; padding:0 40px; border-radius:100px;" onclick="startApp()">登入並開始同步</button>
+    <div id="sync-overlay">
+        <h2 style="color:var(--md-sys-color-primary); margin-bottom:8px;">智慧記帳雲端版</h2>
+        <p style="text-align:center; color:var(--md-sys-color-on-surface-variant); font-size:14px; margin-bottom:32px;">請輸入帳號 ID 進行同步，手機與電腦請輸入同一個 ID。</p>
+        <input type="text" id="account-id" class="md-input" placeholder="例如: mypay2026" style="margin-bottom:24px; text-align:center;">
+        <button class="btn-filled" style="width:200px;" onclick="startApp()">開始同步</button>
     </div>
 
     <div id="app-content" style="display:none;">
@@ -81,8 +118,8 @@
                 <span class="material-symbols-outlined" onclick="changeMonth(1)">chevron_right</span>
             </div>
             <div class="summary-grid">
-                <div class="summary-item"><small>總收入</small><span id="totalIncome">$0</span></div>
-                <div class="summary-item"><small>總支出</small><span id="totalExpense">$0</span></div>
+                <div class="summary-item"><small>總收入</small><span id="totalIncome" style="color:#2E7D32;">$0</span></div>
+                <div class="summary-item"><small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span></div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
         </div>
@@ -110,16 +147,16 @@
             <div class="bottom-sheet" onclick="event.stopPropagation()">
                 <div class="sheet-handle"></div>
                 <div class="sheet-header">
-                    <h2 id="sheetTitle">標題</h2>
+                    <h2 id="sheetTitle" style="margin: 0; font-size: 22px;">標題</h2>
                     <div id="catActions" style="display:none; gap:12px;">
                         <button class="circle-btn btn-add-cat" onclick="addCat()"><span class="material-symbols-outlined">add</span></button>
                         <button class="circle-btn btn-close-sheet" onclick="closeDrawer()"><span class="material-symbols-outlined">close</span></button>
                     </div>
                 </div>
                 <div id="sheetBody"></div>
-                <div id="modalActions" style="display:flex; flex-direction:column; gap:12px;">
-                    <button id="deleteBtn" style="display:none; background:none; color:var(--md-sys-color-error); border:none; padding:16px; font-weight:700;" onclick="handleDelete()">刪除此項目</button>
-                    <button id="saveBtn" style="background:var(--md-sys-color-primary); color:white; border:none; padding:16px; border-radius:100px; font-weight:700;" onclick="handleSave()">確認儲存</button>
+                <div id="modalActions" style="display:flex; flex-direction:column; margin-top:24px;">
+                    <button class="btn-text-error" id="deleteBtn" style="display:none; margin-bottom:8px;" onclick="handleDelete()">刪除此項目</button>
+                    <button class="btn-filled" id="saveBtn" onclick="handleSave()">確認儲存</button>
                 </div>
             </div>
         </div>
@@ -131,11 +168,12 @@
             </div>
             <input type="file" id="importFile" style="display:none" onchange="importData(event)">
             <textarea id="liveUpdateCode" class="md-input" style="height:80px; font-family:monospace; font-size:12px;" placeholder="在此貼上修正程式碼..."></textarea>
-            <button class="btn-add-cat" style="width:100%; border-radius:100px; margin-top:8px; padding:12px;" onclick="applyUpdate()">套用更新</button>
+            <button class="btn-filled" style="background:var(--md-sys-color-secondary-container); color:var(--md-sys-color-on-secondary-container);" onclick="applyUpdate()">套用更新</button>
         </div>
     </div>
 
     <script>
+        // --- Firebase Config ---
         const firebaseConfig = {
             apiKey: "AIzaSyAi5Kqw8RFddkF1B2P0NjMpQEc0puYqFyw",
             authDomain: "pay-4a919.firebaseapp.com",
@@ -158,13 +196,16 @@
             ],
             listTab: 'expense',
             activeCatType: 'expense',
-            statsView: 'monthly'
+            statsView: 'monthly',
+            editingId: null,
+            currentMode: ''
         };
 
         let db = null;
         let mainChartObj = null;
         Chart.register(ChartDataLabels);
 
+        // 啟動 App 與同步
         function startApp() {
             const accId = document.getElementById('account-id').value.trim() || state.accountId;
             if (!accId) return alert('請輸入帳號 ID');
@@ -188,7 +229,7 @@
                     document.getElementById('cloud-status').innerText = '雲端已同步 ✓';
                     render();
                 } else {
-                    document.getElementById('cloud-status').innerText = '新帳號已建立';
+                    document.getElementById('cloud-status').innerText = '雲端連線成功 (新帳號)';
                     saveToCloud();
                 }
             });
@@ -198,6 +239,7 @@
             db.ref('users/' + state.accountId).set({ records: state.records, cats: state.cats });
         }
 
+        // 圖表邏輯：排序、比例、黑色字體
         function updateMainChart(filteredData) {
             const ctx = document.getElementById('mainPieChart').getContext('2d');
             const summary = {}; let total = 0;
@@ -210,8 +252,14 @@
             document.getElementById('mainPieChart').style.opacity = 1;
             mainChartObj = new Chart(ctx, {
                 type: 'pie',
-                data: { labels, datasets: [{ data, backgroundColor: ['#FFB3BA','#BAFFC9','#BAE1FF','#FFFFBA','#FFDFBA','#E0BBE4','#D4F0F0','#FFC3A0'] }] },
-                options: { maintainAspectRatio: false, plugins: { legend: { position:'right', labels:{ color:'#000', font:{size:14} } }, datalabels:{display:false} } }
+                data: { labels, datasets: [{ data, backgroundColor: ['#FFB3BA','#BAFFC9','#BAE1FF','#FFFFBA','#FFDFBA','#E0BBE4','#D4F0F0','#FFC3A0'], borderWidth: 1, borderColor:'#fff' }] },
+                options: { 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { position:'right', labels:{ color:'#000', font:{size:14}, boxWidth:10, padding:8 } }, 
+                        datalabels:{display:false} 
+                    } 
+                }
             });
         }
 
@@ -233,18 +281,20 @@
                     <span style="color:${r.type==='income'?'#2E7D32':'#C62828'}; font-weight:700;">$${r.amt.toLocaleString()}</span>
                 </div>`;
             }).join('');
-            document.getElementById('listContent').innerHTML = html || '<div style="padding:40px; text-align:center; color:#999;">無紀錄</div>';
+            document.getElementById('listContent').innerHTML = html || `<div style="padding:40px; text-align:center; color:#999;">本月無${state.listTab==='expense'?'支出':'收入'}紀錄</div>`;
         }
 
         function openDrawer(mode, id=null) {
-            const fabMenu = document.getElementById('fabMenu'); if (fabMenu.style.display === 'flex') toggleFab();
             state.currentMode = mode; state.editingId = id;
+            if(document.getElementById('fabMenu').style.display==='flex') toggleFab();
             const record = id ? state.records.find(r => r.id === id) : null;
             if(id && record && record.ins > 1 && record.insIndex !== 1) return alert('請至第一個月作編輯');
+            
             const title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), catActions = document.getElementById('catActions');
             delBtn.style.display = id ? 'block' : 'none';
             catActions.style.display = mode==='category' ? 'flex' : 'none';
             document.getElementById('modalActions').style.display = mode==='category'?'none':'flex';
+
             if(mode === 'category') { title.innerText = '類別管理'; renderCatManager(); }
             else if(mode === 'stats') { title.innerText = '收支統計報告'; document.getElementById('modalActions').style.display='none'; renderStatsReport(); }
             else {
@@ -253,13 +303,14 @@
                 if(record && record.ins > 1) displayAmt = state.records.filter(r=>r.gid===record.gid).reduce((s,x)=>s+x.amt,0);
                 let insOpts = ''; for(let i=1;i<=80;i++) insOpts += `<option value="${i}" ${record && record.ins==i?'selected':''}>${i}</option>`;
                 body.innerHTML = `
-                    <div style="margin-bottom:16px;"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div>
-                    <div style="margin-bottom:16px;"><label class="input-label">金額 ${record?.ins>1?'(總額)':''}</label><input type="number" id="in_amt" class="md-input" value="${displayAmt}"></div>
-                    <div style="margin-bottom:16px;"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>
-                    ${(id?record.type:mode)==='expense'?`<div><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}
-                    <div style="margin-top:16px;"><label class="input-label">備註 (選填)</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..."></div>`;
+                    <div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div>
+                    <div class="input-group"><label class="input-label">金額 ${record?.ins>1?'(分期總額)':''}</label><input type="number" id="in_amt" class="md-input" value="${displayAmt}" placeholder="0" inputmode="numeric"></div>
+                    <div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>
+                    ${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期 (期數)</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}
+                    <div class="input-group"><label class="input-label">備註 (選填)</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..."></div>`;
             }
             document.getElementById('modalOverlay').classList.add('active');
+            document.body.classList.add('no-scroll');
         }
 
         function handleSave() {
@@ -267,7 +318,13 @@
             const date = document.getElementById('in_date').value, cat = document.getElementById('in_cat').value, note = document.getElementById('in_note').value, amt = parseInt(amtVal);
             const ins = parseInt(document.getElementById('in_ins')?.value || 1);
             const type = state.editingId ? state.records.find(r => r.id === state.editingId).type : state.currentMode;
-            if(state.editingId) { const gid = state.records.find(r => r.id === state.editingId).gid; if(gid) state.records = state.records.filter(r => r.gid !== gid); else state.records = state.records.filter(r => r.id !== state.editingId); }
+            
+            if(state.editingId) {
+                const old = state.records.find(r => r.id === state.editingId);
+                if(old.gid) state.records = state.records.filter(r => r.gid !== old.gid);
+                else state.records = state.records.filter(r => r.id !== state.editingId);
+            }
+
             if(ins > 1 && type === 'expense') {
                 const gid = Date.now(); const base = Math.floor(amt / ins), extra = amt % ins;
                 for(let i=0; i<ins; i++) {
@@ -280,12 +337,13 @@
 
         function handleDelete() {
             const target = state.records.find(r => r.id === state.editingId); if(!target) return;
-            if(target.gid && !confirm('將刪除整組分期紀錄，確定嗎？')) return;
-            if(!target.gid && !confirm('確定刪除？')) return;
+            if(target.gid && !confirm('這是一筆分期紀錄，刪除將會移除「整組」分期數據，確定嗎？')) return;
+            if(!target.gid && !confirm('確定刪除此筆紀錄嗎？')) return;
             if(target.gid) state.records = state.records.filter(r => r.gid !== target.gid); else state.records = state.records.filter(r => r.id !== state.editingId);
             saveToCloud(); closeDrawer();
         }
 
+        // 統計報告：平均與顏色辨識
         function renderStatsReport() {
             const body = document.getElementById('sheetBody');
             body.innerHTML = `<div class="segmented-control"><button class="segment-btn ${state.statsView==='monthly'?'active':''}" onclick="state.statsView='monthly';renderStatsReport()">月份統計</button><button class="segment-btn ${state.statsView==='yearly'?'active':''}" onclick="state.statsView='yearly';renderStatsReport()">年度統計</button></div><div id="statsList"></div>`;
@@ -314,7 +372,7 @@
                 <h3 style="margin:0 0 16px 0;">${title} 細項</h3>
                 <div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">收入分佈</div>${getRows(data.filter(r => r.type === 'income')) || '無數據'}</div>
                 <div class="stats-detail-card"><div class="input-label" style="color:#C62828">支出分佈</div>${getRows(data.filter(r => r.type === 'expense')) || '無數據'}</div>
-                <button class="btn-filled" style="width:100%; border-radius:100px; padding:16px; border:none; background:var(--md-sys-color-primary); color:white;" onclick="closeDrawer()">關閉</button>`;
+                <button class="btn-filled" onclick="closeDrawer()">關閉</button>`;
         }
 
         function renderCatManager() {
@@ -322,19 +380,22 @@
             document.getElementById('sheetBody').innerHTML = `<div class="small-segmented-control" style="width:100%; margin-bottom:20px;">
                 <button class="small-segment-btn ${state.activeCatType==='expense'?'active':''}" onclick="state.activeCatType='expense';renderCatManager()">支出</button>
                 <button class="small-segment-btn ${state.activeCatType==='income'?'active':''}" onclick="state.activeCatType='income';renderCatManager()">收入</button>
-                </div><div id="dragContainer">${filtered.map(c=>`<div class="category-row"><span class="material-symbols-outlined">drag_indicator</span><input type="text" class="md-input" style="border:none;background:none;flex:1;" value="${c.name}" onchange="upCat(${c.id},this.value)"><span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:var(--md-sys-color-error);">delete</span></div>`).join('')}</div>`;
+                </div><div id="dragContainer">${filtered.map(c=>`<div class="category-row"><span class="material-symbols-outlined">drag_indicator</span><input type="text" class="md-input" style="border:none;background:none;flex:1;" value="${c.name}" onchange="upCat(${c.id},this.value)"><span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:var(--md-sys-color-error); cursor:pointer;">delete</span></div>`).join('')}</div>`;
         }
+
         function upCat(id,v){ const c=state.cats.find(x=>x.id===id); if(c){c.name=v; saveToCloud();}}
-        function delCat(id){ if(confirm('刪除類別？')){state.cats=state.cats.filter(x=>x.id!==id); saveToCloud(); renderCatManager();}}
+        function delCat(id){ if(confirm('確定刪除類別？')){state.cats=state.cats.filter(x=>x.id!==id); saveToCloud(); renderCatManager();}}
         function addCat(){ const n=prompt('類別名稱:'); if(n){state.cats.push({id:Date.now(), name:n, type:state.activeCatType, sort:state.cats.length}); saveToCloud(); renderCatManager();}}
+        
         function toggleFab() { const m = document.getElementById('fabMenu'), i = document.getElementById('fabIcon'); const v = m.style.display==='flex'; m.style.display=v?'none':'flex'; i.innerText=v?'add':'close'; }
-        function closeDrawer() { document.getElementById('modalOverlay').classList.remove('active'); }
+        function closeDrawer() { document.getElementById('modalOverlay').classList.remove('active'); document.body.classList.remove('no-scroll'); }
         function setListTab(t) { state.listTab = t; render(); }
         function changeMonth(n) { state.viewDate.setMonth(state.viewDate.getMonth()+n); render(); }
-        function exportData() { if(!confirm('確定要執行備份嗎？')) return; const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'wallet_backup.json'; a.click(); }
+        function exportData() { if(!confirm('確定要執行資料備份並下載檔案嗎？')) return; const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'wallet_backup.json'; a.click(); }
         function importData(e) { const r = new FileReader(); r.onload = (ev) => { const d = JSON.parse(ev.target.result); state.records = d.records || []; state.cats = d.cats || state.cats; saveToCloud(); alert('還原成功'); }; r.readAsText(e.target.files[0]); }
         function applyUpdate() { const c = document.getElementById('liveUpdateCode').value; if(c) { document.open(); document.write(c); document.close(); } }
-        window.onload = init;
+        
+        window.onload = () => { if(!state.accountId) document.getElementById('sync-overlay').style.display='flex'; };
     </script>
 </body>
 </html>
