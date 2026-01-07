@@ -28,26 +28,9 @@
             --md-sys-color-error: #B3261E;
         }
 
-        body {
-            font-family: 'Noto Sans TC', sans-serif;
-            background-color: var(--md-sys-color-surface);
-            color: var(--md-sys-color-on-surface);
-            margin: 0; padding: 0;
-            display: flex; flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body.no-scroll { overflow: hidden; }
-
-        /* 帳號同步引導頁 */
-        #sync-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--md-sys-color-surface);
-            z-index: 9999; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; padding: 40px; box-sizing: border-box;
-        }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        
+        #sync-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--md-sys-color-surface); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; }
 
         .summary-header { background-color: var(--md-sys-color-surface-container); margin: 16px; padding: 24px; border-radius: 32px; }
         .month-selector { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
@@ -63,21 +46,26 @@
         .small-segment-btn { flex: 1; border: none; background: none; padding: 6px; border-radius: 100px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--md-sys-color-on-surface-variant); }
         .small-segment-btn.active { background: white; color: var(--md-sys-color-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-        /* 圓餅圖縮小 20% 佈局維持一致 */
-        .main-chart-container {
-            background: white; margin: 0 16px 16px 16px;
-            padding: 10px 16px; border-radius: 24px;
-            height: 160px; display: flex; justify-content: center; align-items: center;
-        }
-
+        .main-chart-container { background: white; margin: 0 16px 16px 16px; padding: 10px 16px; border-radius: 24px; height: 160px; display: flex; justify-content: center; align-items: center; }
         .list-card { background: white; border-radius: 24px; padding: 8px 0; margin-bottom: 120px; }
         .item { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--md-sys-color-surface-container); cursor: pointer; }
-        .item:last-child { border-bottom: none; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; align-items: flex-end; }
         .modal-overlay.active { display: flex; }
         .bottom-sheet { background: var(--md-sys-color-surface); width: 100%; border-radius: 32px 32px 0 0; padding: 24px; box-sizing: border-box; max-height: 85vh; overflow-y: auto; }
         .sheet-handle { width: 32px; height: 4px; background: var(--md-sys-color-outline); border-radius: 2px; margin: 0 auto 24px auto; opacity: 0.4; }
+
+        /* 修正區域：Sheet Header 佈局 */
+        .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .cat-action-group { display: flex; gap: 12px; }
+        
+        .circle-btn { 
+            width: 40px; height: 40px; border-radius: 50%; border: none; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: background 0.2s; 
+        }
+        .btn-add-cat { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-primary); }
+        .btn-close-sheet { background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); }
 
         .input-group { margin-bottom: 20px; }
         .input-label { font-size: 14px; font-weight: 500; color: var(--md-sys-color-primary); margin-bottom: 8px; display: block; }
@@ -89,7 +77,7 @@
         .fab { position: fixed; right: 20px; bottom: 32px; width: 64px; height: 64px; border-radius: 20px; background: var(--md-sys-color-primary-container); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; }
         .fab-left { position: fixed; left: 20px; bottom: 32px; width: 64px; height: 64px; border-radius: 20px; background: var(--md-sys-color-secondary-container); display: flex; align-items: center; justify-content: center; z-index: 100; }
         .fab-menu { position: fixed; right: 20px; bottom: 105px; display: none; flex-direction: column; gap: 12px; z-index: 100; align-items: flex-end; }
-        .fab-item { background: white; padding: 12px 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: 500; cursor: pointer; }
+        .fab-item { background: white; padding: 12px 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: 500; }
 
         .sync-status { font-size: 10px; text-align: center; color: var(--md-sys-color-outline); padding: 8px; }
         .stats-report-item { background: white; padding: 16px; border-radius: 20px; margin-bottom: 12px; border: 1px solid var(--md-sys-color-surface-container-high); }
@@ -148,7 +136,7 @@
                 <div class="sheet-handle"></div>
                 <div class="sheet-header">
                     <h2 id="sheetTitle" style="margin: 0; font-size: 22px;">標題</h2>
-                    <div id="catActions" style="display:none; gap:12px;">
+                    <div id="catActions" class="cat-action-group" style="display:none;">
                         <button class="circle-btn btn-add-cat" onclick="addCat()"><span class="material-symbols-outlined">add</span></button>
                         <button class="circle-btn btn-close-sheet" onclick="closeDrawer()"><span class="material-symbols-outlined">close</span></button>
                     </div>
@@ -168,12 +156,12 @@
             </div>
             <input type="file" id="importFile" style="display:none" onchange="importData(event)">
             <textarea id="liveUpdateCode" class="md-input" style="height:80px; font-family:monospace; font-size:12px;" placeholder="在此貼上修正程式碼..."></textarea>
-            <button class="btn-filled" style="background:var(--md-sys-color-secondary-container); color:var(--md-sys-color-on-secondary-container);" onclick="applyUpdate()">套用更新</button>
+            <button class="btn-filled" style="background:var(--md-sys-color-secondary-container); color:var(--md-sys-color-on-secondary-container); margin-top:8px; height:auto; padding:12px;" onclick="applyUpdate()">套用更新</button>
         </div>
     </div>
 
     <script>
-        // --- Firebase Config ---
+        // --- Firebase Config (您提供的金鑰) ---
         const firebaseConfig = {
             apiKey: "AIzaSyAi5Kqw8RFddkF1B2P0NjMpQEc0puYqFyw",
             authDomain: "pay-4a919.firebaseapp.com",
@@ -205,7 +193,6 @@
         let mainChartObj = null;
         Chart.register(ChartDataLabels);
 
-        // 啟動 App 與同步
         function startApp() {
             const accId = document.getElementById('account-id').value.trim() || state.accountId;
             if (!accId) return alert('請輸入帳號 ID');
@@ -239,7 +226,6 @@
             db.ref('users/' + state.accountId).set({ records: state.records, cats: state.cats });
         }
 
-        // 圖表邏輯：排序、比例、黑色字體
         function updateMainChart(filteredData) {
             const ctx = document.getElementById('mainPieChart').getContext('2d');
             const summary = {}; let total = 0;
@@ -253,13 +239,7 @@
             mainChartObj = new Chart(ctx, {
                 type: 'pie',
                 data: { labels, datasets: [{ data, backgroundColor: ['#FFB3BA','#BAFFC9','#BAE1FF','#FFFFBA','#FFDFBA','#E0BBE4','#D4F0F0','#FFC3A0'], borderWidth: 1, borderColor:'#fff' }] },
-                options: { 
-                    maintainAspectRatio: false, 
-                    plugins: { 
-                        legend: { position:'right', labels:{ color:'#000', font:{size:14}, boxWidth:10, padding:8 } }, 
-                        datalabels:{display:false} 
-                    } 
-                }
+                options: { maintainAspectRatio: false, plugins: { legend: { position:'right', labels:{ color:'#000', font:{size:14}, boxWidth:10, padding:8 } }, datalabels:{display:false} } }
             });
         }
 
@@ -277,7 +257,7 @@
             let html = filtered.sort((a,b) => new Date(b.date) - new Date(a.date)).map(r => {
                 const insLabel = r.ins > 1 ? ` (分期 ${r.insIndex}/${r.ins})` : '';
                 return `<div class="item" onclick="openDrawer('edit', ${r.id})">
-                    <div style="display:flex; flex-direction:column;"><strong>${r.cat}</strong><small>${r.date}${insLabel}${r.note ? ' · '+r.note : ''}</small></div>
+                    <div style="display:flex; flex-direction:column;">strong${r.cat}</strong><small>${r.date}${insLabel}${r.note ? ' · '+r.note : ''}</small></div>
                     <span style="color:${r.type==='income'?'#2E7D32':'#C62828'}; font-weight:700;">$${r.amt.toLocaleString()}</span>
                 </div>`;
             }).join('');
@@ -290,14 +270,23 @@
             const record = id ? state.records.find(r => r.id === id) : null;
             if(id && record && record.ins > 1 && record.insIndex !== 1) return alert('請至第一個月作編輯');
             
-            const title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), catActions = document.getElementById('catActions');
+            const title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), catActions = document.getElementById('catActions'), modalActions = document.getElementById('modalActions');
+            
+            overlay = document.getElementById('modalOverlay');
+            overlay.classList.add('active');
+            document.body.classList.add('no-scroll');
+
             delBtn.style.display = id ? 'block' : 'none';
             catActions.style.display = mode==='category' ? 'flex' : 'none';
-            document.getElementById('modalActions').style.display = mode==='category'?'none':'flex';
+            modalActions.style.display = (mode==='category' || mode==='stats') ? 'none' : 'flex';
 
-            if(mode === 'category') { title.innerText = '類別管理'; renderCatManager(); }
-            else if(mode === 'stats') { title.innerText = '收支統計報告'; document.getElementById('modalActions').style.display='none'; renderStatsReport(); }
-            else {
+            if(mode === 'category') {
+                title.innerText = '類別管理';
+                renderCatManager();
+            } else if(mode === 'stats') {
+                title.innerText = '收支統計報告';
+                renderStatsReport();
+            } else {
                 title.innerText = id ? '編輯紀錄' : (mode==='expense'?'新增支出':'新增收入');
                 let displayAmt = record ? record.amt : '';
                 if(record && record.ins > 1) displayAmt = state.records.filter(r=>r.gid===record.gid).reduce((s,x)=>s+x.amt,0);
@@ -306,11 +295,9 @@
                     <div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div>
                     <div class="input-group"><label class="input-label">金額 ${record?.ins>1?'(分期總額)':''}</label><input type="number" id="in_amt" class="md-input" value="${displayAmt}" placeholder="0" inputmode="numeric"></div>
                     <div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>
-                    ${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期 (期數)</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}
+                    ${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}
                     <div class="input-group"><label class="input-label">備註 (選填)</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..."></div>`;
             }
-            document.getElementById('modalOverlay').classList.add('active');
-            document.body.classList.add('no-scroll');
         }
 
         function handleSave() {
@@ -318,13 +305,7 @@
             const date = document.getElementById('in_date').value, cat = document.getElementById('in_cat').value, note = document.getElementById('in_note').value, amt = parseInt(amtVal);
             const ins = parseInt(document.getElementById('in_ins')?.value || 1);
             const type = state.editingId ? state.records.find(r => r.id === state.editingId).type : state.currentMode;
-            
-            if(state.editingId) {
-                const old = state.records.find(r => r.id === state.editingId);
-                if(old.gid) state.records = state.records.filter(r => r.gid !== old.gid);
-                else state.records = state.records.filter(r => r.id !== state.editingId);
-            }
-
+            if(state.editingId) { const gid = state.records.find(r => r.id === state.editingId).gid; if(gid) state.records = state.records.filter(r => r.gid !== gid); else state.records = state.records.filter(r => r.id !== state.editingId); }
             if(ins > 1 && type === 'expense') {
                 const gid = Date.now(); const base = Math.floor(amt / ins), extra = amt % ins;
                 for(let i=0; i<ins; i++) {
@@ -337,13 +318,12 @@
 
         function handleDelete() {
             const target = state.records.find(r => r.id === state.editingId); if(!target) return;
-            if(target.gid && !confirm('這是一筆分期紀錄，刪除將會移除「整組」分期數據，確定嗎？')) return;
+            if(target.gid && !confirm('將刪除整組分期紀錄，確定嗎？')) return;
             if(!target.gid && !confirm('確定刪除此筆紀錄嗎？')) return;
             if(target.gid) state.records = state.records.filter(r => r.gid !== target.gid); else state.records = state.records.filter(r => r.id !== state.editingId);
             saveToCloud(); closeDrawer();
         }
 
-        // 統計報告：平均與顏色辨識
         function renderStatsReport() {
             const body = document.getElementById('sheetBody');
             body.innerHTML = `<div class="segmented-control"><button class="segment-btn ${state.statsView==='monthly'?'active':''}" onclick="state.statsView='monthly';renderStatsReport()">月份統計</button><button class="segment-btn ${state.statsView==='yearly'?'active':''}" onclick="state.statsView='yearly';renderStatsReport()">年度統計</button></div><div id="statsList"></div>`;
@@ -391,7 +371,7 @@
         function closeDrawer() { document.getElementById('modalOverlay').classList.remove('active'); document.body.classList.remove('no-scroll'); }
         function setListTab(t) { state.listTab = t; render(); }
         function changeMonth(n) { state.viewDate.setMonth(state.viewDate.getMonth()+n); render(); }
-        function exportData() { if(!confirm('確定要執行資料備份並下載檔案嗎？')) return; const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'wallet_backup.json'; a.click(); }
+        function exportData() { if(!confirm('確定要執行備份嗎？')) return; const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'wallet_backup.json'; a.click(); }
         function importData(e) { const r = new FileReader(); r.onload = (ev) => { const d = JSON.parse(ev.target.result); state.records = d.records || []; state.cats = d.cats || state.cats; saveToCloud(); alert('還原成功'); }; r.readAsText(e.target.files[0]); }
         function applyUpdate() { const c = document.getElementById('liveUpdateCode').value; if(c) { document.open(); document.write(c); document.close(); } }
         
