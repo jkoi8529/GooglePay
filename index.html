@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>智慧記帳 - Android 16 雲端版</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+    <style>
+        :root {
+            --md-sys-color-primary: #6750A4;
+            --md-sys-color-on-primary: #FFFFFF;
+            --md-sys-color-primary-container: #EADDFF;
+            --md-sys-color-surface: #FEF7FF;
+            --md-sys-color-surface-container: #F3EDF7;
+            --md-sys-color-surface-container-high: #ECE6F0;
+            --md-sys-color-on-surface: #1D1B20;
+            --md-sys-color-on-surface-variant: #49454F;
+            --md-sys-color-outline: #79747E;
+            --md-sys-color-secondary-container: #E8DEF8;
+            --md-sys-color-on-secondary-container: #1D192B;
+            --md-sys-color-error: #B3261E;
+        }
+
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        .summary-header { background-color: var(--md-sys-color-surface-container); margin: 16px; padding: 24px; border-radius: 32px; }
+        .month-selector { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .month-label { font-size: 20px; font-weight: 700; color: var(--md-sys-color-primary); }
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .summary-item { background: white; padding: 16px; border-radius: 20px; }
+        .summary-item small { display: block; color: var(--md-sys-color-on-surface-variant); font-size: 12px; }
+        .summary-item span { font-size: 18px; font-weight: 700; }
+        .transaction-section { padding: 0 16px; flex-grow: 1; }
+        .list-toggle-container { display: flex; justify-content: center; margin-bottom: 12px; }
+        .small-segmented-control { display: flex; background: var(--md-sys-color-surface-container-high); padding: 2px; border-radius: 100px; width: 160px; }
+        .small-segment-btn { flex: 1; border: none; background: none; padding: 6px; border-radius: 100px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--md-sys-color-on-surface-variant); }
+        .small-segment-btn.active { background: white; color: var(--md-sys-color-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .main-chart-container { background: white; margin: 0 16px 16px 16px; padding: 10px 16px; border-radius: 24px; height: 160px; display: flex; justify-content: center; align-items: center; }
+        .list-card { background: white; border-radius: 24px; padding: 8px 0; margin-bottom: 120px; }
+        .item { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--md-sys-color-surface-container); cursor: pointer; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; align-items: flex-end; }
+        .modal-overlay.active { display: flex; }
+        .bottom-sheet { background: var(--md-sys-color-surface); width: 100%; border-radius: 32px 32px 0 0; padding: 24px; box-sizing: border-box; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); max-height: 85vh; overflow-y: auto; }
+        .modal-overlay.active .bottom-sheet { transform: translateY(0); }
+        .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .circle-btn { width: 40px; height: 40px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .btn-add-cat { background: var(--md-sys-color-primary-container); color: var(--md-sys-color-primary); }
+        .btn-close-sheet { background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); }
+        .md-input { width: 100%; padding: 16px; border: 1px solid var(--md-sys-color-outline); border-radius: 14px; font-size: 16px; box-sizing: border-box; }
+        .fab { position: fixed; right: 20px; bottom: 32px; width: 64px; height: 64px; border-radius: 20px; background: var(--md-sys-color-primary-container); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; }
+        .fab-left { position: fixed; left: 20px; bottom: 32px; width: 64px; height: 64px; border-radius: 20px; background: var(--md-sys-color-secondary-container); display: flex; align-items: center; justify-content: center; z-index: 100; }
+        .fab-menu { position: fixed; right: 20px; bottom: 105px; display: none; flex-direction: column; gap: 12px; z-index: 100; align-items: flex-end; }
+        .fab-item { background: white; padding: 12px 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: 500; }
+        .sync-status { font-size: 10px; text-align: center; color: var(--md-sys-color-outline); padding: 8px; }
+        .category-row { display: flex; align-items: center; background: var(--md-sys-color-surface-container-high); margin-bottom: 8px; padding: 12px; border-radius: 16px; gap: 12px; }
+        .stats-report-item { background: white; padding: 16px; border-radius: 20px; margin-bottom: 12px; border: 1px solid var(--md-sys-color-surface-container-high); }
+        .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed var(--md-sys-color-outline); opacity: 0.8; }
+        .stats-detail-card { background: var(--md-sys-color-surface-container-high); padding: 16px; border-radius: 20px; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+
+    <div id="sync-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; box-sizing:border-box;">
+        <h2 style="color:var(--md-sys-color-primary);">雲端同步帳號</h2>
+        <p style="text-align:center; color:var(--md-sys-color-outline);">請輸入 ID 進行同步，手機與電腦請輸入同一個 ID。</p>
+        <input type="text" id="account-id" class="md-input" placeholder="自訂帳號 ID" style="margin-bottom:20px;">
+        <button class="circle-btn btn-add-cat" style="width:auto; padding:0 40px; border-radius:100px;" onclick="startApp()">登入並開始同步</button>
+    </div>
+
+    <div id="app-content" style="display:none;">
+        <div class="summary-header">
+            <div class="month-selector">
+                <span class="material-symbols-outlined" onclick="changeMonth(-1)">chevron_left</span>
+                <div class="month-label" id="dateLabel">2026年 1月</div>
+                <span class="material-symbols-outlined" onclick="changeMonth(1)">chevron_right</span>
+            </div>
+            <div class="summary-grid">
+                <div class="summary-item"><small>總收入</small><span id="totalIncome">$0</span></div>
+                <div class="summary-item"><small>總支出</small><span id="totalExpense">$0</span></div>
+            </div>
+            <div class="sync-status" id="cloud-status">正在連線...</div>
+        </div>
+
+        <div class="transaction-section">
+            <div class="list-toggle-container">
+                <div class="small-segmented-control">
+                    <button class="small-segment-btn" id="btnListExp" onclick="setListTab('expense')">支出</button>
+                    <button class="small-segment-btn" id="btnListInc" onclick="setListTab('income')">收入</button>
+                </div>
+            </div>
+            <div class="main-chart-container"><canvas id="mainPieChart"></canvas></div>
+            <div class="list-card" id="listContent"></div>
+        </div>
+
+        <div class="fab-left" onclick="openDrawer('stats')"><span class="material-symbols-outlined">analytics</span></div>
+        <div class="fab-menu" id="fabMenu">
+            <div class="fab-item" onclick="openDrawer('expense')">新增支出</div>
+            <div class="fab-item" onclick="openDrawer('income')">新增收入</div>
+            <div class="fab-item" onclick="openDrawer('category')">類別管理</div>
+        </div>
+        <div class="fab" onclick="toggleFab()"><span class="material-symbols-outlined" id="fabIcon">add</span></div>
+
+        <div class="modal-overlay" id="modalOverlay" onclick="closeDrawer()">
+            <div class="bottom-sheet" onclick="event.stopPropagation()">
+                <div class="sheet-handle"></div>
+                <div class="sheet-header">
+                    <h2 id="sheetTitle">標題</h2>
+                    <div id="catActions" style="display:none; gap:12px;">
+                        <button class="circle-btn btn-add-cat" onclick="addCat()"><span class="material-symbols-outlined">add</span></button>
+                        <button class="circle-btn btn-close-sheet" onclick="closeDrawer()"><span class="material-symbols-outlined">close</span></button>
+                    </div>
+                </div>
+                <div id="sheetBody"></div>
+                <div id="modalActions" style="display:flex; flex-direction:column; gap:12px;">
+                    <button id="deleteBtn" style="display:none; background:none; color:var(--md-sys-color-error); border:none; padding:16px; font-weight:700;" onclick="handleDelete()">刪除此項目</button>
+                    <button id="saveBtn" style="background:var(--md-sys-color-primary); color:white; border:none; padding:16px; border-radius:100px; font-weight:700;" onclick="handleSave()">確認儲存</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="system-footer" style="padding:32px 16px; background:var(--md-sys-color-surface-container-low); margin-top:auto;">
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <button style="flex:1; padding:12px; border-radius:100px; border:1px solid var(--md-sys-color-outline); background:none;" onclick="exportData()">備份</button>
+                <button style="flex:1; padding:12px; border-radius:100px; border:1px solid var(--md-sys-color-outline); background:none;" onclick="document.getElementById('importFile').click()">還原</button>
+            </div>
+            <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+            <textarea id="liveUpdateCode" class="md-input" style="height:80px; font-family:monospace; font-size:12px;" placeholder="在此貼上修正程式碼..."></textarea>
+            <button class="btn-add-cat" style="width:100%; border-radius:100px; margin-top:8px; padding:12px;" onclick="applyUpdate()">套用更新</button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAi5Kqw8RFddkF1B2P0NjMpQEc0puYqFyw",
+            authDomain: "pay-4a919.firebaseapp.com",
+            databaseURL: "https://pay-4a919-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "pay-4a919",
+            storageBucket: "pay-4a919.firebasestorage.app",
+            messagingSenderId: "156357220142",
+            appId: "1:156357220142:web:3754cb6516bcd299b00cbf",
+            measurementId: "G-TX1C3KZMGZ"
+        };
+
+        let state = {
+            accountId: localStorage.getItem('wallet_acc_id') || '',
+            viewDate: new Date(2026, 0, 1),
+            records: [],
+            cats: [
+                { id: 1, name: '餐飲', type: 'expense', sort: 0 },
+                { id: 2, name: '交通', type: 'expense', sort: 1 },
+                { id: 3, name: '薪資', type: 'income', sort: 0 }
+            ],
+            listTab: 'expense',
+            activeCatType: 'expense',
+            statsView: 'monthly'
+        };
+
+        let db = null;
+        let mainChartObj = null;
+        Chart.register(ChartDataLabels);
+
+        function startApp() {
+            const accId = document.getElementById('account-id').value.trim() || state.accountId;
+            if (!accId) return alert('請輸入帳號 ID');
+            state.accountId = accId;
+            localStorage.setItem('wallet_acc_id', accId);
+            document.getElementById('sync-overlay').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            listenToCloud();
+        }
+
+        if (state.accountId) startApp();
+
+        function listenToCloud() {
+            db.ref('users/' + state.accountId).on('value', (snap) => {
+                const data = snap.val();
+                if (data) {
+                    state.records = data.records || [];
+                    state.cats = data.cats || state.cats;
+                    document.getElementById('cloud-status').innerText = '雲端已同步 ✓';
+                    render();
+                } else {
+                    document.getElementById('cloud-status').innerText = '新帳號已建立';
+                    saveToCloud();
+                }
+            });
+        }
+
+        function saveToCloud() {
+            db.ref('users/' + state.accountId).set({ records: state.records, cats: state.cats });
+        }
+
+        function updateMainChart(filteredData) {
+            const ctx = document.getElementById('mainPieChart').getContext('2d');
+            const summary = {}; let total = 0;
+            filteredData.forEach(r => { summary[r.cat] = (summary[r.cat] || 0) + r.amt; total += r.amt; });
+            const sorted = Object.entries(summary).sort((a,b) => b[1]-a[1]);
+            const labels = sorted.map(e => `${e[0]}(${total>0?Math.round(e[1]/total*100):0}%)`);
+            const data = sorted.map(e => e[1]);
+            if (mainChartObj) mainChartObj.destroy();
+            if (data.length === 0) { document.getElementById('mainPieChart').style.opacity = 0; return; }
+            document.getElementById('mainPieChart').style.opacity = 1;
+            mainChartObj = new Chart(ctx, {
+                type: 'pie',
+                data: { labels, datasets: [{ data, backgroundColor: ['#FFB3BA','#BAFFC9','#BAE1FF','#FFFFBA','#FFDFBA','#E0BBE4','#D4F0F0','#FFC3A0'] }] },
+                options: { maintainAspectRatio: false, plugins: { legend: { position:'right', labels:{ color:'#000', font:{size:14} } }, datalabels:{display:false} } }
+            });
+        }
+
+        function render() {
+            const year = state.viewDate.getFullYear(), month = state.viewDate.getMonth();
+            document.getElementById('dateLabel').innerText = `${year}年 ${month + 1}月`;
+            document.getElementById('btnListExp').className = `small-segment-btn ${state.listTab==='expense'?'active':''}`;
+            document.getElementById('btnListInc').className = `small-segment-btn ${state.listTab==='income'?'active':''}`;
+            const filtered = state.records.filter(r => { const d = new Date(r.date); return d.getFullYear() === year && d.getMonth() === month && r.type === state.listTab; });
+            updateMainChart(filtered);
+            let ti = 0, te = 0;
+            state.records.filter(r => { const d = new Date(r.date); return d.getFullYear() === year && d.getMonth() === month; }).forEach(r => { if(r.type==='income') ti+=r.amt; else te+=r.amt; });
+            document.getElementById('totalIncome').innerText = `$${ti.toLocaleString()}`;
+            document.getElementById('totalExpense').innerText = `$${te.toLocaleString()}`;
+            let html = filtered.sort((a,b) => new Date(b.date) - new Date(a.date)).map(r => {
+                const insLabel = r.ins > 1 ? ` (分期 ${r.insIndex}/${r.ins})` : '';
+                return `<div class="item" onclick="openDrawer('edit', ${r.id})">
+                    <div style="display:flex; flex-direction:column;"><strong>${r.cat}</strong><small>${r.date}${insLabel}${r.note ? ' · '+r.note : ''}</small></div>
+                    <span style="color:${r.type==='income'?'#2E7D32':'#C62828'}; font-weight:700;">$${r.amt.toLocaleString()}</span>
+                </div>`;
+            }).join('');
+            document.getElementById('listContent').innerHTML = html || '<div style="padding:40px; text-align:center; color:#999;">無紀錄</div>';
+        }
+
+        function openDrawer(mode, id=null) {
+            const fabMenu = document.getElementById('fabMenu'); if (fabMenu.style.display === 'flex') toggleFab();
+            state.currentMode = mode; state.editingId = id;
+            const record = id ? state.records.find(r => r.id === id) : null;
+            if(id && record && record.ins > 1 && record.insIndex !== 1) return alert('請至第一個月作編輯');
+            const title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), catActions = document.getElementById('catActions');
+            delBtn.style.display = id ? 'block' : 'none';
+            catActions.style.display = mode==='category' ? 'flex' : 'none';
+            document.getElementById('modalActions').style.display = mode==='category'?'none':'flex';
+            if(mode === 'category') { title.innerText = '類別管理'; renderCatManager(); }
+            else if(mode === 'stats') { title.innerText = '收支統計報告'; document.getElementById('modalActions').style.display='none'; renderStatsReport(); }
+            else {
+                title.innerText = id ? '編輯紀錄' : (mode==='expense'?'新增支出':'新增收入');
+                let displayAmt = record ? record.amt : '';
+                if(record && record.ins > 1) displayAmt = state.records.filter(r=>r.gid===record.gid).reduce((s,x)=>s+x.amt,0);
+                let insOpts = ''; for(let i=1;i<=80;i++) insOpts += `<option value="${i}" ${record && record.ins==i?'selected':''}>${i}</option>`;
+                body.innerHTML = `
+                    <div style="margin-bottom:16px;"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div>
+                    <div style="margin-bottom:16px;"><label class="input-label">金額 ${record?.ins>1?'(總額)':''}</label><input type="number" id="in_amt" class="md-input" value="${displayAmt}"></div>
+                    <div style="margin-bottom:16px;"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>
+                    ${(id?record.type:mode)==='expense'?`<div><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}
+                    <div style="margin-top:16px;"><label class="input-label">備註 (選填)</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..."></div>`;
+            }
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function handleSave() {
+            const amtVal = document.getElementById('in_amt').value; if(!amtVal) return alert('請輸入金額');
+            const date = document.getElementById('in_date').value, cat = document.getElementById('in_cat').value, note = document.getElementById('in_note').value, amt = parseInt(amtVal);
+            const ins = parseInt(document.getElementById('in_ins')?.value || 1);
+            const type = state.editingId ? state.records.find(r => r.id === state.editingId).type : state.currentMode;
+            if(state.editingId) { const gid = state.records.find(r => r.id === state.editingId).gid; if(gid) state.records = state.records.filter(r => r.gid !== gid); else state.records = state.records.filter(r => r.id !== state.editingId); }
+            if(ins > 1 && type === 'expense') {
+                const gid = Date.now(); const base = Math.floor(amt / ins), extra = amt % ins;
+                for(let i=0; i<ins; i++) {
+                    const d = new Date(date); d.setMonth(d.getMonth() + i);
+                    state.records.push({ id: Date.now()+i, gid, type, date: d.toISOString().split('T')[0], amt: i===0?base+extra:base, cat, ins, insIndex: i+1, note });
+                }
+            } else { state.records.push({ id: Date.now(), type, date, amt, cat, ins: 1, insIndex: 1, note }); }
+            saveToCloud(); closeDrawer();
+        }
+
+        function handleDelete() {
+            const target = state.records.find(r => r.id === state.editingId); if(!target) return;
+            if(target.gid && !confirm('將刪除整組分期紀錄，確定嗎？')) return;
+            if(!target.gid && !confirm('確定刪除？')) return;
+            if(target.gid) state.records = state.records.filter(r => r.gid !== target.gid); else state.records = state.records.filter(r => r.id !== state.editingId);
+            saveToCloud(); closeDrawer();
+        }
+
+        function renderStatsReport() {
+            const body = document.getElementById('sheetBody');
+            body.innerHTML = `<div class="segmented-control"><button class="segment-btn ${state.statsView==='monthly'?'active':''}" onclick="state.statsView='monthly';renderStatsReport()">月份統計</button><button class="segment-btn ${state.statsView==='yearly'?'active':''}" onclick="state.statsView='yearly';renderStatsReport()">年度統計</button></div><div id="statsList"></div>`;
+            const container = document.getElementById('statsList'), groups = {};
+            state.records.forEach(r => {
+                const d = new Date(r.date), key = state.statsView === 'monthly' ? `${d.getFullYear()}年${d.getMonth()+1}月` : `${d.getFullYear()}年`;
+                if(!groups[key]) groups[key] = { i: 0, e: 0, raw: [] };
+                if(r.type === 'income') groups[key].i += r.amt; else groups[key].e += r.amt; groups[key].raw.push(r);
+            });
+            container.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a, undefined, {numeric: true})).map(key => {
+                let ed = `$${groups[key].e.toLocaleString()}`;
+                if (state.statsView === 'yearly') { const m = new Set(groups[key].raw.map(r => new Date(r.date).getMonth())).size; ed += ` ($${m > 0 ? Math.round(groups[key].e / m).toLocaleString() : 0})`; }
+                return `<div class="stats-report-item" onclick="showStatsDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})">
+                    <div style="display:flex; justify-content:space-between;"><strong>${key}</strong><span class="material-symbols-outlined">chevron_right</span></div>
+                    <div style="display:flex; gap:12px; margin-top:8px; font-size:14px;"><span style="color:#2E7D32">收: $${groups[key].i.toLocaleString()}</span><span style="color:#C62828">支: ${ed}</span></div>
+                </div>`;
+            }).join('');
+        }
+
+        function showStatsDetail(title, data) {
+            const getRows = (items) => {
+                const g = {}; let t = 0; items.forEach(r => { g[r.cat] = (g[r.cat] || 0) + r.amt; t += r.amt; });
+                return Object.entries(g).sort((a,b) => b[1] - a[1]).map(([c, a]) => `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${t > 0 ? ((a/t)*100).toFixed(0) : 0}%)</span></div>`).join('');
+            };
+            document.getElementById('sheetBody').innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:var(--md-sys-color-primary); margin-bottom:16px;"><span class="material-symbols-outlined">arrow_back</span> 返回</div>
+                <h3 style="margin:0 0 16px 0;">${title} 細項</h3>
+                <div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">收入分佈</div>${getRows(data.filter(r => r.type === 'income')) || '無數據'}</div>
+                <div class="stats-detail-card"><div class="input-label" style="color:#C62828">支出分佈</div>${getRows(data.filter(r => r.type === 'expense')) || '無數據'}</div>
+                <button class="btn-filled" style="width:100%; border-radius:100px; padding:16px; border:none; background:var(--md-sys-color-primary); color:white;" onclick="closeDrawer()">關閉</button>`;
+        }
+
+        function renderCatManager() {
+            const filtered = state.cats.filter(c => c.type === state.activeCatType).sort((a,b)=>a.sort-b.sort);
+            document.getElementById('sheetBody').innerHTML = `<div class="small-segmented-control" style="width:100%; margin-bottom:20px;">
+                <button class="small-segment-btn ${state.activeCatType==='expense'?'active':''}" onclick="state.activeCatType='expense';renderCatManager()">支出</button>
+                <button class="small-segment-btn ${state.activeCatType==='income'?'active':''}" onclick="state.activeCatType='income';renderCatManager()">收入</button>
+                </div><div id="dragContainer">${filtered.map(c=>`<div class="category-row"><span class="material-symbols-outlined">drag_indicator</span><input type="text" class="md-input" style="border:none;background:none;flex:1;" value="${c.name}" onchange="upCat(${c.id},this.value)"><span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:var(--md-sys-color-error);">delete</span></div>`).join('')}</div>`;
+        }
+        function upCat(id,v){ const c=state.cats.find(x=>x.id===id); if(c){c.name=v; saveToCloud();}}
+        function delCat(id){ if(confirm('刪除類別？')){state.cats=state.cats.filter(x=>x.id!==id); saveToCloud(); renderCatManager();}}
+        function addCat(){ const n=prompt('類別名稱:'); if(n){state.cats.push({id:Date.now(), name:n, type:state.activeCatType, sort:state.cats.length}); saveToCloud(); renderCatManager();}}
+        function toggleFab() { const m = document.getElementById('fabMenu'), i = document.getElementById('fabIcon'); const v = m.style.display==='flex'; m.style.display=v?'none':'flex'; i.innerText=v?'add':'close'; }
+        function closeDrawer() { document.getElementById('modalOverlay').classList.remove('active'); }
+        function setListTab(t) { state.listTab = t; render(); }
+        function changeMonth(n) { state.viewDate.setMonth(state.viewDate.getMonth()+n); render(); }
+        function exportData() { if(!confirm('確定要執行備份嗎？')) return; const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'wallet_backup.json'; a.click(); }
+        function importData(e) { const r = new FileReader(); r.onload = (ev) => { const d = JSON.parse(ev.target.result); state.records = d.records || []; state.cats = d.cats || state.cats; saveToCloud(); alert('還原成功'); }; r.readAsText(e.target.files[0]); }
+        function applyUpdate() { const c = document.getElementById('liveUpdateCode').value; if(c) { document.open(); document.write(c); document.close(); } }
+        window.onload = init;
+    </script>
+</body>
+</html>
