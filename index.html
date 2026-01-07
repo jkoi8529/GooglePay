@@ -71,7 +71,6 @@
         .fab { position: fixed; right: 20px; bottom: 32px; width: 64px; height: 64px; border-radius: 20px; background: var(--md-sys-color-primary-container); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; cursor: pointer; }
         .fab-left { position: fixed; left: 20px; bottom: 32px; width: 64px; height: 64px; border-radius: 20px; background: var(--md-sys-color-secondary-container); display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer; }
         .fab-menu { position: fixed; right: 20px; bottom: 105px; display: none; flex-direction: column; gap: 12px; z-index: 100; align-items: flex-end; }
-        
         .fab-item { background: #F5F5F5; padding: 12px 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: 500; cursor: pointer; color: var(--md-sys-color-on-surface); }
 
         .sync-status { font-size: 9px; text-align: center; color: var(--md-sys-color-outline); height: 24px; display: flex; align-items: center; justify-content: center; margin-top: 4px; }
@@ -82,7 +81,6 @@
         .stats-report-item { background: white; padding: 16px; border-radius: 20px; margin-bottom: 12px; border: 1px solid var(--md-sys-color-surface-container-high); }
         .stats-detail-card { background: var(--md-sys-color-surface-container-high); padding: 16px; border-radius: 20px; margin-bottom: 16px; }
         .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed var(--md-sys-color-outline); opacity: 0.8; }
-        .input-label { font-size: 14px; font-weight: 500; color: var(--md-sys-color-primary); margin-bottom: 8px; display: block; }
     </style>
 </head>
 <body>
@@ -111,7 +109,7 @@
                 </div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag">v26.3</div>
+            <div class="version-tag">v26.4</div>
         </div>
 
         <div class="transaction-section">
@@ -193,6 +191,13 @@
         let dragSrcIndex = null;
         Chart.register(ChartDataLabels);
 
+        // 輔助函式：取得台北時間 GMT+8
+        function getTaipeiNow() {
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            return new Date(utc + (3600000 * 8));
+        }
+
         function startApp() {
             const accId = document.getElementById('account-id').value.trim() || state.accountId;
             if (!accId) return alert('請輸入帳號 ID');
@@ -236,16 +241,12 @@
             document.getElementById('dateLabel').innerText = `${year}年 ${month + 1}月`;
             document.getElementById('btnListExp').className = `small-segment-btn ${state.listTab==='expense'?'active':''}`;
             document.getElementById('btnListInc').className = `small-segment-btn ${state.listTab==='income'?'active':''}`;
-            
             const filtered = state.records.filter(r => { const d = new Date(r.date); return d.getFullYear() === year && d.getMonth() === month && r.type === state.listTab; });
             updateMainChart(filtered);
-            
             let ti = 0, te = 0;
             state.records.filter(r => { const d = new Date(r.date); return d.getFullYear() === year && d.getMonth() === month; }).forEach(r => { if(r.type==='income') ti+=r.amt; else te+=r.amt; });
-            
             document.getElementById('totalIncome').innerText = state.showIncome ? `$${ti.toLocaleString()}` : '-----';
             document.getElementById('totalExpense').innerText = `$${te.toLocaleString()}`;
-            
             let html = filtered.sort((a,b) => new Date(b.date) - new Date(a.date)).map(r => {
                 const insLabel = r.ins > 1 ? ` (分期 ${r.insIndex}/${r.ins})` : '';
                 return `<div class="item" onclick="openDrawer('edit', ${r.id})">
@@ -273,110 +274,34 @@
             });
         }
 
-        function handleDragStart(e, index) { dragSrcIndex = index; e.target.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
-        function handleDragOver(e) { e.preventDefault(); return false; }
-        function handleDrop(e, targetIndex) {
-            e.stopPropagation();
-            if (dragSrcIndex !== targetIndex) {
-                const typeCats = state.cats.filter(c => c.type === state.activeCatType).sort((a,b) => a.sort - b.sort);
-                const otherCats = state.cats.filter(c => c.type !== state.activeCatType);
-                const [movedItem] = typeCats.splice(dragSrcIndex, 1);
-                typeCats.splice(targetIndex, 0, movedItem);
-                typeCats.forEach((c, i) => c.sort = i);
-                state.cats = [...otherCats, ...typeCats];
-                saveToCloud(); renderCatManager();
-            }
-            return false;
-        }
-        function handleDragEnd(e) { e.target.classList.remove('dragging'); }
-
-        function renderCatManager() {
-            const filtered = state.cats.filter(c => c.type === state.activeCatType).sort((a,b)=>a.sort-b.sort);
-            document.getElementById('sheetBody').innerHTML = `
-                <div class="small-segmented-control" style="width:100%; margin-bottom:20px;">
-                    <button class="small-segment-btn ${state.activeCatType==='expense'?'active':''}" onclick="state.activeCatType='expense';renderCatManager()">支出</button>
-                    <button class="small-segment-btn ${state.activeCatType==='income'?'active':''}" onclick="state.activeCatType='income';renderCatManager()">收入</button>
-                </div>
-                <div id="dragContainer">${filtered.map((c, index) => `
-                        <div class="category-row" draggable="true" ondragstart="handleDragStart(event, ${index})" ondragover="handleDragOver(event)" ondrop="handleDrop(event, ${index})" ondragend="handleDragEnd(event)">
-                            <span class="material-symbols-outlined" style="opacity:0.5;">drag_indicator</span>
-                            <input type="text" class="md-input" style="border:none;background:none;flex:1;" value="${c.name}" onchange="upCat(${c.id},this.value)">
-                            <span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:var(--md-sys-color-error); cursor:pointer;">delete</span>
-                        </div>`).join('')}</div>`;
-        }
-
-        function upCat(id, v) { 
-            const catObj = state.cats.find(x => x.id === id); 
-            if(catObj) {
-                const oldName = catObj.name, newName = v.trim();
-                if (oldName === newName || !newName) return;
-                state.records.forEach(r => { if (r.cat === oldName) r.cat = newName; });
-                catObj.name = newName; saveToCloud(); render(); 
-            }
-        }
-        function delCat(id){ if(confirm('確定刪除類別？')){state.cats=state.cats.filter(x=>x.id!==id); saveToCloud(); renderCatManager();}}
-        function addCat(){ const n=prompt('類別名稱:'); if(n){state.cats.push({id:Date.now(), name:n, type:state.activeCatType, sort:state.cats.length}); saveToCloud(); renderCatManager();}}
-
-        function openDrawer(mode, id=null) {
-            state.currentMode = mode; state.editingId = id;
-            if(document.getElementById('fabMenu').style.display==='flex') toggleFab();
-            const record = id ? state.records.find(r => r.id === id) : null;
-            if(id && record && record.ins > 1 && record.insIndex !== 1) return alert('請至第一個月作編輯');
-            const title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), catActions = document.getElementById('catActions'), modalActions = document.getElementById('modalActions');
-            document.getElementById('modalOverlay').classList.add('active');
-            document.body.classList.add('no-scroll');
-            delBtn.style.display = id ? 'block' : 'none';
-            catActions.style.display = mode==='category' ? 'flex' : 'none';
-            modalActions.style.display = (mode==='category' || mode==='stats') ? 'none' : 'flex';
-            if(mode === 'category') { title.innerText = '類別管理'; renderCatManager(); }
-            else if(mode === 'stats') { title.innerText = '收支統計報告'; renderStatsReport(); }
-            else {
-                title.innerText = id ? '編輯紀錄' : (mode==='expense'?'新增支出':'新增收入');
-                let displayAmt = record ? record.amt : '';
-                if(record && record.ins > 1) displayAmt = state.records.filter(r=>r.gid===record.gid).reduce((s,x)=>s+x.amt,0);
-                let insOpts = ''; for(let i=1;i<=80;i++) insOpts += `<option value="${i}" ${record && record.ins==i?'selected':''}>${i}</option>`;
-                body.innerHTML = `
-                    <div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div>
-                    <div class="input-group"><label class="input-label">金額 ${record?.ins>1?'(總額)':''}</label><input type="number" id="in_amt" class="md-input" value="${displayAmt}" placeholder="0" inputmode="numeric"></div>
-                    <div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>
-                    ${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}
-                    <div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..."></div>`;
-            }
-        }
-
-        function handleSave() {
-            const amtVal = document.getElementById('in_amt').value; if(!amtVal) return alert('請輸入金額');
-            const date = document.getElementById('in_date').value, cat = document.getElementById('in_cat').value, note = document.getElementById('in_note').value, amt = parseInt(amtVal);
-            const ins = parseInt(document.getElementById('in_ins')?.value || 1);
-            const type = state.editingId ? state.records.find(r => r.id === state.editingId).type : state.currentMode;
-            if(state.editingId) { const gid = state.records.find(r => r.id === state.editingId).gid; if(gid) state.records = state.records.filter(r => r.gid !== gid); else state.records = state.records.filter(r => r.id !== state.editingId); }
-            if(ins > 1 && type === 'expense') {
-                const gid = Date.now(), base = Math.floor(amt / ins), extra = amt % ins;
-                for(let i=0; i<ins; i++) {
-                    const d = new Date(date); d.setMonth(d.getMonth() + i);
-                    state.records.push({ id: Date.now()+i, gid, type, date: d.toISOString().split('T')[0], amt: i===0?base+extra:base, cat, ins, insIndex: i+1, note });
-                }
-            } else { state.records.push({ id: Date.now(), type, date, amt, cat, ins: 1, insIndex: 1, note }); }
-            saveToCloud(); closeDrawer();
-        }
-
-        function handleDelete() {
-            const target = state.records.find(r => r.id === state.editingId); if(!target) return;
-            if(target.gid && !confirm('將刪除整組分期數據？')) return;
-            if(!target.gid && !confirm('確定刪除？')) return;
-            if(target.gid) state.records = state.records.filter(r => r.gid !== target.gid); else state.records = state.records.filter(r => r.id !== state.editingId);
-            saveToCloud(); closeDrawer();
-        }
-
+        // --- 修正 4: 收支統計報告邏輯 (隱藏未來月份) ---
         function renderStatsReport() {
             const body = document.getElementById('sheetBody');
             body.innerHTML = `<div class="segmented-control"><button class="segment-btn ${state.statsView==='monthly'?'active':''}" onclick="state.statsView='monthly';renderStatsReport()">月份統計</button><button class="segment-btn ${state.statsView==='yearly'?'active':''}" onclick="state.statsView='yearly';renderStatsReport()">年度統計</button></div><div id="statsList"></div>`;
+            
             const container = document.getElementById('statsList'), groups = {};
+            const tpNow = getTaipeiNow();
+            const curY = tpNow.getFullYear();
+            const curM = tpNow.getMonth();
+
             state.records.forEach(r => {
-                const d = new Date(r.date), key = state.statsView === 'monthly' ? `${d.getFullYear()}年${d.getMonth()+1}月` : `${d.getFullYear()}年`;
+                const d = new Date(r.date);
+                const recY = d.getFullYear();
+                const recM = d.getMonth();
+
+                // 檢查是否為未來時間
+                if (state.statsView === 'monthly') {
+                    if (recY > curY || (recY === curY && recM > curM)) return; // 跳過未來月份
+                } else {
+                    if (recY > curY) return; // 跳過未來年份
+                }
+
+                const key = state.statsView === 'monthly' ? `${recY}年${recM+1}月` : `${recY}年`;
                 if(!groups[key]) groups[key] = { i: 0, e: 0, raw: [] };
-                if(r.type === 'income') groups[key].i += r.amt; else groups[key].e += r.amt; groups[key].raw.push(r);
+                if(r.type === 'income') groups[key].i += r.amt; else groups[key].e += r.amt;
+                groups[key].raw.push(r);
             });
+
             container.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a, undefined, {numeric: true})).map(key => {
                 let idDisp = `$${groups[key].i.toLocaleString()}`;
                 let edDisp = `$${groups[key].e.toLocaleString()}`;
@@ -386,7 +311,7 @@
                     const avgE = mCount > 0 ? Math.round(groups[key].e / mCount) : 0;
                     const avgI = mCount > 0 ? Math.round(groups[key].i / mCount) : 0;
                     edDisp += ` ($${avgE.toLocaleString()})`;
-                    idDisp += ` ($${avgI.toLocaleString()})`; // 修正 1: 新增平均收入
+                    idDisp += ` ($${avgI.toLocaleString()})`;
                 }
                 return `<div class="stats-report-item" onclick="showStatsDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})">
                     <div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key}</strong><span class="material-symbols-outlined">chevron_right</span></div>
@@ -410,6 +335,72 @@
                 <button class="btn-filled" onclick="closeDrawer()">關閉</button>`;
         }
 
+        // 其餘功能 (拖曳、增刪、同步等) 維持不變
+        function handleDragStart(e, index) { dragSrcIndex = index; e.target.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
+        function handleDragOver(e) { e.preventDefault(); return false; }
+        function handleDrop(e, targetIndex) {
+            e.stopPropagation();
+            if (dragSrcIndex !== targetIndex) {
+                const typeCats = state.cats.filter(c => c.type === state.activeCatType).sort((a,b) => a.sort - b.sort);
+                const otherCats = state.cats.filter(c => c.type !== state.activeCatType);
+                const [movedItem] = typeCats.splice(dragSrcIndex, 1);
+                typeCats.splice(targetIndex, 0, movedItem);
+                typeCats.forEach((c, i) => c.sort = i);
+                state.cats = [...otherCats, ...typeCats];
+                saveToCloud(); renderCatManager();
+            }
+            return false;
+        }
+        function handleDragEnd(e) { e.target.classList.remove('dragging'); }
+        function renderCatManager() {
+            const filtered = state.cats.filter(c => c.type === state.activeCatType).sort((a,b)=>a.sort-b.sort);
+            document.getElementById('sheetBody').innerHTML = `<div class="small-segmented-control" style="width:100%; margin-bottom:20px;"><button class="small-segment-btn ${state.activeCatType==='expense'?'active':''}" onclick="state.activeCatType='expense';renderCatManager()">支出</button><button class="small-segment-btn ${state.activeCatType==='income'?'active':''}" onclick="state.activeCatType='income';renderCatManager()">收入</button></div><div id="dragContainer">${filtered.map((c, index) => `<div class="category-row" draggable="true" ondragstart="handleDragStart(event, ${index})" ondragover="handleDragOver(event)" ondrop="handleDrop(event, ${index})" ondragend="handleDragEnd(event)"><span class="material-symbols-outlined" style="opacity:0.5;">drag_indicator</span><input type="text" class="md-input" style="border:none;background:none;flex:1;" value="${c.name}" onchange="upCat(${c.id},this.value)"><span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:var(--md-sys-color-error); cursor:pointer;">delete</span></div>`).join('')}</div>`;
+        }
+        function upCat(id, v) { const catObj = state.cats.find(x => x.id === id); if(catObj) { const oldName = catObj.name, newName = v.trim(); if (oldName === newName || !newName) return; state.records.forEach(r => { if (r.cat === oldName) r.cat = newName; }); catObj.name = newName; saveToCloud(); render(); } }
+        function delCat(id){ if(confirm('確定刪除類別？')){state.cats=state.cats.filter(x=>x.id!==id); saveToCloud(); renderCatManager();}}
+        function addCat(){ const n=prompt('類別名稱:'); if(n){state.cats.push({id:Date.now(), name:n, type:state.activeCatType, sort:state.cats.length}); saveToCloud(); renderCatManager();}}
+        function openDrawer(mode, id=null) {
+            state.currentMode = mode; state.editingId = id;
+            if(document.getElementById('fabMenu').style.display==='flex') toggleFab();
+            const record = id ? state.records.find(r => r.id === id) : null;
+            if(id && record && record.ins > 1 && record.insIndex !== 1) return alert('請至第一個月作編輯');
+            const title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), catActions = document.getElementById('catActions'), modalActions = document.getElementById('modalActions');
+            document.getElementById('modalOverlay').classList.add('active');
+            document.body.classList.add('no-scroll');
+            delBtn.style.display = id ? 'block' : 'none';
+            catActions.style.display = mode==='category' ? 'flex' : 'none';
+            modalActions.style.display = (mode==='category' || mode==='stats') ? 'none' : 'flex';
+            if(mode === 'category') { title.innerText = '類別管理'; renderCatManager(); }
+            else if(mode === 'stats') { title.innerText = '收支統計報告'; renderStatsReport(); }
+            else {
+                title.innerText = id ? '編輯紀錄' : (mode==='expense'?'新增支出':'新增收入');
+                let displayAmt = record ? record.amt : '';
+                if(record && record.ins > 1) displayAmt = state.records.filter(r=>r.gid===record.gid).reduce((s,x)=>s+x.amt,0);
+                let insOpts = ''; for(let i=1;i<=80;i++) insOpts += `<option value="${i}" ${record && record.ins==i?'selected':''}>${i}</option>`;
+                body.innerHTML = `<div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div><div class="input-group"><label class="input-label">金額 ${record?.ins>1?'(總額)':''}</label><input type="number" id="in_amt" class="md-input" value="${displayAmt}" placeholder="0" inputmode="numeric"></div><div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}<div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..."></div>`;
+            }
+        }
+        function handleSave() {
+            const amtVal = document.getElementById('in_amt').value; if(!amtVal) return alert('請輸入金額');
+            const date = document.getElementById('in_date').value, cat = document.getElementById('in_cat').value, note = document.getElementById('in_note').value, amt = parseInt(amtVal), ins = parseInt(document.getElementById('in_ins')?.value || 1);
+            const type = state.editingId ? state.records.find(r => r.id === state.editingId).type : state.currentMode;
+            if(state.editingId) { const gid = state.records.find(r => r.id === state.editingId).gid; if(gid) state.records = state.records.filter(r => r.gid !== gid); else state.records = state.records.filter(r => r.id !== state.editingId); }
+            if(ins > 1 && type === 'expense') {
+                const gid = Date.now(), base = Math.floor(amt / ins), extra = amt % ins;
+                for(let i=0; i<ins; i++) {
+                    const d = new Date(date); d.setMonth(d.getMonth() + i);
+                    state.records.push({ id: Date.now()+i, gid, type, date: d.toISOString().split('T')[0], amt: i===0?base+extra:base, cat, ins, insIndex: i+1, note });
+                }
+            } else { state.records.push({ id: Date.now(), type, date, amt, cat, ins: 1, insIndex: 1, note }); }
+            saveToCloud(); closeDrawer();
+        }
+        function handleDelete() {
+            const target = state.records.find(r => r.id === state.editingId); if(!target) return;
+            if(target.gid && !confirm('將刪除整組分期數據？')) return;
+            if(!target.gid && !confirm('確定刪除？')) return;
+            if(target.gid) state.records = state.records.filter(r => r.gid !== target.gid); else state.records = state.records.filter(r => r.id !== state.editingId);
+            saveToCloud(); closeDrawer();
+        }
         function toggleFab() { const m = document.getElementById('fabMenu'), i = document.getElementById('fabIcon'); const v = m.style.display==='flex'; m.style.display=v?'none':'flex'; i.innerText=v?'add':'close'; }
         function closeDrawer() { document.getElementById('modalOverlay').classList.remove('active'); document.body.classList.remove('no-scroll'); }
         function setListTab(t) { state.listTab = t; render(); }
@@ -417,7 +408,6 @@
         function exportData() { if(!confirm('確定要執行備份？')) return; const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'wallet_backup.json'; a.click(); }
         function importData(e) { const r = new FileReader(); r.onload = (ev) => { const d = JSON.parse(ev.target.result); state.records = d.records || []; state.cats = d.cats || state.cats; saveToCloud(); alert('還原成功'); }; r.readAsText(e.target.files[0]); }
         function applyUpdate() { const c = document.getElementById('liveUpdateCode').value; if(c) { document.open(); document.write(c); document.close(); } }
-        
         window.onload = () => { if(!state.accountId) document.getElementById('sync-overlay').style.display='flex'; };
     </script>
 </body>
