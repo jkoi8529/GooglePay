@@ -61,13 +61,18 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; align-items: flex-end; }
         .modal-overlay.active { display: flex; }
         
-        .bottom-sheet { background: var(--md-sys-color-surface); width: 100%; border-radius: 32px 32px 0 0; padding: 24px; box-sizing: border-box; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; }
+        /* 修正 1: 解決電腦版切換時的位移問題 */
+        .bottom-sheet { 
+            background: var(--md-sys-color-surface); 
+            width: 100%; border-radius: 32px 32px 0 0; padding: 24px; 
+            box-sizing: border-box; max-height: 85vh; 
+            overflow-y: auto; display: flex; flex-direction: column;
+            scrollbar-gutter: stable; /* 關鍵修正：預留滾動條空間防止位移 */
+        }
         .bottom-sheet.custom-height { height: 72.5vh; max-height: 72.5vh; }
         #sheetBody { flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; overflow-y: auto; }
 
-        /* 修正 2: 固定標題列 */
         .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-shrink: 0; height: 32px; }
-
         .sheet-handle { width: 32px; height: 4px; background: var(--md-sys-color-outline); border-radius: 2px; margin: 0 auto 24px auto; opacity: 0.4; flex-shrink: 0; }
         .circle-btn { width: 40px; height: 40px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
@@ -75,7 +80,6 @@
         .input-label { font-size: 14px; font-weight: 500; color: var(--md-sys-color-primary); margin-bottom: 8px; display: block; }
         .md-input { width: 100%; padding: 16px; border: 1px solid var(--md-sys-color-outline); border-radius: 14px; font-size: 16px; background: transparent; box-sizing: border-box; }
 
-        /* 修正 1: 所有底層按鈕回歸 Android 16 */
         #modalActions { display: flex; flex-direction: column; margin-top: 24px; gap: 8px; flex-shrink: 0; }
         .btn-filled { background: var(--md-sys-color-primary); color: white; border: none; padding: 16px; width: 100%; border-radius: 100px; font-size: 16px; font-weight: 700; cursor: pointer; }
         .btn-text-error { background: none; color: var(--md-sys-color-error); border: none; padding: 12px; width: 100%; font-weight: 700; cursor: pointer; border-radius: 100px; }
@@ -97,9 +101,6 @@
         .segment-btn.active { background: white; color: var(--md-sys-color-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
         .stats-report-item { background: white; padding: 16px; border-radius: 20px; margin-bottom: 12px; border: 1px solid var(--md-sys-color-surface-container-high); cursor: pointer; }
-        .stats-detail-card { background: var(--md-sys-color-surface-container-high); padding: 16px; border-radius: 20px; margin-bottom: 16px; }
-        .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed var(--md-sys-color-outline); opacity: 0.8; }
-        
         .log-item { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #ECE6F0; }
         .log-version { display: inline-block; background: #6750A4; color: white; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
         .log-content { font-size: 14px; line-height: 1.6; color: #49454F; }
@@ -129,7 +130,7 @@
                 <div class="summary-item"><small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span></div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag" onclick="openDrawer('changelog')">v26.13</div>
+            <div class="version-tag" onclick="openDrawer('changelog')">v26.14</div>
         </div>
 
         <div class="transaction-section">
@@ -207,12 +208,11 @@
         };
 
         const changelogs = [
-            { v: "v26.13", items: ["修復所有底層按鈕回歸 Android 16 設計語言 (膠囊型圓角)", "固定統計報告標題位置，切換選項不跑位", "統一所有互動視窗的動作按鈕樣式"] },
-            { v: "v26.12", items: ["修復分段切換按鈕樣式偏移", "恢復 Android 16 置中設計風格"] },
-            { v: "v26.11", items: ["實裝方案 B 運算子彈出鈕", "修正備註中心線對齊", "收錄完整歷史日誌"] },
-            { v: "v26.10", items: ["統計視窗高度 72.5%", "金額欄位支援算式運算", "備註移至類別右側"] },
-            { v: "v26.9", items: ["修正同步字樣水平對齊"] },
-            { v: "v26.1", items: ["版本號與同步系統啟動"] }
+            { v: "v26.14", items: ["修正電腦版瀏覽器切換統計報告時產生的頁面位移問題", "優化滾動條空間分配，防止佈局跳動"] },
+            { v: "v26.13", items: ["修復底層動作按鈕回歸 Android 16 Pill 風格", "固定統計報告標題位置"] },
+            { v: "v26.12", items: ["修復分段按鈕樣式偏移，回歸 Android 16 置中設計"] },
+            { v: "v26.11", items: ["實裝方案 B 運算子彈出鈕", "修正備註中心線對齊"] },
+            { v: "v26.10", items: ["統計視窗高度提升至 72.5%", "金額欄位支援算式運算", "備註移至類別右側"] }
         ];
 
         let db = null, mainChartObj = null, dragSrcIndex = null;
@@ -284,6 +284,7 @@
             state.records.filter(r => { const d = new Date(r.date); return d.getFullYear() === year && d.getMonth() === month; }).forEach(r => { if(r.type==='income') ti+=r.amt; else te+=r.amt; });
             document.getElementById('totalIncome').innerText = state.showIncome ? `$${ti.toLocaleString()}` : '-----';
             document.getElementById('totalExpense').innerText = `$${te.toLocaleString()}`;
+            
             let html = filtered.sort((a,b) => new Date(b.date) - new Date(a.date)).map(r => {
                 const insLabel = r.ins > 1 ? ` (分期 ${r.insIndex}/${r.ins})` : '';
                 const noteHtml = r.note ? `<span class="note-pill">${r.note}</span>` : '';
@@ -321,7 +322,8 @@
                     }).join('');
                 } else {
                     container.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a)).map(key => {
-                        return `<div class="stats-report-item" onclick="showYearlyCatDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key} 類別詳情</strong><span class="material-symbols-outlined">chevron_right</span></div></div>`;
+                        return `<div class="stats-report-item" onclick="showYearlyCatDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})">
+                            <div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key} 類別詳情</strong><span class="material-symbols-outlined">chevron_right</span></div></div>`;
                     }).join('');
                 }
             }
@@ -358,12 +360,9 @@
             document.getElementById('modalOverlay').classList.add('active');
             document.body.classList.add('no-scroll');
             sheet.className = (mode === 'stats' || mode === 'changelog') ? 'bottom-sheet custom-height' : 'bottom-sheet';
-            
-            // 修正 1: 按鈕隱藏邏輯
             delBtn.style.display = id ? 'block' : 'none';
             catActions.style.display = mode==='category' ? 'flex' : 'none';
             modalActions.style.display = (mode==='category' || mode==='stats' || mode==='changelog') ? 'none' : 'flex';
-            
             if(mode === 'category') { title.innerText = '類別管理'; renderCatManager(); }
             else if(mode === 'stats') { title.innerText = '收支統計報告'; renderStatsReport(); }
             else if(mode === 'changelog') { title.innerText = '更新日誌'; renderChangelog(); }
@@ -372,7 +371,24 @@
                 let displayAmt = record ? record.amt : '';
                 if(record && record.ins > 1) displayAmt = state.records.filter(r=>r.gid===record.gid).reduce((s,x)=>s+x.amt,0);
                 let insOpts = ''; for(let i=1;i<=80;i++) insOpts += `<option value="${i}" ${record && record.ins==i?'selected':''}>${i}</option>`;
-                body.innerHTML = `<div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div><div class="input-group"><label class="input-label">金額 (支援符號運算)</label><div class="amt-wrapper"><input type="text" id="in_amt" class="md-input" value="${displayAmt}" inputmode="decimal"><span class="material-symbols-outlined calc-toggle" onclick="document.getElementById('opPopup').classList.toggle('active')">calculate</span><div class="op-popup" id="opPopup"><button class="op-btn" onclick="insertOp('+')">+</button><button class="op-btn" onclick="insertOp('-')">-</button><button class="op-btn" onclick="insertOp('*')">×</button><button class="op-btn" onclick="insertOp('/')">÷</button></div></div></div><div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}<div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..." onkeydown="if(event.key==='Enter') this.blur();"></div>`;
+                body.innerHTML = `
+                    <div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div>
+                    <div class="input-group">
+                        <label class="input-label">金額 (支援符號運算)</label>
+                        <div class="amt-wrapper">
+                            <input type="text" id="in_amt" class="md-input" value="${displayAmt}" inputmode="decimal">
+                            <span class="material-symbols-outlined calc-toggle" onclick="document.getElementById('opPopup').classList.toggle('active')">calculate</span>
+                            <div class="op-popup" id="opPopup">
+                                <button class="op-btn" onclick="insertOp('+')">+</button>
+                                <button class="op-btn" onclick="insertOp('-')">-</button>
+                                <button class="op-btn" onclick="insertOp('*')">×</button>
+                                <button class="op-btn" onclick="insertOp('/')">÷</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>
+                    ${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}
+                    <div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..." onkeydown="if(event.key==='Enter') this.blur();"></div>`;
             }
         }
 
@@ -383,7 +399,10 @@
             const date = document.getElementById('in_date').value, cat = document.getElementById('in_cat').value, note = document.getElementById('in_note').value, ins = parseInt(document.getElementById('in_ins')?.value || 1);
             const type = state.editingId ? state.records.find(r => r.id === state.editingId).type : state.currentMode;
             if(state.editingId) { const gid = state.records.find(r => r.id === state.editingId).gid; if(gid) state.records = state.records.filter(r => r.gid !== gid); else state.records = state.records.filter(r => r.id !== state.editingId); }
-            if(ins > 1 && type === 'expense') { const gid = Date.now(), base = Math.floor(amt / ins), extra = amt % ins; for(let i=0; i<ins; i++) { const d = new Date(date); d.setMonth(d.getMonth() + i); state.records.push({ id: Date.now()+i, gid, type, date: d.toISOString().split('T')[0], amt: i===0?base+extra:base, cat, ins, insIndex: i+1, note }); } } else { state.records.push({ id: Date.now(), type, date, amt, cat, ins: 1, insIndex: 1, note }); }
+            if(ins > 1 && type === 'expense') {
+                const gid = Date.now(), base = Math.floor(amt / ins), extra = amt % ins;
+                for(let i=0; i<ins; i++) { const d = new Date(date); d.setMonth(d.getMonth() + i); state.records.push({ id: Date.now()+i, gid, type, date: d.toISOString().split('T')[0], amt: i===0?base+extra:base, cat, ins, insIndex: i+1, note }); }
+            } else { state.records.push({ id: Date.now(), type, date, amt, cat, ins: 1, insIndex: 1, note }); }
             saveToCloud(); closeDrawer();
         }
         function handleDelete() { const target = state.records.find(r => r.id === state.editingId); if(!target) return; if(target.gid && !confirm('將刪除整組分期數據？')) return; if(!target.gid && !confirm('確定刪除？')) return; if(target.gid) state.records = state.records.filter(r => r.gid !== target.gid); else state.records = state.records.filter(r => r.id !== state.editingId); saveToCloud(); closeDrawer(); }
