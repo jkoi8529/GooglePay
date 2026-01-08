@@ -33,7 +33,6 @@
 
         #sync-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--md-sys-color-surface); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; }
 
-        /* 頂部區域恢復 v26.10 結構 */
         .summary-header { background-color: var(--md-sys-color-surface-container); margin: 16px; padding: 24px 24px 36px 24px; border-radius: 32px; position: relative; }
         .version-tag { position: absolute; right: 20px; bottom: 12px; font-size: 8px; color: #555555; opacity: 0.8; font-weight: 500; cursor: pointer; padding: 4px; border-radius: 4px; }
         .sync-status { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); font-size: 9px; color: var(--md-sys-color-outline); display: flex; align-items: center; justify-content: center; white-space: nowrap; }
@@ -45,9 +44,8 @@
         .summary-item small { display: block; color: var(--md-sys-color-on-surface-variant); font-size: 12px; }
         .summary-item span { font-size: 18px; font-weight: 700; }
 
-        /* 按鈕容器恢復恢復 Android 16 風格 */
         .transaction-section { padding: 0 16px; flex-grow: 1; }
-        .list-toggle-container { display: flex; justify-content: center; margin-bottom: 12px; width: 100%; }
+        .list-toggle-container { display: flex; justify-content: center; margin-bottom: 12px; }
         .small-segmented-control { display: flex; background: var(--md-sys-color-surface-container-high); padding: 4px; border-radius: 100px; width: 180px; }
         .small-segment-btn { flex: 1; border: none; background: none; padding: 8px; border-radius: 100px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--md-sys-color-on-surface-variant); }
         .small-segment-btn.active { background: white; color: var(--md-sys-color-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -55,7 +53,6 @@
         .main-chart-container { background: white; margin: 0 0 16px 0; padding: 10px 16px; border-radius: 24px; height: 160px; display: flex; justify-content: center; align-items: center; }
         .list-card { background: white; border-radius: 24px; padding: 8px 0; margin-bottom: 120px; }
         
-        /* 恢復 v26.11 對齊邏輯：中心線對齊 */
         .item { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--md-sys-color-surface-container); cursor: pointer; }
         .item-info { display: flex; flex-direction: column; flex: 1; }
         .item-title-row { display: flex; align-items: center; gap: 8px; }
@@ -64,20 +61,26 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; align-items: flex-end; }
         .modal-overlay.active { display: flex; }
         
-        /* 視窗高度 72.5% */
         .bottom-sheet { background: var(--md-sys-color-surface); width: 100%; border-radius: 32px 32px 0 0; padding: 24px; box-sizing: border-box; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; }
         .bottom-sheet.custom-height { height: 72.5vh; max-height: 72.5vh; }
-        #sheetBody { flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; }
+        #sheetBody { flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; overflow-y: auto; }
 
-        .sheet-handle { width: 32px; height: 4px; background: var(--md-sys-color-outline); border-radius: 2px; margin: 0 auto 24px auto; opacity: 0.4; }
-        .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        /* 修正 2: 固定標題列 */
+        .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-shrink: 0; height: 32px; }
+
+        .sheet-handle { width: 32px; height: 4px; background: var(--md-sys-color-outline); border-radius: 2px; margin: 0 auto 24px auto; opacity: 0.4; flex-shrink: 0; }
         .circle-btn { width: 40px; height: 40px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
         .input-group { margin-bottom: 20px; position: relative; }
         .input-label { font-size: 14px; font-weight: 500; color: var(--md-sys-color-primary); margin-bottom: 8px; display: block; }
         .md-input { width: 100%; padding: 16px; border: 1px solid var(--md-sys-color-outline); border-radius: 14px; font-size: 16px; background: transparent; box-sizing: border-box; }
 
-        /* 計算機方案 B */
+        /* 修正 1: 所有底層按鈕回歸 Android 16 */
+        #modalActions { display: flex; flex-direction: column; margin-top: 24px; gap: 8px; flex-shrink: 0; }
+        .btn-filled { background: var(--md-sys-color-primary); color: white; border: none; padding: 16px; width: 100%; border-radius: 100px; font-size: 16px; font-weight: 700; cursor: pointer; }
+        .btn-text-error { background: none; color: var(--md-sys-color-error); border: none; padding: 12px; width: 100%; font-weight: 700; cursor: pointer; border-radius: 100px; }
+        .btn-text-error:active { background: rgba(179, 38, 30, 0.08); }
+
         .amt-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
         .calc-toggle { position: absolute; right: 12px; color: var(--md-sys-color-primary); cursor: pointer; }
         .op-popup { position: absolute; right: 0; top: -52px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 12px; display: none; padding: 4px; gap: 4px; z-index: 10; border: 1px solid var(--md-sys-color-outline); }
@@ -89,12 +92,14 @@
         .fab-menu { position: fixed; right: 20px; bottom: 105px; display: none; flex-direction: column; gap: 12px; z-index: 100; align-items: flex-end; }
         .fab-item { background: #F5F5F5; padding: 12px 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: 500; cursor: pointer; }
 
-        .category-row { display: flex; align-items: center; background: var(--md-sys-color-surface-container-high); margin-bottom: 8px; padding: 12px; border-radius: 16px; gap: 12px; cursor: move; }
-        .segmented-control { display: flex; background: var(--md-sys-color-surface-container-high); padding: 4px; border-radius: 100px; margin-bottom: 24px; }
+        .segmented-control { display: flex; background: var(--md-sys-color-surface-container-high); padding: 4px; border-radius: 100px; margin-bottom: 24px; flex-shrink: 0; }
         .segment-btn { flex: 1; border: none; background: none; padding: 10px; border-radius: 100px; font-size: 14px; font-weight: 500; cursor: pointer; }
         .segment-btn.active { background: white; color: var(--md-sys-color-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
         .stats-report-item { background: white; padding: 16px; border-radius: 20px; margin-bottom: 12px; border: 1px solid var(--md-sys-color-surface-container-high); cursor: pointer; }
+        .stats-detail-card { background: var(--md-sys-color-surface-container-high); padding: 16px; border-radius: 20px; margin-bottom: 16px; }
+        .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed var(--md-sys-color-outline); opacity: 0.8; }
+        
         .log-item { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #ECE6F0; }
         .log-version { display: inline-block; background: #6750A4; color: white; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
         .log-content { font-size: 14px; line-height: 1.6; color: #49454F; }
@@ -124,7 +129,7 @@
                 <div class="summary-item"><small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span></div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag" onclick="openDrawer('changelog')">v26.12</div>
+            <div class="version-tag" onclick="openDrawer('changelog')">v26.13</div>
         </div>
 
         <div class="transaction-section">
@@ -157,8 +162,8 @@
                     </div>
                 </div>
                 <div id="sheetBody"></div>
-                <div id="modalActions" style="display:flex; flex-direction:column; margin-top:24px;">
-                    <button class="btn-text-error" id="deleteBtn" style="display:none; margin-bottom:8px;" onclick="handleDelete()">刪除此項目</button>
+                <div id="modalActions">
+                    <button class="btn-text-error" id="deleteBtn" style="display:none;" onclick="handleDelete()">刪除此項目</button>
                     <button class="btn-filled" id="saveBtn" onclick="handleSave()">確認儲存</button>
                 </div>
             </div>
@@ -202,18 +207,12 @@
         };
 
         const changelogs = [
-            { v: "v26.12", items: ["全面修復並恢復 Android 16 設計風格按鈕樣式", "保持備註氣泡中心對齊與 v26.11 功能"] },
-            { v: "v26.11", items: ["實裝方案 B 運算子彈出鈕", "修正備註氣泡中心線與類別文字對齊", "收錄自 v26.1 起所有更新紀錄"] },
-            { v: "v26.10", items: ["統計視窗高度提升至 72.5%", "備註氣泡移動至類別右側", "金額欄位支援算式運算"] },
-            { v: "v26.9", items: ["修正雲端同步字樣與版本號對齊"] },
-            { v: "v26.8", items: ["新增點擊版本號查看「更新日誌」"] },
-            { v: "v26.7", items: ["年度統計類別功能優化 (二級年份分層)"] },
-            { v: "v26.6", items: ["主畫面收支紀錄新增「圓角備註氣泡」"] },
-            { v: "v26.5", items: ["圖例限制前六大項", "統計報告視窗 50% 高度"] },
-            { v: "v26.4", items: ["統計報告隱藏未來月份 (GMT+8)"] },
-            { v: "v26.3", items: ["年度統計新增「平均月收入」"] },
-            { v: "v26.2", items: ["總收入支援隱藏切換", "FAB 選單背景美化"] },
-            { v: "v26.1", items: ["版本號系統與同步狀態優化"] }
+            { v: "v26.13", items: ["修復所有底層按鈕回歸 Android 16 設計語言 (膠囊型圓角)", "固定統計報告標題位置，切換選項不跑位", "統一所有互動視窗的動作按鈕樣式"] },
+            { v: "v26.12", items: ["修復分段切換按鈕樣式偏移", "恢復 Android 16 置中設計風格"] },
+            { v: "v26.11", items: ["實裝方案 B 運算子彈出鈕", "修正備註中心線對齊", "收錄完整歷史日誌"] },
+            { v: "v26.10", items: ["統計視窗高度 72.5%", "金額欄位支援算式運算", "備註移至類別右側"] },
+            { v: "v26.9", items: ["修正同步字樣水平對齊"] },
+            { v: "v26.1", items: ["版本號與同步系統啟動"] }
         ];
 
         let db = null, mainChartObj = null, dragSrcIndex = null;
@@ -285,18 +284,11 @@
             state.records.filter(r => { const d = new Date(r.date); return d.getFullYear() === year && d.getMonth() === month; }).forEach(r => { if(r.type==='income') ti+=r.amt; else te+=r.amt; });
             document.getElementById('totalIncome').innerText = state.showIncome ? `$${ti.toLocaleString()}` : '-----';
             document.getElementById('totalExpense').innerText = `$${te.toLocaleString()}`;
-            
             let html = filtered.sort((a,b) => new Date(b.date) - new Date(a.date)).map(r => {
                 const insLabel = r.ins > 1 ? ` (分期 ${r.insIndex}/${r.ins})` : '';
                 const noteHtml = r.note ? `<span class="note-pill">${r.note}</span>` : '';
                 return `<div class="item" onclick="openDrawer('edit', ${r.id})">
-                    <div class="item-info">
-                        <div class="item-title-row">
-                            <strong>${r.cat}</strong>
-                            ${noteHtml}
-                        </div>
-                        <small style="color:#49454F; opacity:0.7; margin-top:4px;">${r.date}${insLabel}</small>
-                    </div>
+                    <div class="item-info"><div class="item-title-row"><strong>${r.cat}</strong>${noteHtml}</div><small style="color:#49454F; opacity:0.7; margin-top:4px;">${r.date}${insLabel}</small></div>
                     <span style="color:${r.type==='income'?'#2E7D32':'#C62828'}; font-weight:700;">$${r.amt.toLocaleString()}</span>
                 </div>`;
             }).join('');
@@ -307,21 +299,14 @@
             const body = document.getElementById('sheetBody');
             let navHtml = `<div class="segmented-control"><button class="segment-btn ${state.statsView==='monthly'?'active':''}" onclick="state.statsView='monthly';renderStatsReport()">月份統計</button><button class="segment-btn ${state.statsView==='yearly'?'active':''}" onclick="state.statsView='yearly';renderStatsReport()">年度統計</button></div>`;
             if(state.statsView === 'yearly') {
-                navHtml += `<div class="list-toggle-container" style="margin-bottom:20px;"><div class="small-segmented-control" style="width:200px;"><button class="small-segment-btn ${state.yearlySubView==='year'?'active':''}" onclick="state.yearlySubView='year';renderStatsReport()">年度</button><button class="small-segment-btn ${state.yearlySubView==='cat'?'active':''}" onclick="state.yearlySubView='cat';renderStatsReport()">類別</button></div></div>`;
+                navHtml += `<div class="list-toggle-container" style="margin-bottom:20px;"><div class="small-segmented-control" style="width:180px;"><button class="small-segment-btn ${state.yearlySubView==='year'?'active':''}" onclick="state.yearlySubView='year';renderStatsReport()">年度</button><button class="small-segment-btn ${state.yearlySubView==='cat'?'active':''}" onclick="state.yearlySubView='cat';renderStatsReport()">類別</button></div></div>`;
             }
-            body.innerHTML = navHtml + `<div id="statsList"></div>`;
+            body.innerHTML = navHtml + `<div id="statsList"></div><div id="statsActions" style="margin-top:auto;"><button class="btn-filled" onclick="closeDrawer()">關閉</button></div>`;
             const container = document.getElementById('statsList'), groups = {};
             const tpNow = getTaipeiNow(), curY = tpNow.getFullYear(), curM = tpNow.getMonth();
 
             if (state.statsView === 'monthly') {
-                state.records.forEach(r => {
-                    const d = new Date(r.date), recY = d.getFullYear(), recM = d.getMonth();
-                    if (recY > curY || (recY === curY && recM > curM)) return;
-                    const key = `${recY}年${recM+1}月`;
-                    if(!groups[key]) groups[key] = { i: 0, e: 0, raw: [] };
-                    if(r.type === 'income') groups[key].i += r.amt; else groups[key].e += r.amt;
-                    groups[key].raw.push(r);
-                });
+                state.records.forEach(r => { const d = new Date(r.date), recY = d.getFullYear(), recM = d.getMonth(); if (recY > curY || (recY === curY && recM > curM)) return; const key = `${recY}年${recM+1}月`; if(!groups[key]) groups[key] = { i: 0, e: 0, raw: [] }; if(r.type === 'income') groups[key].i += r.amt; else groups[key].e += r.amt; groups[key].raw.push(r); });
                 container.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a, undefined, {numeric: true})).map(key => {
                     return `<div class="stats-report-item" onclick="showStatsDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key}</strong><span class="material-symbols-outlined">chevron_right</span></div><div style="display:flex; gap:12px; margin-top:8px; font-size:14px;"><span style="color:#2E7D32">收: $${groups[key].i.toLocaleString()}</span><span style="color:#C62828">支: $${groups[key].e.toLocaleString()}</span></div></div>`;
                 }).join('');
@@ -336,8 +321,7 @@
                     }).join('');
                 } else {
                     container.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a)).map(key => {
-                        return `<div class="stats-report-item" onclick="showYearlyCatDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})">
-                            <div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key} 類別詳情</strong><span class="material-symbols-outlined">chevron_right</span></div><div style="font-size:12px; margin-top:4px; opacity:0.6;">查看年度收支分佈</div></div>`;
+                        return `<div class="stats-report-item" onclick="showYearlyCatDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key} 類別詳情</strong><span class="material-symbols-outlined">chevron_right</span></div></div>`;
                     }).join('');
                 }
             }
@@ -359,17 +343,11 @@
         function renderChangelog() {
             const body = document.getElementById('sheetBody');
             body.innerHTML = changelogs.map(log => `<div class="log-item"><div class="log-version">${log.v}</div><div class="log-content">${log.items.map(item => `<div>${item}</div>`).join('')}</div></div>`).join('');
+            body.innerHTML += `<button class="btn-filled" onclick="closeDrawer()">關閉</button>`;
         }
 
-        function evaluateMath(str) {
-            try { const sanitized = str.replace(/[^-()\d/*+.]/g, ''); return Function(`"use strict"; return (${sanitized})`)(); } catch (e) { return null; }
-        }
-
-        function insertOp(op) {
-            const input = document.getElementById('in_amt');
-            input.value += op;
-            input.focus();
-        }
+        function evaluateMath(str) { try { const sanitized = str.replace(/[^-()\d/*+.]/g, ''); return Function(`"use strict"; return (${sanitized})`)(); } catch (e) { return null; } }
+        function insertOp(op) { const input = document.getElementById('in_amt'); input.value += op; input.focus(); }
 
         function openDrawer(mode, id=null) {
             state.currentMode = mode; state.editingId = id;
@@ -380,9 +358,12 @@
             document.getElementById('modalOverlay').classList.add('active');
             document.body.classList.add('no-scroll');
             sheet.className = (mode === 'stats' || mode === 'changelog') ? 'bottom-sheet custom-height' : 'bottom-sheet';
+            
+            // 修正 1: 按鈕隱藏邏輯
             delBtn.style.display = id ? 'block' : 'none';
             catActions.style.display = mode==='category' ? 'flex' : 'none';
             modalActions.style.display = (mode==='category' || mode==='stats' || mode==='changelog') ? 'none' : 'flex';
+            
             if(mode === 'category') { title.innerText = '類別管理'; renderCatManager(); }
             else if(mode === 'stats') { title.innerText = '收支統計報告'; renderStatsReport(); }
             else if(mode === 'changelog') { title.innerText = '更新日誌'; renderChangelog(); }
@@ -391,24 +372,7 @@
                 let displayAmt = record ? record.amt : '';
                 if(record && record.ins > 1) displayAmt = state.records.filter(r=>r.gid===record.gid).reduce((s,x)=>s+x.amt,0);
                 let insOpts = ''; for(let i=1;i<=80;i++) insOpts += `<option value="${i}" ${record && record.ins==i?'selected':''}>${i}</option>`;
-                body.innerHTML = `
-                    <div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div>
-                    <div class="input-group">
-                        <label class="input-label">金額 (支援符號運算)</label>
-                        <div class="amt-wrapper">
-                            <input type="text" id="in_amt" class="md-input" value="${displayAmt}" inputmode="decimal">
-                            <span class="material-symbols-outlined calc-toggle" onclick="document.getElementById('opPopup').classList.toggle('active')">calculate</span>
-                            <div class="op-popup" id="opPopup">
-                                <button class="op-btn" onclick="insertOp('+')">+</button>
-                                <button class="op-btn" onclick="insertOp('-')">-</button>
-                                <button class="op-btn" onclick="insertOp('*')">×</button>
-                                <button class="op-btn" onclick="insertOp('/')">÷</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>
-                    ${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}
-                    <div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..." onkeydown="if(event.key==='Enter') this.blur();"></div>`;
+                body.innerHTML = `<div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div><div class="input-group"><label class="input-label">金額 (支援符號運算)</label><div class="amt-wrapper"><input type="text" id="in_amt" class="md-input" value="${displayAmt}" inputmode="decimal"><span class="material-symbols-outlined calc-toggle" onclick="document.getElementById('opPopup').classList.toggle('active')">calculate</span><div class="op-popup" id="opPopup"><button class="op-btn" onclick="insertOp('+')">+</button><button class="op-btn" onclick="insertOp('-')">-</button><button class="op-btn" onclick="insertOp('*')">×</button><button class="op-btn" onclick="insertOp('/')">÷</button></div></div></div><div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}<div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..." onkeydown="if(event.key==='Enter') this.blur();"></div>`;
             }
         }
 
@@ -419,20 +383,14 @@
             const date = document.getElementById('in_date').value, cat = document.getElementById('in_cat').value, note = document.getElementById('in_note').value, ins = parseInt(document.getElementById('in_ins')?.value || 1);
             const type = state.editingId ? state.records.find(r => r.id === state.editingId).type : state.currentMode;
             if(state.editingId) { const gid = state.records.find(r => r.id === state.editingId).gid; if(gid) state.records = state.records.filter(r => r.gid !== gid); else state.records = state.records.filter(r => r.id !== state.editingId); }
-            if(ins > 1 && type === 'expense') {
-                const gid = Date.now(), base = Math.floor(amt / ins), extra = amt % ins;
-                for(let i=0; i<ins; i++) { const d = new Date(date); d.setMonth(d.getMonth() + i); state.records.push({ id: Date.now()+i, gid, type, date: d.toISOString().split('T')[0], amt: i===0?base+extra:base, cat, ins, insIndex: i+1, note }); }
-            } else { state.records.push({ id: Date.now(), type, date, amt, cat, ins: 1, insIndex: 1, note }); }
+            if(ins > 1 && type === 'expense') { const gid = Date.now(), base = Math.floor(amt / ins), extra = amt % ins; for(let i=0; i<ins; i++) { const d = new Date(date); d.setMonth(d.getMonth() + i); state.records.push({ id: Date.now()+i, gid, type, date: d.toISOString().split('T')[0], amt: i===0?base+extra:base, cat, ins, insIndex: i+1, note }); } } else { state.records.push({ id: Date.now(), type, date, amt, cat, ins: 1, insIndex: 1, note }); }
             saveToCloud(); closeDrawer();
         }
         function handleDelete() { const target = state.records.find(r => r.id === state.editingId); if(!target) return; if(target.gid && !confirm('將刪除整組分期數據？')) return; if(!target.gid && !confirm('確定刪除？')) return; if(target.gid) state.records = state.records.filter(r => r.gid !== target.gid); else state.records = state.records.filter(r => r.id !== state.editingId); saveToCloud(); closeDrawer(); }
         function upCat(id, v) { const catObj = state.cats.find(x => x.id === id); if(catObj) { const oldName = catObj.name, newName = v.trim(); if (oldName === newName || !newName) return; state.records.forEach(r => { if (r.cat === oldName) r.cat = newName; }); catObj.name = newName; saveToCloud(); render(); } }
         function delCat(id){ if(confirm('確定刪除類別？')){state.cats=state.cats.filter(x=>x.id!==id); saveToCloud(); renderCatManager();}}
         function addCat(){ const n=prompt('類別名稱:'); if(n){state.cats.push({id:Date.now(), name:n, type:state.activeCatType, sort:state.cats.length}); saveToCloud(); renderCatManager();}}
-        function renderCatManager() {
-            const filtered = state.cats.filter(c => c.type === state.activeCatType).sort((a,b)=>a.sort-b.sort);
-            document.getElementById('sheetBody').innerHTML = `<div class="small-segmented-control" style="width:100%; margin-bottom:20px;"><button class="small-segment-btn ${state.activeCatType==='expense'?'active':''}" onclick="state.activeCatType='expense';renderCatManager()">支出</button><button class="small-segment-btn ${state.activeCatType==='income'?'active':''}" onclick="state.activeCatType='income';renderCatManager()">收入</button></div><div id="dragContainer">${filtered.map((c, index) => `<div class="category-row" draggable="true" ondragstart="handleDragStart(event, ${index})" ondragover="handleDragOver(event)" ondrop="handleDrop(event, ${index})" ondragend="handleDragEnd(event)"><span class="material-symbols-outlined" style="opacity:0.5;">drag_indicator</span><input type="text" class="md-input" style="border:none;background:none;flex:1;" value="${c.name}" onchange="upCat(${c.id},this.value)"><span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:#B3261E; cursor:pointer;">delete</span></div>`).join('')}</div>`;
-        }
+        function renderCatManager() { const filtered = state.cats.filter(c => c.type === state.activeCatType).sort((a,b)=>a.sort-b.sort); document.getElementById('sheetBody').innerHTML = `<div class="small-segmented-control" style="width:100%; margin-bottom:20px;"><button class="small-segment-btn ${state.activeCatType==='expense'?'active':''}" onclick="state.activeCatType='expense';renderCatManager()">支出</button><button class="small-segment-btn ${state.activeCatType==='income'?'active':''}" onclick="state.activeCatType='income';renderCatManager()">收入</button></div><div id="dragContainer">${filtered.map((c, index) => `<div class="category-row" draggable="true" ondragstart="handleDragStart(event, ${index})" ondragover="handleDragOver(event)" ondrop="handleDrop(event, ${index})" ondragend="handleDragEnd(event)"><span class="material-symbols-outlined" style="opacity:0.5;">drag_indicator</span><input type="text" class="md-input" style="border:none;background:none;flex:1;" value="${c.name}" onchange="upCat(${c.id},this.value)"><span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:#B3261E; cursor:pointer;">delete</span></div>`).join('')}</div><button class="btn-filled" onclick="closeDrawer()">關閉</button>`; }
         function handleDragStart(e, index) { dragSrcIndex = index; e.target.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
         function handleDragOver(e) { e.preventDefault(); return false; }
         function handleDrop(e, targetIndex) { e.stopPropagation(); if (dragSrcIndex !== targetIndex) { const typeCats = state.cats.filter(c => c.type === state.activeCatType).sort((a,b) => a.sort - b.sort); const otherCats = state.cats.filter(c => c.type !== state.activeCatType); const [movedItem] = typeCats.splice(dragSrcIndex, 1); typeCats.splice(targetIndex, 0, movedItem); typeCats.forEach((c, i) => c.sort = i); state.cats = [...otherCats, ...typeCats]; saveToCloud(); renderCatManager(); } return false; }
