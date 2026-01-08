@@ -33,14 +33,29 @@
 
         #sync-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--md-sys-color-surface); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; }
 
-        .summary-header { background-color: var(--md-sys-color-surface-container); margin: 16px; padding: 24px 24px 16px 24px; border-radius: 32px; position: relative; }
+        .summary-header { 
+            background-color: var(--md-sys-color-surface-container); 
+            margin: 16px; padding: 24px 24px 36px 24px; /* 增加底部留白給對齊字樣 */
+            border-radius: 32px; 
+            position: relative; 
+        }
         
-        /* 修正 1: 版本號改為可點擊 */
+        /* 修正 1: 對齊高度之版本號 */
         .version-tag { 
             position: absolute; right: 20px; bottom: 12px; font-size: 8px; color: #555555; 
             opacity: 0.8; font-weight: 500; cursor: pointer; padding: 4px; border-radius: 4px;
         }
         .version-tag:active { background: rgba(0,0,0,0.05); }
+
+        /* 修正 1: 對齊高度之同步狀態 */
+        .sync-status { 
+            position: absolute; left: 50%; bottom: 16px; /* 與版本號 bottom 對齊 */
+            transform: translateX(-50%);
+            font-size: 9px; 
+            color: var(--md-sys-color-outline); 
+            display: flex; align-items: center; justify-content: center;
+            white-space: nowrap;
+        }
 
         .month-selector { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .month-label { font-size: 20px; font-weight: 700; color: var(--md-sys-color-primary); }
@@ -81,7 +96,6 @@
         .fab-menu { position: fixed; right: 20px; bottom: 105px; display: none; flex-direction: column; gap: 12px; z-index: 100; align-items: flex-end; }
         .fab-item { background: #F5F5F5; padding: 12px 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: 500; cursor: pointer; color: var(--md-sys-color-on-surface); }
 
-        .sync-status { font-size: 9px; text-align: center; color: var(--md-sys-color-outline); height: 24px; display: flex; align-items: center; justify-content: center; margin-top: 4px; }
         .category-row { display: flex; align-items: center; background: var(--md-sys-color-surface-container-high); margin-bottom: 8px; padding: 12px; border-radius: 16px; gap: 12px; cursor: move; }
         .segmented-control { display: flex; background: var(--md-sys-color-surface-container-high); padding: 4px; border-radius: 100px; margin-bottom: 24px; }
         .segment-btn { flex: 1; border: none; background: none; padding: 10px; border-radius: 100px; font-size: 14px; font-weight: 500; cursor: pointer; }
@@ -90,7 +104,6 @@
         .stats-detail-card { background: var(--md-sys-color-surface-container-high); padding: 16px; border-radius: 20px; margin-bottom: 16px; }
         .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed var(--md-sys-color-outline); opacity: 0.8; }
         
-        /* 修正 3: 更新日誌樣式 */
         .log-item { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #ECE6F0; }
         .log-version { display: inline-block; background: #6750A4; color: white; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
         .log-content { font-size: 14px; line-height: 1.6; color: #49454F; }
@@ -124,7 +137,7 @@
                 </div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag" onclick="openDrawer('changelog')">v26.8</div>
+            <div class="version-tag" onclick="openDrawer('changelog')">v26.9</div>
         </div>
 
         <div class="transaction-section">
@@ -201,16 +214,16 @@
             showIncome: false
         };
 
-        // 更新日誌數據庫
         const changelogs = [
-            { v: "v26.8", items: ["新增版本更新紀錄查看功能 (本視窗)"] },
-            { v: "v26.7", items: ["年度統計之「類別」分頁優化為按年份區分", "新增二級詳情跳轉功能"] },
-            { v: "v26.6", items: ["主畫面收支紀錄新增「圓角備註氣泡」", "備註視覺層次優化"] },
-            { v: "v26.5", items: ["圓餅圖圖例限制僅顯示前六大金額項目", "新增備註輸入完成點擊 Enter 自動收起鍵盤", "統計報告視窗固定佔據畫面 50% 高度"] },
-            { v: "v26.4", items: ["收支統計報告隱藏尚未到達的未來月份", "鎖定 GMT+8 台北標準時間判定邏輯"] },
+            { v: "v26.9", items: ["修正「雲端已同步」字樣垂直高度，與版本號水平對齊"] },
+            { v: "v26.8", items: ["新增點擊版本號查看「更新日誌」功能"] },
+            { v: "v26.7", items: ["年度統計之「類別」分頁改為按年份區分顯示"] },
+            { v: "v26.6", items: ["主畫面收支紀錄新增「圓角備註氣泡」設計"] },
+            { v: "v26.5", items: ["圖例限制前六大金額項目", "備註 Enter 自動關閉鍵盤", "統計報告視窗固定 50% 高度"] },
+            { v: "v26.4", items: ["隱藏未來月份統計數據 (基於 GMT+8 台北時間)"] },
             { v: "v26.3", items: ["年度統計報告新增「平均月收入」顯示"] },
-            { v: "v26.2", items: ["總收入金額支援點擊隱藏/顯示切換", "FAB 選單選項背景改為淡灰色底"] },
-            { v: "v26.1", items: ["同步狀態字體縮小置中優化", "版本號系統啟動與顯示美化"] }
+            { v: "v26.2", items: ["總收入支援點擊隱藏/顯示切換", "FAB 選單改為淡灰色背景"] },
+            { v: "v26.1", items: ["同步狀態樣式優化", "版本號顯示系統啟動"] }
         ];
 
         let db = null, mainChartObj = null, dragSrcIndex = null;
@@ -363,7 +376,6 @@
             document.getElementById('sheetBody').innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3 style="margin:0 0 16px 0;">${title} 細項</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">收入分佈</div>${getRows(data.filter(r => r.type === 'income')) || '無數據'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">支出分佈</div>${getRows(data.filter(r => r.type === 'expense')) || '無數據'}</div><button class="btn-filled" onclick="closeDrawer()">關閉</button>`;
         }
 
-        // 修正 3: 渲染更新日誌
         function renderChangelog() {
             const body = document.getElementById('sheetBody');
             body.innerHTML = changelogs.map(log => `
@@ -384,14 +396,10 @@
             const sheet = document.getElementById('mainSheet'), title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), catActions = document.getElementById('catActions'), modalActions = document.getElementById('modalActions');
             document.getElementById('modalOverlay').classList.add('active');
             document.body.classList.add('no-scroll');
-            
-            // 修正：changelog 也使用半高視窗
             sheet.className = (mode === 'stats' || mode === 'changelog') ? 'bottom-sheet half-height' : 'bottom-sheet';
-            
             delBtn.style.display = id ? 'block' : 'none';
             catActions.style.display = mode==='category' ? 'flex' : 'none';
             modalActions.style.display = (mode==='category' || mode==='stats' || mode==='changelog') ? 'none' : 'flex';
-            
             if(mode === 'category') { title.innerText = '類別管理'; renderCatManager(); }
             else if(mode === 'stats') { title.innerText = '收支統計報告'; renderStatsReport(); }
             else if(mode === 'changelog') { title.innerText = '更新日誌'; renderChangelog(); }
@@ -400,11 +408,10 @@
                 let displayAmt = record ? record.amt : '';
                 if(record && record.ins > 1) displayAmt = state.records.filter(r=>r.gid===record.gid).reduce((s,x)=>s+x.amt,0);
                 let insOpts = ''; for(let i=1;i<=80;i++) insOpts += `<option value="${i}" ${record && record.ins==i?'selected':''}>${i}</option>`;
-                body.innerHTML = `<div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div><div class="input-group"><label class="input-label">金額 ${record?.ins>1?'(總額)':''}</label><input type="number" id="in_amt" class="md-input" value="${displayAmt}" inputmode="numeric"></div><div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}<div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..." onkeydown="if(event.key==='Enter') this.blur();"></div>`;
+                body.innerHTML = `<div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div><div class="input-group"><label class="input-label">金額</label><input type="number" id="in_amt" class="md-input" value="${displayAmt}" inputmode="numeric"></div><div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}<div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..." onkeydown="if(event.key==='Enter') this.blur();"></div>`;
             }
         }
 
-        // 其餘基礎邏輯維持不變
         function handleSave() {
             const amtVal = document.getElementById('in_amt').value; if(!amtVal) return alert('請輸入金額');
             const date = document.getElementById('in_date').value, cat = document.getElementById('in_cat').value, note = document.getElementById('in_note').value, amt = parseInt(amtVal), ins = parseInt(document.getElementById('in_ins')?.value || 1);
