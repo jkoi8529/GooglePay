@@ -66,10 +66,8 @@
         .bottom-sheet.custom-height { height: 72.5vh; max-height: 72.5vh; }
         #sheetBody { flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; overflow-y: auto; }
 
-        /* 修正 1: 確保標頭動作區域為左右排列 */
         .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-shrink: 0; min-height: 48px; }
         .header-actions { display: flex; flex-direction: row; gap: 8px; align-items: center; }
-
         .sheet-handle { width: 32px; height: 4px; background: var(--md-sys-color-outline); border-radius: 2px; margin: 0 auto 24px auto; opacity: 0.4; flex-shrink: 0; }
         .circle-btn { width: 40px; height: 40px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
@@ -210,13 +208,26 @@
             showIncome: false
         };
 
+        // 修正 1: 重新補全所有歷史更新紀錄 (v26.1 - v26.18)
         const changelogs = [
-            { v: "v26.18", items: ["修正統計報告標頭按鈕左右對齊 (Excel 與關閉鈕)", "移除統計報告中多餘的確認儲存按鍵，保持視窗簡潔"] },
-            { v: "v26.17", items: ["優化按鈕排版為左右排列", "修正新增介面 Android 16 標準比例樣式"] },
-            { v: "v26.16", items: ["修正統計明細 Bar 視覺回歸 Android 16 設計", "鎖定圓餅圖中心位置，防切換位移"] },
-            { v: "v26.15", items: ["新增收支統計 Excel 匯出 (支援多工作表)"] },
-            { v: "v26.11", items: ["實裝金額計算機彈出鈕功能"] },
-            { v: "v26.1", items: ["版本號系統與同步功能啟動"] }
+            { v: "v26.18", items: ["修正統計報告標頭按鈕左右排列 (Excel 與關閉鈕)", "移除統計報告視窗底部冗餘按鍵"] },
+            { v: "v26.17", items: ["優化底層按鈕排版為左右並列", "修正新增/編輯介面 Android 16 標準輸入樣式"] },
+            { v: "v26.16", items: ["統計明細 Bar 視覺回歸 Android 16 高質感設計", "鎖定圓餅圖中心點，解決收支切換位移問題"] },
+            { v: "v26.15", items: ["新增 Excel 匯出功能 (支援多工作表)", "移除底部修正程式碼區塊", "類別管理 Bar 樣式復原"] },
+            { v: "v26.14", items: ["修正電腦版統計報告切換位移之滾動條問題"] },
+            { v: "v26.13", items: ["動作按鈕恢復 Pill (膠囊) 風格", "固定統計報告標題位置"] },
+            { v: "v26.12", items: ["修復分段按鈕樣式偏移，回歸 Android 16 置中設計"] },
+            { v: "v26.11", items: ["金額計算機方案 B 實裝", "修正備註中心線對齊"] },
+            { v: "v26.10", items: ["統計視窗高度提升至 72.5%", "金額欄位支援四則運算", "備註移至類別右側"] },
+            { v: "v26.9", items: ["修正雲端同步字樣與版本號水平對齊"] },
+            { v: "v26.8", items: ["版本號改為可點擊，開啟更新日誌"] },
+            { v: "v26.7", items: ["年度統計之「類別」分頁優化為年份分層"] },
+            { v: "v26.6", items: ["主畫面收支紀錄新增「備註氣泡」設計"] },
+            { v: "v26.5", items: ["圖例限制前六大項", "備註輸入完成點擊 Enter 自動關閉鍵盤"] },
+            { v: "v26.4", items: ["隱藏未來月份統計數據 (GMT+8 判定)"] },
+            { v: "v26.3", items: ["年度統計報告新增「平均月收入」顯示"] },
+            { v: "v26.2", items: ["總收入金額支援點擊隱藏/顯示切換", "FAB 選單背景美化"] },
+            { v: "v26.1", items: ["同步狀態樣式優化", "版本號顯示系統正式啟動"] }
         ];
 
         let db = null, mainChartObj = null, dragSrcIndex = null;
@@ -341,6 +352,7 @@
                 navHtml += `<div class="list-toggle-container" style="margin-bottom:20px;"><div class="small-segmented-control" style="width:180px;"><button class="small-segment-btn ${state.yearlySubView==='year'?'active':''}" onclick="state.yearlySubView='year';renderStatsReport()">年度</button><button class="small-segment-btn ${state.yearlySubView==='cat'?'active':''}" onclick="state.yearlySubView='cat';renderStatsReport()">類別</button></div></div>`;
             }
             body.innerHTML = navHtml + `<div id="statsList"></div>`;
+            
             const container = document.getElementById('statsList'), groups = {};
             const tpNow = getTaipeiNow(), curY = tpNow.getFullYear(), curM = tpNow.getMonth();
 
@@ -359,7 +371,8 @@
                     }).join('');
                 } else {
                     container.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a)).map(key => {
-                        return `<div class="stats-report-item" onclick="showYearlyCatDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key} 類別詳情</strong><span class="material-symbols-outlined">chevron_right</span></div></div>`;
+                        return `<div class="stats-report-item" onclick="showYearlyCatDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})">
+                            <div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key} 類別詳情</strong><span class="material-symbols-outlined">chevron_right</span></div></div>`;
                     }).join('');
                 }
             }
@@ -395,12 +408,9 @@
             document.getElementById('modalOverlay').classList.add('active');
             document.body.classList.add('no-scroll');
             sheet.className = (mode === 'stats' || mode === 'changelog') ? 'bottom-sheet custom-height' : 'bottom-sheet';
-            
-            // 修正 1 & 2: 處理按鈕顯示
             delBtn.style.display = id ? 'block' : 'none';
             excelBtn.style.display = mode === 'stats' ? 'inline-flex' : 'none';
             modalActions.style.display = (mode === 'stats' || mode === 'changelog' || mode === 'category') ? 'none' : 'flex';
-            
             if(mode === 'category') { title.innerText = '類別管理'; renderCatManager(); }
             else if(mode === 'stats') { title.innerText = '收支統計報告'; renderStatsReport(); }
             else if(mode === 'changelog') { title.innerText = '更新日誌'; renderChangelog(); }
