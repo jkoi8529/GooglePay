@@ -46,25 +46,17 @@
         .summary-item small { display: block; color: var(--md-sys-color-on-surface-variant); font-size: 12px; }
         .summary-item span { font-size: 18px; font-weight: 700; }
 
-        .transaction-section { padding: 0 16px; flex-grow: 1; }
-        .list-toggle-container { display: flex; justify-content: center; margin-bottom: 12px; }
-        .small-segmented-control { display: flex; background: var(--md-sys-color-surface-container-high); padding: 2px; border-radius: 100px; width: 160px; }
-        .small-segment-btn { flex: 1; border: none; background: none; padding: 6px; border-radius: 100px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--md-sys-color-on-surface-variant); }
-        .small-segment-btn.active { background: white; color: var(--md-sys-color-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-
-        .main-chart-container { background: white; margin: 0 16px 16px 16px; padding: 10px 16px; border-radius: 24px; height: 160px; display: flex; justify-content: center; align-items: center; }
-        .list-card { background: white; border-radius: 24px; padding: 8px 0; margin-bottom: 120px; }
+        .list-card { background: white; border-radius: 24px; padding: 8px 0; margin: 0 16px 120px 16px; }
         
-        /* 修正 2: 列表項目佈局優化 (備註右側) */
-        .item { display: flex; justify-content: space-between; align-items: flex-start; padding: 16px 20px; border-bottom: 1px solid var(--md-sys-color-surface-container); cursor: pointer; }
-        .item-info { display: flex; flex-direction: column; flex: 1; margin-right: 12px; }
-        .item-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
-        .note-pill { background-color: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 500; white-space: nowrap; max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
+        /* 修正 1: 備註與類別中心線對齊 */
+        .item { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--md-sys-color-surface-container); cursor: pointer; }
+        .item-info { display: flex; flex-direction: column; flex: 1; }
+        .item-title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+        .note-pill { background-color: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; white-space: nowrap; max-width: 140px; overflow: hidden; text-overflow: ellipsis; display: inline-flex; align-items: center; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; align-items: flex-end; }
         .modal-overlay.active { display: flex; }
         
-        /* 修正 1: 視窗高度改為 72.5% */
         .bottom-sheet { background: var(--md-sys-color-surface); width: 100%; border-radius: 32px 32px 0 0; padding: 24px; box-sizing: border-box; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; }
         .bottom-sheet.custom-height { height: 72.5vh; max-height: 72.5vh; }
         #sheetBody { flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; }
@@ -73,9 +65,21 @@
         .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .circle-btn { width: 40px; height: 40px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
+        .input-group { margin-bottom: 20px; position: relative; }
+        .input-label { font-size: 14px; font-weight: 500; color: var(--md-sys-color-primary); margin-bottom: 8px; display: block; }
         .md-input { width: 100%; padding: 16px; border: 1px solid var(--md-sys-color-outline); border-radius: 14px; font-size: 16px; background: transparent; box-sizing: border-box; }
-        .btn-filled { background: var(--md-sys-color-primary); color: white; border: none; padding: 16px; width: 100%; border-radius: 100px; font-size: 16px; font-weight: 700; cursor: pointer; }
-        .btn-text-error { background: none; color: var(--md-sys-color-error); border: none; padding: 16px; width: 100%; font-weight: 700; cursor: pointer; }
+
+        /* 修正 4: 方案 B 運算子按鈕介面 */
+        .amt-wrapper { position: relative; display: flex; align-items: center; }
+        .calc-toggle { position: absolute; right: 12px; color: var(--md-sys-color-primary); cursor: pointer; user-select: none; }
+        .op-popup { 
+            position: absolute; right: 0; top: -52px; background: white; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 12px; 
+            display: none; padding: 4px; gap: 4px; z-index: 10; border: 1px solid var(--md-sys-color-outline);
+        }
+        .op-popup.active { display: flex; }
+        .op-btn { width: 40px; height: 40px; border-radius: 8px; border: none; background: var(--md-sys-color-surface-container-high); font-size: 18px; font-weight: 700; color: var(--md-sys-color-primary); cursor: pointer; }
+        .op-btn:active { background: var(--md-sys-color-primary-container); }
 
         .fab { position: fixed; right: 20px; bottom: 32px; width: 64px; height: 64px; border-radius: 20px; background: var(--md-sys-color-primary-container); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; cursor: pointer; }
         .fab-left { position: fixed; left: 20px; bottom: 32px; width: 64px; height: 64px; border-radius: 20px; background: var(--md-sys-color-secondary-container); display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer; }
@@ -86,9 +90,6 @@
         .segmented-control { display: flex; background: var(--md-sys-color-surface-container-high); padding: 4px; border-radius: 100px; margin-bottom: 24px; }
         .segment-btn { flex: 1; border: none; background: none; padding: 10px; border-radius: 100px; font-size: 14px; font-weight: 500; cursor: pointer; }
         .segment-btn.active { background: white; color: var(--md-sys-color-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .stats-report-item { background: white; padding: 16px; border-radius: 20px; margin-bottom: 12px; border: 1px solid var(--md-sys-color-surface-container-high); cursor: pointer; }
-        .stats-detail-card { background: var(--md-sys-color-surface-container-high); padding: 16px; border-radius: 20px; margin-bottom: 16px; }
-        .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed var(--md-sys-color-outline); opacity: 0.8; }
         
         .log-item { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #ECE6F0; }
         .log-version { display: inline-block; background: #6750A4; color: white; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
@@ -114,16 +115,12 @@
             </div>
             <div class="summary-grid">
                 <div class="summary-item" onclick="toggleIncomeDisplay()">
-                    <small>總收入</small>
-                    <span id="totalIncome" style="color:#2E7D32;">-----</span>
+                    <small>總收入</small><span id="totalIncome" style="color:#2E7D32;">-----</span>
                 </div>
-                <div class="summary-item">
-                    <small>總支出</small>
-                    <span id="totalExpense" style="color:#C62828;">$0</span>
-                </div>
+                <div class="summary-item"><small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span></div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag" onclick="openDrawer('changelog')">v26.10</div>
+            <div class="version-tag" onclick="openDrawer('changelog')">v26.11</div>
         </div>
 
         <div class="transaction-section">
@@ -169,7 +166,7 @@
                 <button style="flex:1; padding:12px; border-radius:100px; border:1px solid #79747E; background:none;" onclick="document.getElementById('importFile').click()">還原</button>
             </div>
             <input type="file" id="importFile" style="display:none" onchange="importData(event)">
-            <textarea id="liveUpdateCode" class="md-input" style="height:80px; font-family:monospace; font-size:12px;" placeholder="在此貼上修正程式碼..."></textarea>
+            <textarea id="liveUpdateCode" class="md-input" style="height:80px; font-family:monospace; font-size:12px;" placeholder="修正程式碼貼於此..."></textarea>
             <button class="btn-filled" style="background:#E8DEF8; color:#1D192B; margin-top:8px; height:auto; padding:12px;" onclick="applyUpdate()">套用更新</button>
         </div>
     </div>
@@ -200,13 +197,19 @@
             showIncome: false
         };
 
+        // 修正 2: 完整歷史更新紀錄
         const changelogs = [
-            { v: "v26.10", items: ["統計報告與更新日誌視窗高度調至 72.5%", "主畫面備註氣泡移動至類別右側", "金額欄位新增計算機運算模式 (支援 +-*/)"] },
+            { v: "v26.11", items: ["實裝方案 B 運算子彈出鈕，點擊符號後可繼續輸入", "修正備註氣泡中心線與類別文字對齊", "重新收錄 v26.1 起所有完整更新紀錄"] },
+            { v: "v26.10", items: ["統計視窗高度提升至 72.5%", "備註氣泡移動至類別右側呈現", "金額欄位支援算式直接運算功能"] },
             { v: "v26.9", items: ["修正雲端同步字樣與版本號水平對齊"] },
             { v: "v26.8", items: ["新增點擊版本號查看「更新日誌」功能"] },
-            { v: "v26.7", items: ["年度統計類別功能優化 (年份二級分層)"] },
+            { v: "v26.7", items: ["年度統計之「類別」分頁改為按年份二級分層"] },
             { v: "v26.6", items: ["主畫面收支紀錄新增「圓角備註氣泡」設計"] },
-            { v: "v26.5", items: ["圖例限制前六、備註 Enter 自動收起鍵盤"] }
+            { v: "v26.5", items: ["圓餅圖圖例限制前六大項", "統計報告視窗固定 50% 高度"] },
+            { v: "v26.4", items: ["統計報告隱藏未來月份資料 (GMT+8 判定)"] },
+            { v: "v26.3", items: ["年度統計報告新增「平均月收入」顯示"] },
+            { v: "v26.2", items: ["總收入支援隱藏/顯示切換", "選單淡灰色背景優化"] },
+            { v: "v26.1", items: ["同步狀態與版本號系統啟動"] }
         ];
 
         let db = null, mainChartObj = null, dragSrcIndex = null;
@@ -267,7 +270,6 @@
             });
         }
 
-        // 修正 2: 重新排版列表，將備註移至類別右側
         function render() {
             const year = state.viewDate.getFullYear(), month = state.viewDate.getMonth();
             document.getElementById('dateLabel').innerText = `${year}年 ${month + 1}月`;
@@ -283,14 +285,13 @@
             let html = filtered.sort((a,b) => new Date(b.date) - new Date(a.date)).map(r => {
                 const insLabel = r.ins > 1 ? ` (分期 ${r.insIndex}/${r.ins})` : '';
                 const noteHtml = r.note ? `<span class="note-pill">${r.note}</span>` : '';
-                
                 return `<div class="item" onclick="openDrawer('edit', ${r.id})">
                     <div class="item-info">
                         <div class="item-title-row">
                             <strong>${r.cat}</strong>
                             ${noteHtml}
                         </div>
-                        <small style="color:#49454F; opacity:0.7; margin-top:4px;">${r.date}${insLabel}</small>
+                        <small style="color:#49454F; opacity:0.7;">${r.date}${insLabel}</small>
                     </div>
                     <span style="color:${r.type==='income'?'#2E7D32':'#C62828'}; font-weight:700;">$${r.amt.toLocaleString()}</span>
                 </div>`;
@@ -321,14 +322,7 @@
                     return `<div class="stats-report-item" onclick="showStatsDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key}</strong><span class="material-symbols-outlined">chevron_right</span></div><div style="display:flex; gap:12px; margin-top:8px; font-size:14px;"><span style="color:#2E7D32">收: $${groups[key].i.toLocaleString()}</span><span style="color:#C62828">支: $${groups[key].e.toLocaleString()}</span></div></div>`;
                 }).join('');
             } else {
-                state.records.forEach(r => {
-                    const d = new Date(r.date), recY = d.getFullYear();
-                    if (recY > curY) return;
-                    const key = `${recY}年`;
-                    if(!groups[key]) groups[key] = { i: 0, e: 0, raw: [] };
-                    if(r.type === 'income') groups[key].i += r.amt; else groups[key].e += r.amt;
-                    groups[key].raw.push(r);
-                });
+                state.records.forEach(r => { const d = new Date(r.date), recY = d.getFullYear(); if (recY > curY) return; const key = `${recY}年`; if(!groups[key]) groups[key] = { i: 0, e: 0, raw: [] }; if(r.type === 'income') groups[key].i += r.amt; else groups[key].e += r.amt; groups[key].raw.push(r); });
                 if (state.yearlySubView === 'year') {
                     container.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a)).map(key => {
                         const mSet = new Set(groups[key].raw.map(r => new Date(r.date).getMonth()));
@@ -339,9 +333,7 @@
                 } else {
                     container.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a)).map(key => {
                         return `<div class="stats-report-item" onclick="showYearlyCatDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})">
-                            <div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key} 類別詳情</strong><span class="material-symbols-outlined">chevron_right</span></div>
-                            <div style="font-size:12px; margin-top:4px; opacity:0.6;">查看各類別收支總額</div>
-                        </div>`;
+                            <div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key} 類別詳情</strong><span class="material-symbols-outlined">chevron_right</span></div><div style="font-size:12px; margin-top:4px; opacity:0.6;">查看各類別收支總額</div></div>`;
                     }).join('');
                 }
             }
@@ -352,18 +344,11 @@
             const yearCats = { income: {}, expense: {} };
             data.forEach(r => { const target = r.type === 'income' ? yearCats.income : yearCats.expense; target[r.cat] = (target[r.cat] || 0) + r.amt; });
             const getRows = (catData) => Object.entries(catData).sort((a,b) => b[1]-a[1]).map(([c, a]) => `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()}</span></div>`).join('');
-            body.innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div>
-                <h3 style="margin:0 0 16px 0;">${title} 類別總結</h3>
-                <div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">年度收入分佈</div>${getRows(yearCats.income) || '<div style="font-size:12px;opacity:0.5">無紀錄</div>'}</div>
-                <div class="stats-detail-card"><div class="input-label" style="color:#C62828">年度支出分佈</div>${getRows(yearCats.expense) || '<div style="font-size:12px;opacity:0.5">無紀錄</div>'}</div>
-                <button class="btn-filled" onclick="closeDrawer()">關閉</button>`;
+            body.innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3 style="margin:0 0 16px 0;">${title} 類別總結</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">年度收入分佈</div>${getRows(yearCats.income) || '<div style="font-size:12px;opacity:0.5">無紀錄</div>'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">年度支出分佈</div>${getRows(yearCats.expense) || '<div style="font-size:12px;opacity:0.5">無紀錄</div>'}</div><button class="btn-filled" onclick="closeDrawer()">關閉</button>`;
         }
 
         function showStatsDetail(title, data) {
-            const getRows = (items) => {
-                const g = {}; let t = 0; items.forEach(r => { g[r.cat] = (g[r.cat] || 0) + r.amt; t += r.amt; });
-                return Object.entries(g).sort((a,b) => b[1] - a[1]).map(([c, a]) => `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${t > 0 ? ((a/t)*100).toFixed(0) : 0}%)</span></div>`).join('');
-            };
+            const getRows = (items) => { const g = {}; let t = 0; items.forEach(r => { g[r.cat] = (g[r.cat] || 0) + r.amt; t += r.amt; }); return Object.entries(g).sort((a,b) => b[1] - a[1]).map(([c, a]) => `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${t > 0 ? ((a/t)*100).toFixed(0) : 0}%)</span></div>`).join(''); };
             document.getElementById('sheetBody').innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3 style="margin:0 0 16px 0;">${title} 細項</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">收入分佈</div>${getRows(data.filter(r => r.type === 'income')) || '無數據'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">支出分佈</div>${getRows(data.filter(r => r.type === 'expense')) || '無數據'}</div><button class="btn-filled" onclick="closeDrawer()">關閉</button>`;
         }
 
@@ -372,15 +357,15 @@
             body.innerHTML = changelogs.map(log => `<div class="log-item"><div class="log-version">${log.v}</div><div class="log-content">${log.items.map(item => `<div>${item}</div>`).join('')}</div></div>`).join('');
         }
 
-        // 修正 3: 安全地計算數學字串
         function evaluateMath(str) {
-            try {
-                // 僅允許 數字, +, -, *, /, ., ( )
-                const sanitized = str.replace(/[^-()\d/*+.]/g, '');
-                return Function(`"use strict"; return (${sanitized})`)();
-            } catch (e) {
-                return null;
-            }
+            try { const sanitized = str.replace(/[^-()\d/*+.]/g, ''); return Function(`"use strict"; return (${sanitized})`)(); } catch (e) { return null; }
+        }
+
+        // 方案 B 專用：插入運算子
+        function insertOp(op) {
+            const input = document.getElementById('in_amt');
+            input.value += op;
+            input.focus();
         }
 
         function openDrawer(mode, id=null) {
@@ -391,10 +376,7 @@
             const sheet = document.getElementById('mainSheet'), title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), catActions = document.getElementById('catActions'), modalActions = document.getElementById('modalActions');
             document.getElementById('modalOverlay').classList.add('active');
             document.body.classList.add('no-scroll');
-            
-            // 修正 1: 設定高度
             sheet.className = (mode === 'stats' || mode === 'changelog') ? 'bottom-sheet custom-height' : 'bottom-sheet';
-            
             delBtn.style.display = id ? 'block' : 'none';
             catActions.style.display = mode==='category' ? 'flex' : 'none';
             modalActions.style.display = (mode==='category' || mode==='stats' || mode==='changelog') ? 'none' : 'flex';
@@ -407,45 +389,42 @@
                 if(record && record.ins > 1) displayAmt = state.records.filter(r=>r.gid===record.gid).reduce((s,x)=>s+x.amt,0);
                 let insOpts = ''; for(let i=1;i<=80;i++) insOpts += `<option value="${i}" ${record && record.ins==i?'selected':''}>${i}</option>`;
                 
-                // 修正 3: 金額改為 text 類型以支援計算機輸入
-                body.innerHTML = `<div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div>
-                <div class="input-group"><label class="input-label">金額 (支援 +-*/ 計算)</label><input type="text" id="in_amt" class="md-input" value="${displayAmt}" placeholder="例如: 50+95" inputmode="decimal"></div>
-                <div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}<div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..." onkeydown="if(event.key==='Enter') this.blur();"></div>`;
+                // 方案 B：金額欄位
+                body.innerHTML = `
+                    <div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div>
+                    <div class="input-group">
+                        <label class="input-label">金額 (支援符號運算)</label>
+                        <div class="amt-wrapper">
+                            <input type="text" id="in_amt" class="md-input" value="${displayAmt}" inputmode="decimal">
+                            <span class="material-symbols-outlined calc-toggle" onclick="document.getElementById('opPopup').classList.toggle('active')">calculate</span>
+                            <div class="op-popup" id="opPopup">
+                                <button class="op-btn" onclick="insertOp('+')">+</button>
+                                <button class="op-btn" onclick="insertOp('-')">-</button>
+                                <button class="op-btn" onclick="insertOp('*')">×</button>
+                                <button class="op-btn" onclick="insertOp('/')">÷</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>
+                    ${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}
+                    <div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..." onkeydown="if(event.key==='Enter') this.blur();"></div>`;
             }
         }
 
-        // 修正 3: 儲存時處理數學運算
         function handleSave() {
-            let amtRaw = document.getElementById('in_amt').value;
-            if(!amtRaw) return alert('請輸入金額');
-            
-            // 計算結果
-            let amt = evaluateMath(amtRaw);
-            if (amt === null || isNaN(amt)) return alert('金額輸入錯誤，請檢查運算式');
-            amt = Math.round(amt); // 自動取整數
-
+            let amtRaw = document.getElementById('in_amt').value; if(!amtRaw) return alert('請輸入金額');
+            let amt = evaluateMath(amtRaw); if (amt === null || isNaN(amt)) return alert('金額運算錯誤');
+            amt = Math.round(amt);
             const date = document.getElementById('in_date').value, cat = document.getElementById('in_cat').value, note = document.getElementById('in_note').value, ins = parseInt(document.getElementById('in_ins')?.value || 1);
             const type = state.editingId ? state.records.find(r => r.id === state.editingId).type : state.currentMode;
-            
-            if(state.editingId) {
-                const gid = state.records.find(r => r.id === state.editingId).gid;
-                if(gid) state.records = state.records.filter(r => r.gid !== gid);
-                else state.records = state.records.filter(r => r.id !== state.editingId);
-            }
+            if(state.editingId) { const gid = state.records.find(r => r.id === state.editingId).gid; if(gid) state.records = state.records.filter(r => r.gid !== gid); else state.records = state.records.filter(r => r.id !== state.editingId); }
             if(ins > 1 && type === 'expense') {
                 const gid = Date.now(), base = Math.floor(amt / ins), extra = amt % ins;
                 for(let i=0; i<ins; i++) { const d = new Date(date); d.setMonth(d.getMonth() + i); state.records.push({ id: Date.now()+i, gid, type, date: d.toISOString().split('T')[0], amt: i===0?base+extra:base, cat, ins, insIndex: i+1, note }); }
             } else { state.records.push({ id: Date.now(), type, date, amt, cat, ins: 1, insIndex: 1, note }); }
             saveToCloud(); closeDrawer();
         }
-
-        function handleDelete() {
-            const target = state.records.find(r => r.id === state.editingId); if(!target) return;
-            if(target.gid && !confirm('將刪除整組分期數據？')) return;
-            if(!target.gid && !confirm('確定刪除？')) return;
-            if(target.gid) state.records = state.records.filter(r => r.gid !== target.gid); else state.records = state.records.filter(r => r.id !== state.editingId);
-            saveToCloud(); closeDrawer();
-        }
+        function handleDelete() { const target = state.records.find(r => r.id === state.editingId); if(!target) return; if(target.gid && !confirm('將刪除整組分期數據？')) return; if(!target.gid && !confirm('確定刪除？')) return; if(target.gid) state.records = state.records.filter(r => r.gid !== target.gid); else state.records = state.records.filter(r => r.id !== state.editingId); saveToCloud(); closeDrawer(); }
         function upCat(id, v) { const catObj = state.cats.find(x => x.id === id); if(catObj) { const oldName = catObj.name, newName = v.trim(); if (oldName === newName || !newName) return; state.records.forEach(r => { if (r.cat === oldName) r.cat = newName; }); catObj.name = newName; saveToCloud(); render(); } }
         function delCat(id){ if(confirm('確定刪除類別？')){state.cats=state.cats.filter(x=>x.id!==id); saveToCloud(); renderCatManager();}}
         function addCat(){ const n=prompt('類別名稱:'); if(n){state.cats.push({id:Date.now(), name:n, type:state.activeCatType, sort:state.cats.length}); saveToCloud(); renderCatManager();}}
