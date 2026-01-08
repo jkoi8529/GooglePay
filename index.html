@@ -133,7 +133,7 @@
                 <div class="summary-item"><small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span></div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag" onclick="openDrawer('changelog')">v26.19</div>
+            <div class="version-tag" onclick="openDrawer('changelog')">v26.20</div>
         </div>
 
         <div class="transaction-section">
@@ -162,6 +162,9 @@
                     <h2 id="sheetTitle" style="margin: 0; font-size: 22px;">標題</h2>
                     <div class="header-actions">
                         <button class="circle-btn" id="excelBtn" style="display:none; color:#2E7D32; background:#E8F5E9;" onclick="exportToExcel()"><span class="material-symbols-outlined">description</span></button>
+                        <div id="catActions" style="display:none;">
+                            <button class="circle-btn" style="background:#EADDFF; color:#6750A4;" onclick="addCat()"><span class="material-symbols-outlined">add</span></button>
+                        </div>
                         <button class="circle-btn" id="closeBtnHeader" style="background:#ECE6F0;" onclick="closeDrawer()"><span class="material-symbols-outlined">close</span></button>
                     </div>
                 </div>
@@ -208,27 +211,28 @@
             showIncome: false
         };
 
-        // 完整歷史更新紀錄清單
+        // 版本校正：完整歷史更新日誌 (v26.1 - v26.20)
         const changelogs = [
+            { v: "v26.20", items: ["類別管理介面優化：新增類別按鈕移至右上角，改為圓形 + 號圖示", "調整標頭按鈕間距與對齊，提升操作流暢度"] },
             { v: "v26.19", items: ["修正金額欄位輸入完按 Enter 後不自動收起鍵盤的問題", "強化對 Gboard 數字模式送出鍵的監聽邏輯"] },
-            { v: "v26.18", items: ["修正統計報告標頭按鈕左右對齊 (Excel 與關閉鈕)", "移除統計報告視窗底部冗餘按鍵，保持視窗簡潔"] },
-            { v: "v26.17", items: ["優化底層動作按鈕排版為左右並列", "修正新增/編輯介面 Android 16 標準比例樣式"] },
-            { v: "v26.16", items: ["修正統計明細 Bar 視覺回歸 Android 16 高質感設計", "鎖定圓餅圖中心點，解決收支切換位移問題"] },
+            { v: "v26.18", items: ["修正統計報告標頭按鈕左右對齊 (Excel 與關閉鈕)", "移除統計報告視窗底部冗餘按鍵"] },
+            { v: "v26.17", items: ["優化底層按鈕排版為左右並列", "修正新增/編輯介面 Android 16 標準比例樣式"] },
+            { v: "v26.16", items: ["修正統計明細 Bar 視覺回歸 Android 16 設計", "鎖定圓餅圖中心點，解決位移問題"] },
             { v: "v26.15", items: ["新增 Excel 匯出功能 (支援多工作表)", "移除底部修正程式碼區塊", "類別管理 Bar 樣式復原"] },
             { v: "v26.14", items: ["修正電腦版統計報告切換位移之 Scrollbar 問題"] },
             { v: "v26.13", items: ["動作按鈕恢復 Pill (膠囊) 風格", "固定統計報告標題位置"] },
             { v: "v26.12", items: ["修復分段按鈕樣式偏移，回歸 Android 16 置中設計"] },
             { v: "v26.11", items: ["金額計算機方案 B 實裝", "修正備註中心線對齊"] },
-            { v: "v26.10", items: ["統計視窗高度提升至 72.5%", "金額欄位支援四則運算", "備註移至類別右側"] },
+            { v: "v26.10", items: ["統計視窗高度提升至 72.5%", "金額欄位支援算式運算", "備註移至類別右側"] },
             { v: "v26.9", items: ["修正雲端同步字樣與版本號水平對齊"] },
-            { v: "v26.8", items: ["版本號改為可點擊，開啟更新日誌"] },
+            { v: "v26.8", items: ["版本號改為可點擊開啟更新日誌"] },
             { v: "v26.7", items: ["年度統計之「類別」分頁優化為年份分層"] },
             { v: "v26.6", items: ["主畫面收支紀錄新增「圓角備註氣泡」設計"] },
-            { v: "v26.5", items: ["圓餅圖圖例限制前六項", "統計報告視窗 50% 高度"] },
-            { v: "v26.4", items: ["隱藏未來月份統計數據 (GMT+8 判定)"] },
+            { v: "v26.5", items: ["圓餅圖圖例限制前六項項目", "統計報告視窗 50% 高度"] },
+            { v: "v26.4", items: ["統計報告隱藏未來月份資料 (GMT+8)"] },
             { v: "v26.3", items: ["年度統計報告新增「平均月收入」顯示"] },
-            { v: "v26.2", items: ["總收入金額支援點擊隱藏/顯示切換", "FAB 選單背景美化"] },
-            { v: "v26.1", items: ["同步狀態樣式優化", "版本號顯示系統正式啟動"] }
+            { v: "v26.2", items: ["總收入金額支援點擊隱藏切換", "FAB 選單美化"] },
+            { v: "v26.1", items: ["版本號系統與同步樣式啟動"] }
         ];
 
         let db = null, mainChartObj = null, dragSrcIndex = null;
@@ -282,7 +286,7 @@
             if (mainChartObj) mainChartObj.destroy();
             if (data.length === 0) { document.getElementById('mainPieChart').style.opacity = 0; return; }
             document.getElementById('mainPieChart').style.opacity = 1;
-            mainPieChart = new Chart(ctx, {
+            mainChartObj = new Chart(ctx, {
                 type: 'pie',
                 data: { labels, datasets: [{ data, backgroundColor: ['#FFB3BA','#BAFFC9','#BAE1FF','#FFFFBA','#FFDFBA','#E0BBE4','#D4F0F0','#FFC3A0'], borderWidth: 1, borderColor:'#fff' }] },
                 options: { maintainAspectRatio: false, plugins: { legend: { position:'right', labels:{ color:'#000', font:{size:13}, boxWidth:10, padding:8, filter: (item) => item.text !== '' } }, datalabels:{display:false} } }
@@ -361,12 +365,12 @@
             const yearCats = { income: {}, expense: {} };
             data.forEach(r => { const target = r.type === 'income' ? yearCats.income : yearCats.expense; target[r.cat] = (target[r.cat] || 0) + r.amt; });
             const getRows = (catData) => Object.entries(catData).sort((a,b) => b[1]-a[1]).map(([c, a]) => `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()}</span></div>`).join('');
-            body.innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3 style="margin:0 0 16px 0;">${title} 類別總結</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">年度收入分佈</div>${getRows(yearCats.income) || '無紀錄'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">年度支出分佈</div>${getRows(yearCats.expense) || '無紀錄'}</div>`;
+            body.innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3 style="margin:0 0 16px 0;">${title} 類別總結</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">年度收入分佈</div>${getRows(yearCats.income) || '無紀錄'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">年度支出分佈</div>${getRows(yearCats.expense) || '無紀錄'}</div><div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`;
         }
 
         function showStatsDetail(title, data) {
             const getRows = (items) => { const g = {}; items.forEach(r => { g[r.cat] = (g[r.cat] || 0) + r.amt; }); return Object.entries(g).sort((a,b) => b[1] - a[1]).map(([c, a]) => `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()}</span></div>`).join(''); };
-            document.getElementById('sheetBody').innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3 style="margin:0 0 16px 0;">${title} 細項</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">收入分佈</div>${getRows(data.filter(r => r.type === 'income')) || '無數據'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">支出分佈</div>${getRows(data.filter(r => r.type === 'expense')) || '無數據'}</div>`;
+            document.getElementById('sheetBody').innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3 style="margin:0 0 16px 0;">${title} 細項</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">收入分佈</div>${getRows(data.filter(r => r.type === 'income')) || '無數據'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">支出分佈</div>${getRows(data.filter(r => r.type === 'expense')) || '無數據'}</div><div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`;
         }
 
         function renderChangelog() {
@@ -383,12 +387,14 @@
             if(document.getElementById('fabMenu').style.display==='flex') toggleFab();
             const record = id ? state.records.find(r => r.id === id) : null;
             if(id && record && record.ins > 1 && record.insIndex !== 1) return alert('請至第一個月作編輯');
-            const sheet = document.getElementById('mainSheet'), title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), excelBtn = document.getElementById('excelBtn'), modalActions = document.getElementById('modalActions');
+            const sheet = document.getElementById('mainSheet'), title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), excelBtn = document.getElementById('excelBtn'), catActions = document.getElementById('catActions'), modalActions = document.getElementById('modalActions');
             document.getElementById('modalOverlay').classList.add('active');
             document.body.classList.add('no-scroll');
             sheet.className = (mode === 'stats' || mode === 'changelog') ? 'bottom-sheet custom-height' : 'bottom-sheet';
+            
             delBtn.style.display = id ? 'block' : 'none';
             excelBtn.style.display = mode === 'stats' ? 'inline-flex' : 'none';
+            catActions.style.display = mode === 'category' ? 'inline-flex' : 'none';
             modalActions.style.display = (mode === 'stats' || mode === 'changelog' || mode === 'category') ? 'none' : 'flex';
             
             if(mode === 'category') { title.innerText = '類別管理'; renderCatManager(); }
@@ -400,7 +406,6 @@
                 if(record && record.ins > 1) displayAmt = state.records.filter(r=>r.gid===record.gid).reduce((s,x)=>s+x.amt,0);
                 let insOpts = ''; for(let i=1;i<=80;i++) insOpts += `<option value="${i}" ${record && record.ins==i?'selected':''}>${i}</option>`;
                 
-                // 修正 1: 監聽 Enter 鍵自動關閉鍵盤 (.blur())
                 body.innerHTML = `
                     <div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div>
                     <div class="input-group"><label class="input-label">金額 (支援符號運算)</label><div class="amt-wrapper"><input type="text" id="in_amt" class="md-input" value="${displayAmt}" inputmode="decimal" onkeydown="if(event.key==='Enter') this.blur();"><span class="material-symbols-outlined calc-toggle" onclick="document.getElementById('opPopup').classList.toggle('active')">calculate</span><div class="op-popup" id="opPopup"><button class="op-btn" onclick="insertOp('+')">+</button><button class="op-btn" onclick="insertOp('-')">-</button><button class="op-btn" onclick="insertOp('*')">×</button><button class="op-btn" onclick="insertOp('/')">÷</button></div></div></div>
@@ -427,7 +432,7 @@
         
         function renderCatManager() {
             const filtered = state.cats.filter(c => c.type === state.activeCatType).sort((a,b)=>a.sort-b.sort);
-            document.getElementById('sheetBody').innerHTML = `<div class="segmented-control"><button class="segment-btn ${state.activeCatType==='expense'?'active':''}" onclick="state.activeCatType='expense';renderCatManager()">支出</button><button class="segment-btn ${state.activeCatType==='income'?'active':''}" onclick="state.activeCatType='income';renderCatManager()">收入</button></div><div id="dragContainer">${filtered.map((c, index) => `<div class="category-row" draggable="true" ondragstart="handleDragStart(event, ${index})" ondragover="handleDragOver(event)" ondrop="handleDrop(event, ${index})" ondragend="handleDragEnd(event)"><span class="material-symbols-outlined" style="opacity:0.5;">drag_indicator</span><input type="text" class="md-input" style="border:none;background:none;flex:1;padding:8px;" value="${c.name}" onchange="upCat(${c.id},this.value)"><span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:#B3261E; cursor:pointer;">delete</span></div>`).join('')}</div><div class="btn-row"><button class="btn-tonal" style="flex:1;" onclick="addCat()">新增類別</button><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`;
+            document.getElementById('sheetBody').innerHTML = `<div class="segmented-control"><button class="segment-btn ${state.activeCatType==='expense'?'active':''}" onclick="state.activeCatType='expense';renderCatManager()">支出</button><button class="segment-btn ${state.activeCatType==='income'?'active':''}" onclick="state.activeCatType='income';renderCatManager()">收入</button></div><div id="dragContainer">${filtered.map((c, index) => `<div class="category-row" draggable="true" ondragstart="handleDragStart(event, ${index})" ondragover="handleDragOver(event)" ondrop="handleDrop(event, ${index})" ondragend="handleDragEnd(event)"><span class="material-symbols-outlined" style="opacity:0.5;">drag_indicator</span><input type="text" class="md-input" style="border:none;background:none;flex:1;padding:8px;" value="${c.name}" onchange="upCat(${c.id},this.value)"><span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:#B3261E; cursor:pointer;">delete</span></div>`).join('')}</div><div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`;
         }
 
         function handleDragStart(e, index) { dragSrcIndex = index; e.target.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
