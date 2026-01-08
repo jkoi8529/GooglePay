@@ -51,13 +51,7 @@
         .small-segment-btn { flex: 1; border: none; background: none; padding: 8px; border-radius: 100px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--md-sys-color-on-surface-variant); }
         .small-segment-btn.active { background: white; color: var(--md-sys-color-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-        /* 修正 2: 圓餅圖容器位置絕對鎖定 */
-        .main-chart-container { 
-            background: white; margin: 0 16px 16px 16px; padding: 12px; 
-            border-radius: 24px; height: 160px; 
-            display: flex; justify-content: center; align-items: center; 
-            box-sizing: border-box; overflow: hidden;
-        }
+        .main-chart-container { background: white; margin: 0 16px 16px 16px; padding: 12px; border-radius: 24px; height: 160px; display: flex; justify-content: center; align-items: center; box-sizing: border-box; overflow: hidden; }
         
         .list-card { background: white; border-radius: 24px; padding: 8px 0; margin: 0 16px 120px 16px; }
         .item { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--md-sys-color-surface-container); cursor: pointer; }
@@ -76,12 +70,20 @@
         .sheet-handle { width: 32px; height: 4px; background: var(--md-sys-color-outline); border-radius: 2px; margin: 0 auto 24px auto; opacity: 0.4; flex-shrink: 0; }
         .circle-btn { width: 40px; height: 40px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        .md-input { width: 100%; padding: 16px; border: 1px solid var(--md-sys-color-outline); border-radius: 14px; font-size: 16px; background: transparent; box-sizing: border-box; }
-        #modalActions { display: flex; flex-direction: column; margin-top: 24px; gap: 8px; flex-shrink: 0; }
-        .btn-filled { background: var(--md-sys-color-primary); color: white; border: none; padding: 16px; width: 100%; border-radius: 100px; font-size: 16px; font-weight: 700; cursor: pointer; }
+        /* 修正 2: 輸入欄位樣式恢復 Android 16 標準 */
+        .input-group { margin-bottom: 18px; position: relative; }
+        .input-label { font-size: 14px; font-weight: 500; color: var(--md-sys-color-primary); margin-bottom: 6px; display: block; padding-left: 4px; }
+        .md-input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--md-sys-color-outline); border-radius: 16px; font-size: 16px; background: transparent; box-sizing: border-box; color: var(--md-sys-color-on-surface); transition: border-color 0.2s; }
+        .md-input:focus { border-color: var(--md-sys-color-primary); outline: none; }
+
+        /* 修正 1: 底部按鈕恢復左右排列 */
+        .btn-row { display: flex; gap: 12px; margin-top: 24px; flex-shrink: 0; }
+        #modalActions { display: flex; flex-direction: column; margin-top: 20px; gap: 8px; flex-shrink: 0; }
+        .btn-filled { background: var(--md-sys-color-primary); color: white; border: none; padding: 16px; width: 100%; border-radius: 100px; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+        .btn-filled:active { opacity: 0.8; }
+        .btn-tonal { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); border: none; padding: 16px; width: 100%; border-radius: 100px; font-size: 16px; font-weight: 700; cursor: pointer; }
         .btn-text-error { background: none; color: var(--md-sys-color-error); border: none; padding: 12px; width: 100%; font-weight: 700; cursor: pointer; border-radius: 100px; }
 
-        /* 修正 1: 明細 Bar 樣式恢復 Android 16 設計 */
         .stats-detail-card { background: var(--md-sys-color-surface-container-high); padding: 16px; border-radius: 20px; margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.05); }
         .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--md-sys-color-outline); opacity: 0.8; }
         .detail-row:last-child { border-bottom: none; }
@@ -134,7 +136,7 @@
                 <div class="summary-item"><small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span></div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag" onclick="openDrawer('changelog')">v26.16</div>
+            <div class="version-tag" onclick="openDrawer('changelog')">v26.17</div>
         </div>
 
         <div class="transaction-section">
@@ -163,9 +165,6 @@
                     <h2 id="sheetTitle" style="margin: 0; font-size: 22px;">標題</h2>
                     <div class="header-actions">
                         <button class="circle-btn" id="excelBtn" style="display:none; color:#2E7D32; background:#E8F5E9;" onclick="exportToExcel()"><span class="material-symbols-outlined">description</span></button>
-                        <div id="catActions" style="display:none; gap:12px;">
-                            <button class="circle-btn" style="background:#EADDFF; color:#6750A4;" onclick="addCat()"><span class="material-symbols-outlined">add</span></button>
-                        </div>
                         <button class="circle-btn" style="background:#ECE6F0;" onclick="closeDrawer()"><span class="material-symbols-outlined">close</span></button>
                     </div>
                 </div>
@@ -213,22 +212,13 @@
         };
 
         const changelogs = [
+            { v: "v26.17", items: ["修復統計報告與類別管理之按鈕為左右排列以節省空間", "修正新增/編輯介面跑版問題，恢復 Android 16 標準輸入樣式"] },
             { v: "v26.16", items: ["修正統計明細 Bar 視覺回歸 Android 16 高質感設計", "鎖定圓餅圖與圖例位置，解決切換位移問題", "完整補齊自 v26.1 起之所有更新日誌"] },
             { v: "v26.15", items: ["新增收支統計報告 Excel 匯出功能 (兩張工作表)", "移除底部修正程式碼區塊，恢復類別 Bar 樣式"] },
             { v: "v26.14", items: ["修正電腦版統計報告切換位移之 Scrollbar 問題"] },
             { v: "v26.13", items: ["修復底層動作按鈕 Pill 風格", "固定統計報告標題位置"] },
-            { v: "v26.12", items: ["修復分段按鈕樣式偏移，回歸 Android 16 置中設計"] },
-            { v: "v26.11", items: ["金額輸入方案 B 實裝", "修正備註中心線對齊"] },
-            { v: "v26.10", items: ["統計視窗高度 72.5%", "金額欄位支援算式運算", "備註移至類別右側"] },
-            { v: "v26.9", items: ["修正同步字樣水平對齊"] },
-            { v: "v26.8", items: ["新增更新日誌查看功能"] },
-            { v: "v26.7", items: ["年度統計類別功能二級分層優化"] },
-            { v: "v26.6", items: ["主畫面收支紀錄新增圓角備註氣泡"] },
-            { v: "v26.5", items: ["圓餅圖圖例限制前六項", "統計報告視窗 50% 高度"] },
-            { v: "v26.4", items: ["隱藏未來月份統計 (GMT+8)"] },
-            { v: "v26.3", items: ["年度統計新增平均月收入顯示"] },
-            { v: "v26.2", items: ["總收入支援隱藏切換", "FAB 選單背景美化"] },
-            { v: "v26.1", items: ["版本號系統啟動"] }
+            { v: "v26.11", items: ["金額輸入方案 B 實裝"] },
+            { v: "v26.1", items: ["版本號與同步系統啟動"] }
         ];
 
         let db = null, mainChartObj = null, dragSrcIndex = null;
@@ -272,7 +262,6 @@
         function saveToCloud() { db.ref('users/' + state.accountId).set({ records: state.records, cats: state.cats }); }
         function toggleIncomeDisplay() { state.showIncome = !state.showIncome; render(); }
 
-        // 修正 2: 穩定圓餅圖與圖例位置
         function updateMainChart(filteredData) {
             const ctx = document.getElementById('mainPieChart').getContext('2d');
             const summary = {}; let total = 0;
@@ -280,24 +269,13 @@
             const sorted = Object.entries(summary).sort((a,b) => b[1]-a[1]);
             const labels = sorted.map((e, i) => i < 6 ? `${e[0]}(${total>0?Math.round(e[1]/total*100):0}%)` : '');
             const data = sorted.map(e => e[1]);
-            
             if (mainChartObj) mainChartObj.destroy();
             if (data.length === 0) { document.getElementById('mainPieChart').style.opacity = 0; return; }
             document.getElementById('mainPieChart').style.opacity = 1;
-            
             mainChartObj = new Chart(ctx, {
                 type: 'pie',
                 data: { labels, datasets: [{ data, backgroundColor: ['#FFB3BA','#BAFFC9','#BAE1FF','#FFFFBA','#FFDFBA','#E0BBE4','#D4F0F0','#FFC3A0'], borderWidth: 1, borderColor:'#fff' }] },
-                options: { 
-                    maintainAspectRatio: false, 
-                    plugins: { 
-                        legend: { 
-                            position:'right', 
-                            labels:{ color:'#000', font:{size:13}, boxWidth:10, padding:8, filter: (item) => item.text !== '' } 
-                        }, 
-                        datalabels:{display:false} 
-                    } 
-                }
+                options: { maintainAspectRatio: false, plugins: { legend: { position:'right', labels:{ color:'#000', font:{size:13}, boxWidth:10, padding:8, filter: (item) => item.text !== '' } }, datalabels:{display:false} } }
             });
         }
 
@@ -312,7 +290,6 @@
             state.records.filter(r => { const d = new Date(r.date); return d.getFullYear() === year && d.getMonth() === month; }).forEach(r => { if(r.type==='income') ti+=r.amt; else te+=r.amt; });
             document.getElementById('totalIncome').innerText = state.showIncome ? `$${ti.toLocaleString()}` : '-----';
             document.getElementById('totalExpense').innerText = `$${te.toLocaleString()}`;
-            
             let html = filtered.sort((a,b) => new Date(b.date) - new Date(a.date)).map(r => {
                 const insLabel = r.ins > 1 ? ` (分期 ${r.insIndex}/${r.ins})` : '';
                 const noteHtml = r.note ? `<span class="note-pill">${r.note}</span>` : '';
@@ -364,7 +341,10 @@
             if(state.statsView === 'yearly') {
                 navHtml += `<div class="list-toggle-container" style="margin-bottom:20px;"><div class="small-segmented-control" style="width:180px;"><button class="small-segment-btn ${state.yearlySubView==='year'?'active':''}" onclick="state.yearlySubView='year';renderStatsReport()">年度</button><button class="small-segment-btn ${state.yearlySubView==='cat'?'active':''}" onclick="state.yearlySubView='cat';renderStatsReport()">類別</button></div></div>`;
             }
-            body.innerHTML = navHtml + `<div id="statsList"></div><div id="statsActions" style="margin-top:auto;"><button class="btn-filled" onclick="closeDrawer()">關閉</button></div>`;
+            body.innerHTML = navHtml + `<div id="statsList"></div>`;
+            // 修正 1: 按鈕改為左右排列
+            body.innerHTML += `<div class="btn-row"><button class="btn-filled" onclick="closeDrawer()">關閉視窗</button></div>`;
+            
             const container = document.getElementById('statsList'), groups = {};
             const tpNow = getTaipeiNow(), curY = tpNow.getFullYear(), curM = tpNow.getMonth();
 
@@ -391,30 +371,17 @@
             }
         }
 
-        // 修正 1: 明細 Bar 樣式復原
         function showYearlyCatDetail(title, data) {
             const body = document.getElementById('sheetBody');
             const yearCats = { income: {}, expense: {} };
             data.forEach(r => { const target = r.type === 'income' ? yearCats.income : yearCats.expense; target[r.cat] = (target[r.cat] || 0) + r.amt; });
             const getRows = (catData) => Object.entries(catData).sort((a,b) => b[1]-a[1]).map(([c, a]) => `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()}</span></div>`).join('');
-            
-            body.innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div>
-                <h3 style="margin:0 0 16px 0;">${title} 類別總結</h3>
-                <div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">年度收入分佈</div>${getRows(yearCats.income) || '<div style="font-size:12px;opacity:0.5">無紀錄</div>'}</div>
-                <div class="stats-detail-card"><div class="input-label" style="color:#C62828">年度支出分佈</div>${getRows(yearCats.expense) || '<div style="font-size:12px;opacity:0.5">無紀錄</div>'}</div>
-                <button class="btn-filled" onclick="closeDrawer()">關閉</button>`;
+            body.innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3 style="margin:0 0 16px 0;">${title} 類別總結</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">年度收入分佈</div>${getRows(yearCats.income) || '無紀錄'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">年度支出分佈</div>${getRows(yearCats.expense) || '無紀錄'}</div><button class="btn-filled" onclick="closeDrawer()">關閉</button>`;
         }
 
         function showStatsDetail(title, data) {
-            const getRows = (items) => {
-                const g = {}; let t = 0; items.forEach(r => { g[r.cat] = (g[r.cat] || 0) + r.amt; t += r.amt; });
-                return Object.entries(g).sort((a,b) => b[1] - a[1]).map(([c, a]) => `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()}</span></div>`).join('');
-            };
-            document.getElementById('sheetBody').innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div>
-                <h3 style="margin:0 0 16px 0;">${title} 細項</h3>
-                <div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">收入分佈</div>${getRows(data.filter(r => r.type === 'income')) || '<div style="font-size:12px;opacity:0.5">無數據</div>'}</div>
-                <div class="stats-detail-card"><div class="input-label" style="color:#C62828">支出分佈</div>${getRows(data.filter(r => r.type === 'expense')) || '<div style="font-size:12px;opacity:0.5">無數據</div>'}</div>
-                <button class="btn-filled" onclick="closeDrawer()">關閉</button>`;
+            const getRows = (items) => { const g = {}; let t = 0; items.forEach(r => { g[r.cat] = (g[r.cat] || 0) + r.amt; t += r.amt; }); return Object.entries(g).sort((a,b) => b[1] - a[1]).map(([c, a]) => `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()}</span></div>`).join(''); };
+            document.getElementById('sheetBody').innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3 style="margin:0 0 16px 0;">${title} 細項</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">收入分佈</div>${getRows(data.filter(r => r.type === 'income')) || '無數據'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">支出分佈</div>${getRows(data.filter(r => r.type === 'expense')) || '無數據'}</div><button class="btn-filled" onclick="closeDrawer()">關閉</button>`;
         }
 
         function renderChangelog() {
@@ -431,14 +398,13 @@
             if(document.getElementById('fabMenu').style.display==='flex') toggleFab();
             const record = id ? state.records.find(r => r.id === id) : null;
             if(id && record && record.ins > 1 && record.insIndex !== 1) return alert('請至第一個月作編輯');
-            const sheet = document.getElementById('mainSheet'), title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), catActions = document.getElementById('catActions'), modalActions = document.getElementById('modalActions'), excelBtn = document.getElementById('excelBtn');
+            const sheet = document.getElementById('mainSheet'), title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), excelBtn = document.getElementById('excelBtn');
             document.getElementById('modalOverlay').classList.add('active');
             document.body.classList.add('no-scroll');
             sheet.className = (mode === 'stats' || mode === 'changelog') ? 'bottom-sheet custom-height' : 'bottom-sheet';
             delBtn.style.display = id ? 'block' : 'none';
-            catActions.style.display = mode==='category' ? 'flex' : 'none';
             excelBtn.style.display = mode==='stats' ? 'flex' : 'none';
-            modalActions.style.display = (mode==='category' || mode==='stats' || mode==='changelog') ? 'none' : 'flex';
+            
             if(mode === 'category') { title.innerText = '類別管理'; renderCatManager(); }
             else if(mode === 'stats') { title.innerText = '收支統計報告'; renderStatsReport(); }
             else if(mode === 'changelog') { title.innerText = '更新日誌'; renderChangelog(); }
@@ -465,7 +431,28 @@
         function upCat(id, v) { const catObj = state.cats.find(x => x.id === id); if(catObj) { const oldName = catObj.name, newName = v.trim(); if (oldName === newName || !newName) return; state.records.forEach(r => { if (r.cat === oldName) r.cat = newName; }); catObj.name = newName; saveToCloud(); render(); } }
         function delCat(id){ if(confirm('確定刪除類別？')){state.cats=state.cats.filter(x=>x.id!==id); saveToCloud(); renderCatManager();}}
         function addCat(){ const n=prompt('類別名稱:'); if(n){state.cats.push({id:Date.now(), name:n, type:state.activeCatType, sort:state.cats.length}); saveToCloud(); renderCatManager();}}
-        function renderCatManager() { const filtered = state.cats.filter(c => c.type === state.activeCatType).sort((a,b)=>a.sort-b.sort); document.getElementById('sheetBody').innerHTML = `<div class="small-segmented-control" style="width:100%; margin-bottom:20px;"><button class="small-segment-btn ${state.activeCatType==='expense'?'active':''}" onclick="state.activeCatType='expense';renderCatManager()">支出</button><button class="small-segment-btn ${state.activeCatType==='income'?'active':''}" onclick="state.activeCatType='income';renderCatManager()">收入</button></div><div id="dragContainer">${filtered.map((c, index) => `<div class="category-row" draggable="true" ondragstart="handleDragStart(event, ${index})" ondragover="handleDragOver(event)" ondrop="handleDrop(event, ${index})" ondragend="handleDragEnd(event)"><span class="material-symbols-outlined" style="opacity:0.5;">drag_indicator</span><input type="text" class="md-input" style="border:none;background:none;flex:1;" value="${c.name}" onchange="upCat(${c.id},this.value)"><span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:#B3261E; cursor:pointer;">delete</span></div>`).join('')}</div><button class="btn-filled" onclick="closeDrawer()">關閉</button>`; }
+        
+        function renderCatManager() {
+            const filtered = state.cats.filter(c => c.type === state.activeCatType).sort((a,b)=>a.sort-b.sort);
+            document.getElementById('sheetBody').innerHTML = `
+                <div class="segmented-control">
+                    <button class="segment-btn ${state.activeCatType==='expense'?'active':''}" onclick="state.activeCatType='expense';renderCatManager()">支出</button>
+                    <button class="segment-btn ${state.activeCatType==='income'?'active':''}" onclick="state.activeCatType='income';renderCatManager()">收入</button>
+                </div>
+                <div id="dragContainer">
+                    ${filtered.map((c, index) => `
+                        <div class="category-row" draggable="true" ondragstart="handleDragStart(event, ${index})" ondragover="handleDragOver(event)" ondrop="handleDrop(event, ${index})" ondragend="handleDragEnd(event)">
+                            <span class="material-symbols-outlined" style="opacity:0.5;">drag_indicator</span>
+                            <input type="text" class="md-input" style="border:none;background:none;flex:1;padding:8px;" value="${c.name}" onchange="upCat(${c.id},this.value)">
+                            <span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:#B3261E; cursor:pointer;">delete</span>
+                        </div>`).join('')}
+                </div>
+                <div class="btn-row">
+                    <button class="btn-tonal" onclick="addCat()">新增類別</button>
+                    <button class="btn-filled" onclick="closeDrawer()">關閉視窗</button>
+                </div>`;
+        }
+
         function handleDragStart(e, index) { dragSrcIndex = index; e.target.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
         function handleDragOver(e) { e.preventDefault(); return false; }
         function handleDrop(e, targetIndex) { e.stopPropagation(); if (dragSrcIndex !== targetIndex) { const typeCats = state.cats.filter(c => c.type === state.activeCatType).sort((a,b) => a.sort - b.sort); const otherCats = state.cats.filter(c => c.type !== state.activeCatType); const [movedItem] = typeCats.splice(dragSrcIndex, 1); typeCats.splice(targetIndex, 0, movedItem); typeCats.forEach((c, i) => c.sort = i); state.cats = [...otherCats, ...typeCats]; saveToCloud(); renderCatManager(); } return false; }
@@ -473,9 +460,8 @@
         function closeDrawer() { document.getElementById('modalOverlay').classList.remove('active'); document.body.classList.remove('no-scroll'); }
         function setListTab(t) { state.listTab = t; render(); }
         function changeMonth(n) { state.viewDate.setMonth(state.viewDate.getMonth()+n); render(); }
-        function exportData() { if(!confirm('確定要備份？')) return; const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'wallet_backup.json'; a.click(); }
+        function exportData() { if(!confirm('確定要備份 (JSON)？')) return; const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'wallet_backup.json'; a.click(); }
         function importData(e) { const r = new FileReader(); r.onload = (ev) => { const d = JSON.parse(ev.target.result); state.records = d.records || []; state.cats = d.cats || state.cats; saveToCloud(); alert('還原成功'); }; r.readAsText(e.target.files[0]); }
-        function applyUpdate() { const c = document.getElementById('liveUpdateCode').value; if(c) { document.open(); document.write(c); document.close(); } }
         window.onload = () => { if(!state.accountId) document.getElementById('sync-overlay').style.display='flex'; };
     </script>
 </body>
