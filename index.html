@@ -29,15 +29,17 @@
             --md-sys-color-error: #B3261E;
         }
 
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; -webkit-tap-highlight-color: transparent; }
         body.no-scroll { overflow: hidden; }
 
         #sync-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--md-sys-color-surface); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; }
 
+        /* 標頭樣式整合 */
         .summary-header { background-color: var(--md-sys-color-surface-container); margin: 16px; padding: 24px 24px 36px 24px; border-radius: 32px; position: relative; }
         .version-tag { position: absolute; right: 20px; bottom: 12px; font-size: 8px; color: #555555; opacity: 0.8; font-weight: 500; cursor: pointer; padding: 4px; border-radius: 4px; }
         .sync-status { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); font-size: 9px; color: var(--md-sys-color-outline); display: flex; align-items: center; justify-content: center; white-space: nowrap; }
 
+        /* 定期扣款預警字體 */
         .payment-alert { font-size: 11px; color: var(--md-sys-color-error); font-weight: 700; margin-top: 8px; text-align: center; cursor: pointer; text-decoration: underline; display: none; }
 
         .month-selector { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
@@ -80,7 +82,6 @@
         .btn-row { display: flex; gap: 12px; margin-top: 24px; flex-shrink: 0; }
         #modalActions { display: flex; flex-direction: column; margin-top: 20px; gap: 8px; flex-shrink: 0; }
         .btn-filled { background: var(--md-sys-color-primary); color: white; border: none; padding: 16px; width: 100%; border-radius: 100px; font-size: 16px; font-weight: 700; cursor: pointer; }
-        .btn-tonal { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); border: none; padding: 16px; width: 100%; border-radius: 100px; font-size: 16px; font-weight: 700; cursor: pointer; }
         .btn-text-error { background: none; color: var(--md-sys-color-error); border: none; padding: 12px; width: 100%; font-weight: 700; cursor: pointer; border-radius: 100px; }
 
         .stats-detail-card { background: var(--md-sys-color-surface-container-high); padding: 16px; border-radius: 20px; margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.05); }
@@ -219,15 +220,15 @@
         };
 
         const changelogs = [
-            { v: "v26.22", items: ["整合定期扣款預警系統，主畫面顯示待確認項目", "補回分期付款邏輯 (gid 跨月產生) 與輸入欄位", "修正價格調整功能，支援入帳前修改金額應對漲價"] },
+            { v: "v26.22", items: ["旗艦整合版：訂閱制預警、分期功能、百分比顯示全面合併", "修正價格調整功能，支援入帳前修改金額應對漲價", "優化鍵盤 Enter 自動收起體驗"] },
             { v: "v26.21", items: ["年度類別總結新增百分比 (%) 顯示功能"] },
-            { v: "v26.20", items: ["類別管理介面優化：新增按鈕移至右上角圖示"] },
+            { v: "v26.20", items: ["類別管理介面優化：新增按鈕移至右上角圓圈圖示"] },
             { v: "v26.19", items: ["修正金額欄位 Enter 不收起鍵盤問題"] },
-            { v: "v26.18", items: ["修正標頭按鈕對齊，移除冗餘按鍵"] },
-            { v: "v26.17", items: ["優化按鈕排版與 Android 16 標準輸入樣式"] },
-            { v: "v26.16", items: ["統計明細視覺優化，圓餅圖中心點鎖定"] },
-            { v: "v26.15", items: ["新增 Excel 匯出功能 (多工作表)"] },
-            { v: "v26.1", items: ["版本號系統與同步功能啟動"] }
+            { v: "v26.18", items: ["修正標頭按鈕對齊，移除統計視窗底部冗餘按鍵"] },
+            { v: "v26.17", items: ["底層按鈕左右並列排版，恢復 Android 16 標準輸入比例"] },
+            { v: "v26.16", items: ["統計明細視覺優化，圓餅圖中心點鎖定防止位移"] },
+            { v: "v26.15", items: ["Excel 多工作表匯出功能實裝 (月份+年度)"] },
+            { v: "v26.1", items: ["版本號顯示系統正式啟動"] }
         ];
 
         let db = null, mainChartObj = null, dragSrcIndex = null;
@@ -269,10 +270,11 @@
         function saveToCloud() { db.ref('users/' + state.accountId).set({ records: state.records, cats: state.cats, subs: state.subs }); }
         function toggleIncomeDisplay() { state.showIncome = !state.showIncome; render(); }
 
+        // 定期預警邏輯
         function checkPendingSubs() {
             const now = getTaipeiNow(), curY = now.getFullYear(), curM = now.getMonth() + 1;
             const ymKey = `${curY}-${curM}`;
-            const pending = state.subs.filter(s => now.getDate() >= s.day && !state.records.some(r => r.subId === s.id && r.date.startsWith(ymKey)));
+            const pending = state.subs.filter(s => now.getDate() >= s.day && !state.records.some(r => r.subId === s.id && r.date.startsWith(`${curY}-${String(curM).padStart(2,'0')}`)));
             const banner = document.getElementById('paymentAlert');
             if (pending.length > 0) {
                 banner.innerText = `有 ${pending.length} 筆定期支出準備入帳 [點我確認]`;
@@ -332,8 +334,7 @@
             const yearlyData = [["【年度結算總覽表】"], ["統計年份", "總收入", "平均月收入", "總支出", "平均月支出", "結餘"]];
             const yGroups = {};
             state.records.forEach(r => { const y = new Date(r.date).getFullYear(); if(!yGroups[y]) yGroups[y] = { i: 0, e: 0, mSet: new Set(), cats: {} }; yGroups[y].mSet.add(new Date(r.date).getMonth()); if(r.type==='income') yGroups[y].i += r.amt; else yGroups[y].e += r.amt; const catKey = `${r.type === 'income' ? '收入' : '支出'}_${r.cat}`; yGroups[y].cats[catKey] = (yGroups[y].cats[catKey] || 0) + r.amt; });
-            const sortedYears = Object.keys(yGroups).sort((a,b) => b-a);
-            sortedYears.forEach(y => { const g = yGroups[y], mCount = g.mSet.size || 1; yearlyData.push([y+"年", g.i, Math.round(g.i/mCount), g.e, Math.round(g.e/mCount), (g.i - g.e)]); });
+            Object.keys(yGroups).sort((a,b) => b-a).forEach(y => { const g = yGroups[y], mCount = g.mSet.size || 1; yearlyData.push([y+"年", g.i, Math.round(g.i/mCount), g.e, Math.round(g.e/mCount), (g.i - g.e)]); });
             XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(yearlyData), "年度統計");
             XLSX.writeFile(wb, `GooglePay_財務報告_${dateStr}.xlsx`);
         }
@@ -349,7 +350,7 @@
                 container.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a, undefined, {numeric: true})).map(key => {
                     return `<div class="stats-report-item" onclick="showStatsDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key}</strong><span class="material-symbols-outlined">chevron_right</span></div><div style="display:flex; gap:12px; margin-top:8px; font-size:14px;"><span style="color:#2E7D32">收: $${groups[key].i.toLocaleString()}</span><span style="color:#C62828">支: $${groups[key].e.toLocaleString()}</span></div></div>`;
                 }).join('');
-            } else if(state.yearlySubView === 'year') {
+            } else if (state.yearlySubView === 'year') {
                 state.records.forEach(r => { const y = new Date(r.date).getFullYear(); if(!groups[y]) groups[y] = { i: 0, e: 0, mSet: new Set() }; groups[y].mSet.add(new Date(r.date).getMonth()); if(r.type==='income') groups[y].i += r.amt; else groups[y].e += r.amt; });
                 container.innerHTML = Object.keys(groups).sort((a,b) => b-a).map(y => { const g = groups[y], mCount = g.mSet.size || 1; return `<div class="stats-report-item" onclick="showStatsDetail('${y}年', ${JSON.stringify(state.records.filter(r=>new Date(r.date).getFullYear()==y)).replace(/"/g, '&quot;')})"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${y}年</strong><span class="material-symbols-outlined">chevron_right</span></div><div style="display:flex; flex-direction:column; gap:4px; margin-top:8px; font-size:14px;"><span style="color:#2E7D32">收: $${g.i.toLocaleString()} ($${Math.round(g.i/mCount).toLocaleString()})</span><span style="color:#C62828">支: $${g.e.toLocaleString()} ($${Math.round(g.e/mCount).toLocaleString()})</span></div></div>`; }).join('');
             } else {
@@ -364,12 +365,12 @@
             data.forEach(r => { const target = r.type === 'income' ? yearCats.income : yearCats.expense; target[r.cat] = (target[r.cat] || 0) + r.amt; });
             const totalI = Object.values(yearCats.income).reduce((a,b)=>a+b, 0), totalE = Object.values(yearCats.expense).reduce((a,b)=>a+b, 0);
             const getRows = (catData, total) => Object.entries(catData).sort((a,b)=>b[1]-a[1]).map(([c, a]) => `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${total>0?(a/total*100).toFixed(0):0}%)</span></div>`).join('');
-            body.innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3>${title} 類別總結</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">年度收入分布</div>${getRows(yearCats.income, totalI) || '無'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">年度支出分布</div>${getRows(yearCats.expense, totalE) || '無'}</div><div class="btn-row"><button class="btn-filled" onclick="closeDrawer()">關閉視窗</button></div>`;
+            body.innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3>${title} 類別總結</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">年度收入分布</div>${getRows(yearCats.income, totalI) || '無紀錄'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">年度支出分布</div>${getRows(yearCats.expense, totalE) || '無紀錄'}</div><div class="btn-row"><button class="btn-filled" onclick="closeDrawer()">關閉</button></div>`;
         }
 
         function showStatsDetail(title, data) {
-            const getRows = (items) => { const g = {}; items.forEach(r => { g[r.cat] = (g[r.cat] || 0) + r.amt; }); const subTotal = Object.values(g).reduce((a,b)=>a+b, 0); return Object.entries(g).sort((a,b)=>b[1]-a[1]).map(([c, a]) => `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${subTotal>0?(a/subTotal*100).toFixed(0):0}%)</span></div>`).join(''); };
-            document.getElementById('sheetBody').innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3>${title} 細項</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">收入分佈</div>${getRows(data.filter(r=>r.type==='income')) || '無'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">支出分佈</div>${getRows(data.filter(r=>r.type==='expense')) || '無'}</div><div class="btn-row"><button class="btn-filled" onclick="closeDrawer()">關閉視窗</button></div>`;
+            const getRows = (items) => { const g = {}; items.forEach(r => { g[r.cat] = (g[r.cat] || 0) + r.amt; }); const subT = Object.values(g).reduce((a,b)=>a+b, 0); return Object.entries(g).sort((a,b)=>b[1] - a[1]).map(([c, a]) => `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${subT>0?(a/subT*100).toFixed(0):0}%)</span></div>`).join(''); };
+            document.getElementById('sheetBody').innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3>${title} 細項</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">收入分佈</div>${getRows(data.filter(r=>r.type==='income')) || '無'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">支出分佈</div>${getRows(data.filter(r=>r.type==='expense')) || '無'}</div><div class="btn-row"><button class="btn-filled" onclick="closeDrawer()">關閉</button></div>`;
         }
 
         function renderChangelog() {
@@ -382,21 +383,21 @@
         function insertOp(op) { const input = document.getElementById('in_amt'); input.value += op; input.focus(); }
 
         function renderSubsManage() {
-            document.getElementById('sheetBody').innerHTML = `<div id="dragContainer">${state.subs.map(s => `<div class="category-row"><div style="flex:1;"><strong>${s.name}</strong><br><small>每月 ${s.day} 號 / $${s.amt.toLocaleString()}</small></div><span class="material-symbols-outlined" onclick="delSub(${s.id})" style="color:#B3261E; cursor:pointer;">delete</span></div>`).join('')}</div><div class="btn-row"><button class="btn-filled" onclick="closeDrawer()">關閉視窗</button></div>`;
+            document.getElementById('sheetBody').innerHTML = `<div id="dragContainer">${state.subs.map(s => `<div class="category-row"><div style="flex:1;"><strong>${s.name}</strong><br><small>每月 ${s.day} 號 / $${s.amt.toLocaleString()}</small></div><span class="material-symbols-outlined" onclick="delSub(${s.id})" style="color:#B3261E; cursor:pointer;">delete</span></div>`).join('')}</div><div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`;
         }
         function addSub() { const n = prompt('項目名稱:'); if(!n) return; const a = prompt('金額:'); const d = prompt('每月扣款日(1-31):'); state.subs.push({id:Date.now(), name:n, amt:parseInt(a), day:parseInt(d), cat:'訂閱'}); saveToCloud(); renderSubsManage(); }
         function delSub(id) { if(confirm('刪除此項目？')){state.subs=state.subs.filter(s=>s.id!==id); saveToCloud(); renderSubsManage();}}
 
         function renderSubsConfirm() {
             const now = getTaipeiNow(), curY = now.getFullYear(), curM = now.getMonth() + 1;
-            const ymKey = `${curY}-${curM}`;
+            const ymKey = `${curY}-${String(curM).padStart(2,'0')}`;
             const pending = state.subs.filter(s => now.getDate() >= s.day && !state.records.some(r => r.subId === s.id && r.date.startsWith(ymKey)));
             document.getElementById('sheetBody').innerHTML = `<h3 style="margin:0 0 16px 0;">待入帳明細 (可修改金額)</h3><div id="confirmList">${pending.map((s, idx) => `<div class="stats-detail-card"><div style="display:flex; justify-content:space-between; align-items:center;"><span><strong>${s.name}</strong> (${s.day}號)</span><input type="number" class="md-input" style="width:100px; padding:8px;" id="conf_amt_${idx}" value="${s.amt}"></div></div>`).join('')}</div><div class="btn-row"><button class="btn-filled" onclick="processSubsConfirm()">確認全部入帳</button></div>`;
         }
         function processSubsConfirm() {
             const now = getTaipeiNow(), curY = now.getFullYear(), curM = now.getMonth() + 1;
             const dateStr = `${curY}-${String(curM).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-            const pending = state.subs.filter(s => now.getDate() >= s.day && !state.records.some(r => r.subId === s.id && r.date.startsWith(`${curY}-${curM}`)));
+            const pending = state.subs.filter(s => now.getDate() >= s.day && !state.records.some(r => r.subId === s.id && r.date.startsWith(`${curY}-${String(curM).padStart(2,'0')}`)));
             pending.forEach((s, idx) => { const finalAmt = parseInt(document.getElementById(`conf_amt_${idx}`).value); state.records.push({ id: Date.now() + idx, subId: s.id, type: 'expense', date: dateStr, amt: finalAmt, cat: s.cat, note: '自動定期入帳' }); });
             saveToCloud(); closeDrawer(); alert('入帳完成');
         }
@@ -407,10 +408,12 @@
             const sheet = document.getElementById('mainSheet'), title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), excelBtn = document.getElementById('excelBtn'), catActions = document.getElementById('catActions'), modalActions = document.getElementById('modalActions'), addBtn = document.getElementById('addBtnHeader');
             document.getElementById('modalOverlay').classList.add('active'); document.body.classList.add('no-scroll');
             sheet.className = (mode === 'stats' || mode === 'changelog' || mode === 'subs_manage') ? 'bottom-sheet custom-height' : 'bottom-sheet';
+            
             delBtn.style.display = id ? 'block' : 'none';
             excelBtn.style.display = mode === 'stats' ? 'inline-flex' : 'none';
             catActions.style.display = (mode === 'category' || mode === 'subs_manage') ? 'inline-flex' : 'none';
-            modalActions.style.display = (mode === 'stats' || mode === 'changelog' || mode === 'category' || mode === 'subs_manage' || mode === 'subs_confirm') ? 'none' : 'flex';
+            modalActions.style.display = (['stats','changelog','category','subs_manage','subs_confirm'].includes(mode)) ? 'none' : 'flex';
+            
             if(mode === 'category') { title.innerText = '類別管理'; addBtn.onclick = addCat; renderCatManager(); }
             else if(mode === 'subs_manage') { title.innerText = '定期扣款管理'; addBtn.onclick = addSub; renderSubsManage(); }
             else if(mode === 'subs_confirm') { title.innerText = '定期支出預警'; renderSubsConfirm(); }
@@ -444,6 +447,7 @@
             } else { state.records.push({ id:Date.now(), type, date:d, amt, cat:c, note:n }); }
             saveToCloud(); closeDrawer();
         }
+
         function handleDelete() { if(confirm('確定刪除？')) { const target = state.records.find(r=>r.id===state.editingId); if(target.gid) state.records=state.records.filter(r=>r.gid!==target.gid); else state.records=state.records.filter(r=>r.id!==state.editingId); saveToCloud(); closeDrawer(); } }
         function upCat(id, v) { const cO = state.cats.find(x=>x.id===id); if(cO) { const oldN=cO.name, newN=v.trim(); state.records.forEach(r=>{if(r.cat===oldN) r.cat=newN;}); cO.name=newN; saveToCloud(); render(); } }
         function delCat(id){ if(confirm('刪除類別？')){state.cats=state.cats.filter(x=>x.id!==id); saveToCloud(); renderCatManager();}}
