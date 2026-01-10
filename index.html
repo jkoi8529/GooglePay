@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GooglePay v26.23.3</title>
+    <title>GooglePay v26.24.1</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
@@ -120,9 +121,13 @@
 <body>
 
     <div id="sync-overlay">
-        <h2 style="color:var(--md-sys-color-primary); margin-bottom:8px;">GooglePay</h2>
-        <input type="text" id="account-id" class="md-input" placeholder="帳號 ID" style="margin-bottom:24px; text-align:center;">
-        <button class="btn-filled" style="width:200px;" onclick="startApp()">開始同步</button>
+        <h2 style="color:var(--md-sys-color-primary); margin-bottom:8px;">GooglePay v26.24.1</h2>
+        <input type="text" id="account-id" class="md-input" placeholder="帳號 ID" style="margin-bottom:12px; text-align:center;">
+        <input type="password" id="account-pw" class="md-input" placeholder="密碼 (首次請輸入新密碼)" style="margin-bottom:24px; text-align:center;">
+        <button class="btn-filled" style="width:200px;" id="loginBtn" onclick="startApp()">登入 / 同步</button>
+        <p style="font-size:11px; color:var(--md-sys-color-outline); margin-top:20px; line-height:1.5; padding:0 20px;">
+            ※ 舊用戶請輸入原 ID 並設定新密碼。<br>登入後請使用「還原 (JSON)」遷移舊資料。
+        </p>
     </div>
 
     <div id="subAlert" class="md-alert-overlay">
@@ -147,7 +152,7 @@
                 <div class="summary-item"><small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span></div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag" onclick="openDrawer('changelog')">v26.23.3</div>
+            <div class="version-tag" onclick="openDrawer('changelog')">v26.24.1</div>
         </div>
 
         <div class="transaction-section">
@@ -167,6 +172,7 @@
             <div class="fab-item" onclick="openDrawer('income')">新增收入</div>
             <div class="fab-item" onclick="openDrawer('subManage')">訂閱管理</div>
             <div class="fab-item" onclick="openDrawer('category')">類別管理</div>
+            <div class="fab-item" style="color:var(--md-sys-color-error);" onclick="logout()">登出帳號</div>
         </div>
         <div class="fab" onclick="toggleFab()"><span class="material-symbols-outlined" id="fabIcon">add</span></div>
 
@@ -215,8 +221,12 @@
             measurementId: "G-TX1C3KZMGZ"
         };
 
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
         let state = {
-            accountId: localStorage.getItem('wallet_acc_id') || '',
+            uid: '',
             viewDate: new Date(2026, 0, 1),
             records: [],
             cats: [{ id: 1, name: '餐飲', type: 'expense', sort: 0 }],
@@ -233,35 +243,12 @@
         };
 
         const changelogs = [
-            { v: "v26.23.3", items: ["修正趨勢功能：時間顯示格式由 YY-MM 改為 YY/MM (例如 26/01)"] },
-            { v: "v26.23.2", items: ["UI 優化：隱藏平均支出中「(排除空白)」之字樣，維持介面簡潔"] },
-            { v: "v26.23.1", items: ["短期趨勢由 14 日調整為 30 日", "平均支出計算邏輯優化：自動排除無紀錄之月份/日期"] },
-            { v: "v26.23", items: ["新增消費趨勢 analysis 功能", "支援近 14 日短期趨勢與近 12 個月長期趨勢圖表", "支援查看特定類別近 12 個月支出趨勢", "採用平滑曲線設計符合 Android 16 視覺語彙"] },
-            { v: "v26.22", items: ["實裝訂閱制自動扣款與變價功能", "新增扣款成功提示視窗", "支援每月/每季/每年固定日期自動生成支出", "修改訂閱金額不連動影響歷史紀錄"] },
-            { v: "v26.21", items: ["收支統計報告/年度類別總結新增百分比 (%) 顯示", "金額與占比併行顯示，計算該年總額占比"] },
-            { v: "v26.20", items: ["類別管理介面優化：新增類別按鈕移至右上角，改為圓形 + 號圖示"] },
-            { v: "v26.19", items: ["修正金額欄位 Enter 不收起鍵盤問題", "優化 Gboard 數字模式送出鍵監聽"] },
-            { v: "v26.18", items: ["修正統計報告標頭按鈕左右對齊", "移除報告視窗底部冗餘按鍵"] },
-            { v: "v26.17", items: ["底層按鈕左右並列排版", "恢復 Android 16 標準輸入窗格樣式"] },
-            { v: "v26.16", items: ["統計明細 Bar 視覺回歸設計", "圓餅圖中心點鎖定防止位移"] },
-            { v: "v26.15", items: ["Excel 多工作表匯出功能實裝", "類別管理樣式恢復 v26.10"] },
-            { v: "v26.14", items: ["修正電腦版滾動條產生的排版跳動"] },
-            { v: "v26.13", items: ["動作按鈕恢復膠囊 Pill 圓角樣式", "固定統計視窗標題"] },
-            { v: "v26.12", items: ["修正分段按鈕樣式偏移，回歸 Android 16"] },
-            { v: "v26.11", items: ["金額運算方案 B (彈出計算機) 實裝", "修正備註中心線對齊"] },
-            { v: "v26.10", items: ["統計報告視窗高度升至 72.5%", "金額支援算式直接運算"] },
-            { v: "v26.9", items: ["同步狀態字樣與版本號水平對齊"] },
-            { v: "v26.8", items: ["更新日誌視窗功能"] },
-            { v: "v26.7", items: ["年度統計類別二級分層優化"] },
-            { v: "v26.6", items: ["主畫面收支紀錄新增備註圓角氣泡"] },
-            { v: "v26.5", items: ["圖例限制前六項", "統計報告 50% 高度設定"] },
-            { v: "v26.4", items: ["統計報告隱藏未來月份資料 (GMT+8)"] },
-            { v: "v26.3", items: ["年度統計新增平均月收入顯示"] },
-            { v: "v26.2", items: ["總收入金額支援點擊隱藏/顯示切換"] },
+            { v: "v26.24.1", items: ["登入畫面新增密碼設定說明文字", "優化新舊帳號遷移引導"] },
+            { v: "v26.24", items: ["實裝 Firebase Authentication 密碼系統", "支援帳號註冊與登入驗證", "強化資料庫存取安全性路徑", "新增登出功能"] },
             { v: "v26.1", items: ["版本號系統與雲端同步樣式優化"] }
         ];
 
-        let db = null, mainChartObj = null, trendChartObj = null, dragSrcIndex = null;
+        let mainChartObj = null, trendChartObj = null, dragSrcIndex = null;
         Chart.register(ChartDataLabels);
 
         function getTaipeiNow() {
@@ -270,22 +257,56 @@
             return new Date(utc + (3600000 * 8));
         }
 
-        function startApp() {
-            const accId = document.getElementById('account-id').value.trim() || state.accountId;
-            if (!accId) return alert('請輸入帳號 ID');
-            state.accountId = accId;
-            localStorage.setItem('wallet_acc_id', accId);
+        async function startApp() {
+            const accId = document.getElementById('account-id').value.trim();
+            const password = document.getElementById('account-pw').value.trim();
+
+            if (!accId || password.length < 6) return alert('請輸入帳號並確保密碼至少 6 位');
+
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.innerText = '處理中...';
+            loginBtn.disabled = true;
+
+            const email = `${accId}@googlepay.sys`;
+
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                handleAuthSuccess(userCredential.user);
+            } catch (error) {
+                if (error.code === 'auth/user-not-found') {
+                    try {
+                        const newUser = await auth.createUserWithEmailAndPassword(email, password);
+                        alert('帳號設定完成！您的資料路徑現已受到密碼保護。');
+                        handleAuthSuccess(newUser.user);
+                    } catch (regError) {
+                        alert('註冊失敗: ' + regError.message);
+                    }
+                } else {
+                    alert('登入失敗: 密碼錯誤或帳號異常');
+                }
+            } finally {
+                loginBtn.innerText = '登入 / 同步';
+                loginBtn.disabled = false;
+            }
+        }
+
+        function handleAuthSuccess(user) {
+            state.uid = user.uid;
             document.getElementById('sync-overlay').style.display = 'none';
             document.getElementById('app-content').style.display = 'block';
-            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
             listenToCloud();
         }
 
-        if (state.accountId) startApp();
+        function logout() {
+            if(confirm('確定登出？')) {
+                auth.signOut().then(() => {
+                    location.reload();
+                });
+            }
+        }
 
         function listenToCloud() {
-            db.ref('users/' + state.accountId).on('value', (snap) => {
+            db.ref('users/' + state.uid).on('value', (snap) => {
                 const data = snap.val();
                 if (data) {
                     state.records = data.records || [];
@@ -301,7 +322,10 @@
             });
         }
 
-        function saveToCloud() { db.ref('users/' + state.accountId).set({ records: state.records, cats: state.cats, subs: state.subs }); }
+        function saveToCloud() { 
+            if(!state.uid) return;
+            db.ref('users/' + state.uid).set({ records: state.records, cats: state.cats, subs: state.subs }); 
+        }
 
         function checkSubscriptions() {
             const now = getTaipeiNow();
@@ -427,7 +451,6 @@
                 for (let i = 29; i >= 0; i--) {
                     const d = new Date(now); d.setDate(d.getDate() - i);
                     const ds = d.toISOString().split('T')[0];
-                    // 修正 26.23.3: 將日期格式化為 MM/DD
                     labels.push(ds.slice(5).replace('-', '/'));
                     const daySum = state.records.filter(r => r.date === ds && r.type === 'expense').reduce((s, r) => s + r.amt, 0);
                     data.push(daySum);
@@ -436,7 +459,6 @@
                 for (let i = 11; i >= 0; i--) {
                     const d = new Date(now); d.setMonth(d.getMonth() - i);
                     const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                    // 修正 26.23.3: 將日期格式化為 YY/MM (例如 26/01)
                     labels.push(ym.slice(2).replace('-', '/'));
                     const monthSum = state.records.filter(r => r.date.startsWith(ym) && r.type === 'expense' && (state.trendCat === '全部' || r.cat === state.trendCat)).reduce((s, r) => s + r.amt, 0);
                     data.push(monthSum);
@@ -657,7 +679,16 @@
         function changeMonth(n) { state.viewDate.setMonth(state.viewDate.getMonth()+n); render(); }
         function exportData() { if(!confirm('確定要備份 (JSON)？')) return; const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'wallet_backup.json'; a.click(); }
         function importData(e) { const r = new FileReader(); r.onload = (ev) => { const d = JSON.parse(ev.target.result); Object.assign(state, d); saveToCloud(); alert('還原成功'); }; r.readAsText(e.target.files[0]); }
-        window.onload = () => { if(!state.accountId) document.getElementById('sync-overlay').style.display='flex'; };
+        
+        window.onload = () => { 
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    handleAuthSuccess(user);
+                } else {
+                    document.getElementById('sync-overlay').style.display='flex';
+                }
+            });
+        };
     </script>
 </body>
 </html>
