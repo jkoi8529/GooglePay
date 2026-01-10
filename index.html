@@ -37,13 +37,16 @@
 
         .summary-header { background-color: var(--md-sys-color-surface-container); margin: 16px; padding: 24px 24px 36px 24px; border-radius: 32px; position: relative; }
         
-        /* 左上角三條線選單按鈕 */
+        /* 左上角選單按鈕 */
         .menu-btn-top { position: absolute; left: 24px; top: 24px; color: var(--md-sys-color-primary); cursor: pointer; z-index: 10; padding: 4px; }
 
         .version-tag { position: absolute; right: 20px; bottom: 12px; font-size: 8px; color: #555555; opacity: 0.8; font-weight: 500; cursor: pointer; padding: 4px; border-radius: 4px; }
         .sync-status { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); font-size: 9px; color: var(--md-sys-color-outline); display: flex; align-items: center; justify-content: center; white-space: nowrap; }
 
-        .month-selector { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-top: 8px; }
+        /* 修正：月份切換器改為置中，並增加 gap 讓按鈕靠近文字 */
+        .month-selector { display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 16px; padding-top: 8px; }
+        .month-selector span { cursor: pointer; user-select: none; }
+        
         .month-label { font-size: 20px; font-weight: 700; color: var(--md-sys-color-primary); }
         .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .summary-item { background: white; padding: 16px; border-radius: 20px; cursor: pointer; }
@@ -120,8 +123,7 @@
         .log-content { font-size: 14px; line-height: 1.6; color: #49454F; }
         .log-content div { position: relative; padding-left: 14px; margin-bottom: 4px; }
         .log-content div::before { content: "•"; position: absolute; left: 0; color: #6750A4; font-weight: bold; }
-
-        /* 設定選單項目的樣式 */
+        
         .settings-item { display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--md-sys-color-surface-container-high); border-radius: 16px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
         .settings-item:hover { background: var(--md-sys-color-primary-container); }
         .settings-item .material-symbols-outlined { color: var(--md-sys-color-primary); }
@@ -253,7 +255,7 @@
         };
 
         const changelogs = [
-            { v: "v26.24.5", items: ["版面架構優化：新增左上角選單整合備份、還原與登出功能。","FAB 功能重組：右下角懸浮按鈕保留核心記帳操作 (新增收支、訂閱與類別管理)。"] },
+            { v: "v26.24.5", items: ["版面優化：修正切換月份按鈕與選單圖示重疊問題，調整為緊鄰月份字樣置中排列。","架構調整：新增左上角選單整合備份、還原與登出功能。","FAB 功能重組：右下角懸浮按鈕保留核心記帳操作。"] },
             { v: "v26.24.4", items: ["登入穩定性修復：解決舊帳號初次升級時可能出現的 INVALID_LOGIN_CREDENTIALS 錯誤捕捉問題。"] },
             { v: "v26.24.3", items: ["強化登入相容性：處理舊帳號初次設定密碼時的錯誤攔截。"] },
             { v: "v26.24.2", items: ["優化登入持久化：自動保持登入狀態，下次開啟免輸入密碼"] },
@@ -264,10 +266,10 @@
             { v: "v26.23.1", items: ["短期趨勢由 14 日調整為 30 日，優化平均計算邏輯。"] },
             { v: "v26.23", items: ["新增消費趨勢 analysis 功能，支援平滑曲線圖表。"] },
             { v: "v26.22", items: ["實裝訂閱制自動扣款與變價功能。"] },
-            { v: "v26.21", items: ["收支統計報告新增百分比 (%) 顯示。"] },
-            { v: "v26.20", items: ["類別管理介面優化：按鈕移至右上角圓形圖示。"] },
+            { v: "v26.21", items: ["收支統計報告/年度類別總結新增百分比 (%) 顯示。"] },
+            { v: "v26.20", items: ["類別管理介立優化：按鈕移至右上角圓形圖示。"] },
             { v: "v26.19", items: ["修正欄位 Enter 不收鍵盤與 Gboard 優化。"] },
-            { v: "v26.18", items: ["統計報告標頭按鈕排版修正。"] },
+            { v: "v26.18", items: ["修正統計報告標頭按鈕排版修正。"] },
             { v: "v26.17", items: ["底層按鈕排版修正，恢復 Android 16 輸入樣式。"] },
             { v: "v26.16", items: ["統計明細 Bar 視覺回歸。"] },
             { v: "v26.15", items: ["Excel 多工作表匯出功能。"] },
@@ -366,7 +368,6 @@
             db.ref('users/' + state.uid).set({ records: state.records, cats: state.cats, subs: state.subs }); 
         }
 
-        // --- 渲染左上角選單內容 ---
         function renderSettingsMenu() {
             const body = document.getElementById('sheetBody');
             body.innerHTML = `
