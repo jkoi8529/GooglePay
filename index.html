@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GooglePay</title>
+    <title>GooglePay v26.23.3</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
     
@@ -147,7 +147,7 @@
                 <div class="summary-item"><small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span></div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag" onclick="openDrawer('changelog')">v26.23.2</div>
+            <div class="version-tag" onclick="openDrawer('changelog')">v26.23.3</div>
         </div>
 
         <div class="transaction-section">
@@ -233,6 +233,7 @@
         };
 
         const changelogs = [
+            { v: "v26.23.3", items: ["修正趨勢功能：時間顯示格式由 YY-MM 改為 YY/MM (例如 26/01)"] },
             { v: "v26.23.2", items: ["UI 優化：隱藏平均支出中「(排除空白)」之字樣，維持介面簡潔"] },
             { v: "v26.23.1", items: ["短期趨勢由 14 日調整為 30 日", "平均支出計算邏輯優化：自動排除無紀錄之月份/日期"] },
             { v: "v26.23", items: ["新增消費趨勢 analysis 功能", "支援近 14 日短期趨勢與近 12 個月長期趨勢圖表", "支援查看特定類別近 12 個月支出趨勢", "採用平滑曲線設計符合 Android 16 視覺語彙"] },
@@ -426,7 +427,8 @@
                 for (let i = 29; i >= 0; i--) {
                     const d = new Date(now); d.setDate(d.getDate() - i);
                     const ds = d.toISOString().split('T')[0];
-                    labels.push(ds.slice(5));
+                    // 修正 26.23.3: 將日期格式化為 MM/DD
+                    labels.push(ds.slice(5).replace('-', '/'));
                     const daySum = state.records.filter(r => r.date === ds && r.type === 'expense').reduce((s, r) => s + r.amt, 0);
                     data.push(daySum);
                 }
@@ -434,7 +436,8 @@
                 for (let i = 11; i >= 0; i--) {
                     const d = new Date(now); d.setMonth(d.getMonth() - i);
                     const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                    labels.push(ym.slice(2));
+                    // 修正 26.23.3: 將日期格式化為 YY/MM (例如 26/01)
+                    labels.push(ym.slice(2).replace('-', '/'));
                     const monthSum = state.records.filter(r => r.date.startsWith(ym) && r.type === 'expense' && (state.trendCat === '全部' || r.cat === state.trendCat)).reduce((s, r) => s + r.amt, 0);
                     data.push(monthSum);
                 }
@@ -469,7 +472,6 @@
             const avg = validData.length > 0 ? Math.round(validData.reduce((a,b)=>a+b,0)/validData.length) : 0;
             const max = data.length > 0 ? Math.max(...data) : 0;
             
-            // 修正 26.23.2: 隱藏「排除空白」字樣
             document.getElementById('trendSummary').innerHTML = `
                 <div class="stats-detail-card" style="margin-top:16px;">
                     <div class="detail-row"><span>平均支出</span><span>$${avg.toLocaleString()}</span></div>
