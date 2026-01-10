@@ -81,6 +81,12 @@
         .btn-tonal { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); border: none; padding: 16px; width: 100%; border-radius: 100px; font-size: 16px; font-weight: 700; cursor: pointer; }
         .btn-text-error { background: none; color: var(--md-sys-color-error); border: none; padding: 12px; width: 100%; font-weight: 700; cursor: pointer; border-radius: 100px; }
 
+        /* Android 16 Alert Dialog */
+        .md-alert-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 24px; }
+        .md-alert { background: var(--md-sys-color-surface-container-high); border-radius: 28px; padding: 24px; max-width: 320px; width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .md-alert-title { font-size: 24px; margin-bottom: 16px; color: var(--md-sys-color-on-surface); }
+        .md-alert-content { font-size: 16px; line-height: 1.5; color: var(--md-sys-color-on-surface-variant); margin-bottom: 24px; }
+
         .stats-detail-card { background: var(--md-sys-color-surface-container-high); padding: 16px; border-radius: 20px; margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.05); }
         .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--md-sys-color-outline); opacity: 0.8; }
         .detail-row:last-child { border-bottom: none; }
@@ -99,6 +105,7 @@
         .fab-item { background: #F5F5F5; padding: 12px 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: 500; cursor: pointer; }
 
         .category-row { display: flex; align-items: center; background: var(--md-sys-color-surface-container-high); margin-bottom: 8px; padding: 12px; border-radius: 16px; gap: 12px; cursor: move; }
+        .sub-row { display: flex; align-items: center; background: white; margin-bottom: 12px; padding: 16px; border-radius: 20px; gap: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
         .segmented-control { display: flex; background: var(--md-sys-color-surface-container-high); padding: 4px; border-radius: 100px; margin-bottom: 24px; flex-shrink: 0; }
         .segment-btn { flex: 1; border: none; background: none; padding: 10px; border-radius: 100px; font-size: 14px; font-weight: 500; cursor: pointer; }
         .segment-btn.active { background: white; color: var(--md-sys-color-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -119,6 +126,14 @@
         <button class="btn-filled" style="width:200px;" onclick="startApp()">開始同步</button>
     </div>
 
+    <div id="subAlert" class="md-alert-overlay">
+        <div class="md-alert">
+            <div class="md-alert-title">自動扣款提醒</div>
+            <div class="md-alert-content" id="subAlertContent">今日已自動完成扣款。</div>
+            <button class="btn-filled" onclick="document.getElementById('subAlert').style.display='none'">知道了</button>
+        </div>
+    </div>
+
     <div id="app-content" style="display:none;">
         <div class="summary-header">
             <div class="month-selector">
@@ -133,7 +148,7 @@
                 <div class="summary-item"><small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span></div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag" onclick="openDrawer('changelog')">v26.21</div>
+            <div class="version-tag" onclick="openDrawer('changelog')">v26.22</div>
         </div>
 
         <div class="transaction-section">
@@ -151,6 +166,7 @@
         <div class="fab-menu" id="fabMenu">
             <div class="fab-item" onclick="openDrawer('expense')">新增支出</div>
             <div class="fab-item" onclick="openDrawer('income')">新增收入</div>
+            <div class="fab-item" onclick="openDrawer('subManage')">訂閱管理</div>
             <div class="fab-item" onclick="openDrawer('category')">類別管理</div>
         </div>
         <div class="fab" onclick="toggleFab()"><span class="material-symbols-outlined" id="fabIcon">add</span></div>
@@ -163,7 +179,10 @@
                     <div class="header-actions">
                         <button class="circle-btn" id="excelBtn" style="display:none; color:#2E7D32; background:#E8F5E9;" onclick="exportToExcel()"><span class="material-symbols-outlined">description</span></button>
                         <div id="catActions" style="display:none;">
-                            <button class="circle-btn" style="background:#EADDFF; color:#6750A4;" onclick="addCat()"><span class="material-symbols-outlined">add</span></button>
+                            <button class="circle-btn" id="addBtnCat" style="background:#EADDFF; color:#6750A4;" onclick="addCat()"><span class="material-symbols-outlined">add</span></button>
+                        </div>
+                        <div id="subActions" style="display:none;">
+                            <button class="circle-btn" style="background:#EADDFF; color:#6750A4;" onclick="openDrawer('subEdit')"><span class="material-symbols-outlined">add</span></button>
                         </div>
                         <button class="circle-btn" id="closeBtnHeader" style="background:#ECE6F0;" onclick="closeDrawer()"><span class="material-symbols-outlined">close</span></button>
                     </div>
@@ -202,6 +221,7 @@
             viewDate: new Date(2026, 0, 1),
             records: [],
             cats: [{ id: 1, name: '餐飲', type: 'expense', sort: 0 }],
+            subs: [],
             listTab: 'expense',
             activeCatType: 'expense',
             statsView: 'monthly',
@@ -211,8 +231,8 @@
             showIncome: false
         };
 
-        // 完整歷史更新紀錄
         const changelogs = [
+            { v: "v26.22", items: ["實裝訂閱制自動扣款與變價功能", "新增扣款成功提示視窗", "支援每月/每季/每年固定日期自動生成支出", "修改訂閱金額不連動影響歷史紀錄"] },
             { v: "v26.21", items: ["收支統計報告/年度類別總結新增百分比 (%) 顯示", "金額與占比併行顯示，計算該年總額占比"] },
             { v: "v26.20", items: ["類別管理介面優化：新增類別按鈕移至右上角，改為圓形 + 號圖示"] },
             { v: "v26.19", items: ["修正金額欄位 Enter 不收起鍵盤問題", "優化 Gboard 數字模式送出鍵監聽"] },
@@ -226,7 +246,7 @@
             { v: "v26.11", items: ["金額運算方案 B (彈出計算機) 實裝", "修正備註中心線對齊"] },
             { v: "v26.10", items: ["統計報告視窗高度升至 72.5%", "金額支援算式直接運算"] },
             { v: "v26.9", items: ["同步狀態字樣與版本號水平對齊"] },
-            { v: "v26.8", items: ["新增更新日誌視窗功能"] },
+            { v: "v26.8", items: ["更新日誌視窗功能"] },
             { v: "v26.7", items: ["年度統計類別二級分層優化"] },
             { v: "v26.6", items: ["主畫面收支紀錄新增備註圓角氣泡"] },
             { v: "v26.5", items: ["圖例限制前六項", "統計報告 50% 高度設定"] },
@@ -265,7 +285,9 @@
                 if (data) {
                     state.records = data.records || [];
                     state.cats = data.cats || state.cats;
+                    state.subs = data.subs || [];
                     document.getElementById('cloud-status').innerText = '雲端已同步 ✓';
+                    checkSubscriptions();
                     render();
                 } else {
                     document.getElementById('cloud-status').innerText = '雲端連線成功';
@@ -274,7 +296,62 @@
             });
         }
 
-        function saveToCloud() { db.ref('users/' + state.accountId).set({ records: state.records, cats: state.cats }); }
+        function saveToCloud() { db.ref('users/' + state.accountId).set({ records: state.records, cats: state.cats, subs: state.subs }); }
+
+        // --- 修正 26.22: 自動扣款引擎 ---
+        function checkSubscriptions() {
+            const now = getTaipeiNow();
+            const todayStr = now.toISOString().split('T')[0];
+            let generatedCount = 0;
+            let generatedNames = [];
+
+            state.subs.forEach(sub => {
+                if (!sub.active) return;
+                
+                let lastGen = new Date(sub.lastGenerated || '2000-01-01');
+                let nextGen = new Date(lastGen);
+                
+                // 計算下一個扣款日
+                if (sub.cycle === 'monthly') nextGen.setMonth(nextGen.getMonth() + 1);
+                else if (sub.cycle === 'quarterly') nextGen.setMonth(nextGen.getMonth() + 3);
+                else if (sub.cycle === 'yearly') nextGen.setFullYear(nextGen.getFullYear() + 1);
+                
+                // 設定為該月的固定扣款日
+                nextGen.setDate(sub.payDay);
+
+                // 如果今天已經到達或超過應扣款日，且紀錄尚未生成
+                while (nextGen <= now) {
+                    const dateStr = nextGen.toISOString().split('T')[0];
+                    state.records.push({
+                        id: Date.now() + generatedCount,
+                        type: 'expense',
+                        date: dateStr,
+                        amt: sub.amt,
+                        cat: sub.cat,
+                        ins: 1,
+                        insIndex: 1,
+                        note: `自動訂閱: ${sub.name}`,
+                        isAuto: true
+                    });
+                    
+                    sub.lastGenerated = dateStr;
+                    generatedCount++;
+                    generatedNames.push(`${sub.name} ($${sub.amt})`);
+
+                    // 計算下下一個扣款日
+                    if (sub.cycle === 'monthly') nextGen.setMonth(nextGen.getMonth() + 1);
+                    else if (sub.cycle === 'quarterly') nextGen.setMonth(nextGen.getMonth() + 3);
+                    else if (sub.cycle === 'yearly') nextGen.setFullYear(nextGen.getFullYear() + 1);
+                }
+            });
+
+            if (generatedCount > 0) {
+                saveToCloud();
+                document.getElementById('subAlertContent').innerHTML = `今日已自動扣款：<br><b>${generatedNames.join('<br>')}</b>`;
+                document.getElementById('subAlert').style.display = 'flex';
+            }
+        }
+
         function toggleIncomeDisplay() { state.showIncome = !state.showIncome; render(); }
 
         function updateMainChart(filteredData) {
@@ -361,23 +438,16 @@
             }
         }
 
-        // 修正 1: 年度類別總結新增百分比顯示
         function showYearlyCatDetail(title, data) {
             const body = document.getElementById('sheetBody');
             const yearCats = { income: {}, expense: {} };
             data.forEach(r => { const target = r.type === 'income' ? yearCats.income : yearCats.expense; target[r.cat] = (target[r.cat] || 0) + r.amt; });
-            
-            // 計算總額以供百分比計算
             const totalIncome = Object.values(yearCats.income).reduce((a, b) => a + b, 0);
             const totalExpense = Object.values(yearCats.expense).reduce((a, b) => a + b, 0);
-
-            const getRows = (catData, total) => Object.entries(catData)
-                .sort((a,b) => b[1]-a[1])
-                .map(([c, a]) => {
-                    const pct = total > 0 ? ((a / total) * 100).toFixed(0) : 0;
-                    return `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${pct}%)</span></div>`;
-                }).join('');
-            
+            const getRows = (catData, total) => Object.entries(catData).sort((a,b) => b[1]-a[1]).map(([c, a]) => {
+                const pct = total > 0 ? ((a / total) * 100).toFixed(0) : 0;
+                return `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${pct}%)</span></div>`;
+            }).join('');
             body.innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div>
                 <h3 style="margin:0 0 16px 0;">${title} 類別總結</h3>
                 <div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">年度收入分布</div>${getRows(yearCats.income, totalIncome) || '無紀錄'}</div>
@@ -386,10 +456,8 @@
         }
 
         function showStatsDetail(title, data) {
-            const total = data.reduce((s, r) => s + r.amt, 0);
             const getRows = (items) => { 
-                const g = {}; 
-                items.forEach(r => { g[r.cat] = (g[r.cat] || 0) + r.amt; }); 
+                const g = {}; items.forEach(r => { g[r.cat] = (g[r.cat] || 0) + r.amt; }); 
                 const subTotal = Object.values(g).reduce((a, b) => a + b, 0);
                 return Object.entries(g).sort((a,b) => b[1] - a[1]).map(([c, a]) => {
                     const pct = subTotal > 0 ? ((a / subTotal) * 100).toFixed(0) : 0;
@@ -409,27 +477,60 @@
             body.innerHTML += `<div class="btn-row"><button class="btn-filled" style="flex:1" onclick="closeDrawer()">關閉視窗</button></div>`;
         }
 
+        // --- 修正 26.22: 訂閱管理 UI ---
+        function renderSubManager() {
+            const body = document.getElementById('sheetBody');
+            body.innerHTML = state.subs.map(s => `
+                <div class="sub-row" onclick="openDrawer('subEdit', ${s.id})">
+                    <div style="flex:1;">
+                        <div style="font-weight:700;">${s.name}</div>
+                        <small style="color:var(--md-sys-color-outline);">每${s.cycle === 'monthly' ? '月' : s.cycle === 'quarterly' ? '季' : '年'} ${s.payDay}號 扣款</small>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="color:var(--md-sys-color-primary); font-weight:700;">$${s.amt.toLocaleString()}</div>
+                        <small style="${s.active ? 'color:#2E7D32' : 'color:#B3261E'};">${s.active ? '啟用中' : '已暫停'}</small>
+                    </div>
+                </div>
+            `).join('') || '<div style="padding:40px; text-align:center; color:#999;">尚未設定任何訂閱項目</div>';
+            body.innerHTML += `<div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`;
+        }
+
         function evaluateMath(str) { try { const sanitized = str.replace(/[^-()\d/*+.]/g, ''); return Function(`"use strict"; return (${sanitized})`)(); } catch (e) { return null; } }
         function insertOp(op) { const input = document.getElementById('in_amt'); input.value += op; input.focus(); }
 
         function openDrawer(mode, id=null) {
             state.currentMode = mode; state.editingId = id;
             if(document.getElementById('fabMenu').style.display==='flex') toggleFab();
-            const record = id ? state.records.find(r => r.id === id) : null;
+            const record = (mode === 'edit') ? state.records.find(r => r.id === id) : null;
+            const sub = (mode === 'subEdit') ? state.subs.find(s => s.id === id) : null;
+
             if(id && record && record.ins > 1 && record.insIndex !== 1) return alert('請至第一個月作編輯');
-            const sheet = document.getElementById('mainSheet'), title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), excelBtn = document.getElementById('excelBtn'), catActions = document.getElementById('catActions'), modalActions = document.getElementById('modalActions');
+            const sheet = document.getElementById('mainSheet'), title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), excelBtn = document.getElementById('excelBtn'), catActions = document.getElementById('catActions'), subActions = document.getElementById('subActions'), modalActions = document.getElementById('modalActions');
             document.getElementById('modalOverlay').classList.add('active');
             document.body.classList.add('no-scroll');
-            sheet.className = (mode === 'stats' || mode === 'changelog') ? 'bottom-sheet custom-height' : 'bottom-sheet';
+            sheet.className = (mode === 'stats' || mode === 'changelog' || mode === 'subManage') ? 'bottom-sheet custom-height' : 'bottom-sheet';
             
-            delBtn.style.display = id ? 'block' : 'none';
+            delBtn.style.display = (id || mode==='subEdit' && id) ? 'block' : 'none';
             excelBtn.style.display = mode === 'stats' ? 'inline-flex' : 'none';
             catActions.style.display = mode === 'category' ? 'inline-flex' : 'none';
-            modalActions.style.display = (mode === 'stats' || mode === 'changelog' || mode === 'category') ? 'none' : 'flex';
+            subActions.style.display = mode === 'subManage' ? 'inline-flex' : 'none';
+            modalActions.style.display = (mode === 'stats' || mode === 'changelog' || mode === 'category' || mode === 'subManage') ? 'none' : 'flex';
             
             if(mode === 'category') { title.innerText = '類別管理'; renderCatManager(); }
             else if(mode === 'stats') { title.innerText = '收支統計報告'; renderStatsReport(); }
             else if(mode === 'changelog') { title.innerText = '更新日誌'; renderChangelog(); }
+            else if(mode === 'subManage') { title.innerText = '訂閱項目管理'; renderSubManager(); }
+            else if(mode === 'subEdit') {
+                title.innerText = id ? '編輯訂閱' : '新增訂閱';
+                body.innerHTML = `
+                    <div class="input-group"><label class="input-label">名稱 (如 Netflix)</label><input type="text" id="sub_name" class="md-input" value="${sub?sub.name:''}"></div>
+                    <div class="input-group"><label class="input-label">扣款類別</label><select id="sub_cat" class="md-input">${state.cats.filter(c=>c.type==='expense').map(c=>`<option value="${c.name}" ${sub?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>
+                    <div class="input-group"><label class="input-label">目前的扣款金額</label><input type="text" id="in_amt" class="md-input" value="${sub?sub.amt:''}" inputmode="decimal"></div>
+                    <div class="input-group"><label class="input-label">週期</label><select id="sub_cycle" class="md-input"><option value="monthly" ${sub?.cycle==='monthly'?'selected':''}>每月</option><option value="quarterly" ${sub?.cycle==='quarterly'?'selected':''}>每季</option><option value="yearly" ${sub?.cycle==='yearly'?'selected':''}>每年</option></select></div>
+                    <div class="input-group"><label class="input-label">每月扣款日 (1-31)</label><input type="number" id="sub_day" class="md-input" value="${sub?sub.payDay:'1'}" min="1" max="31"></div>
+                    <div class="input-group"><label class="input-label">狀態</label><select id="sub_active" class="md-input"><option value="true" ${sub?.active!==false?'selected':''}>啟用</option><option value="false" ${sub?.active===false?'selected':''}>停用</option></select></div>
+                `;
+            }
             else {
                 title.innerText = id ? '編輯紀錄' : (mode==='expense'?'新增支出':'新增收入');
                 let displayAmt = record ? record.amt : '';
@@ -440,6 +541,19 @@
         }
 
         function handleSave() {
+            if (state.currentMode === 'subEdit') {
+                const name = document.getElementById('sub_name').value, amtRaw = document.getElementById('in_amt').value, cat = document.getElementById('sub_cat').value, cycle = document.getElementById('sub_cycle').value, day = parseInt(document.getElementById('sub_day').value), active = document.getElementById('sub_active').value === 'true';
+                if(!name || !amtRaw) return alert('資料不全');
+                let amt = evaluateMath(amtRaw);
+                if(state.editingId) {
+                    let sub = state.subs.find(s => s.id === state.editingId);
+                    Object.assign(sub, { name, amt, cat, cycle, payDay: day, active });
+                } else {
+                    state.subs.push({ id: Date.now(), name, amt, cat, cycle, payDay: day, active, lastGenerated: getTaipeiNow().toISOString().split('T')[0] });
+                }
+                saveToCloud(); closeDrawer(); return;
+            }
+
             let amtRaw = document.getElementById('in_amt').value; if(!amtRaw) return alert('請輸入金額');
             let amt = evaluateMath(amtRaw); if (amt === null || isNaN(amt)) return alert('金額運算錯誤');
             amt = Math.round(amt);
@@ -449,7 +563,12 @@
             if(ins > 1 && type === 'expense') { const gid = Date.now(), base = Math.floor(amt / ins), extra = amt % ins; for(let i=0; i<ins; i++) { const d = new Date(date); d.setMonth(d.getMonth() + i); state.records.push({ id: Date.now()+i, gid, type, date: d.toISOString().split('T')[0], amt: i===0?base+extra:base, cat, ins, insIndex: i+1, note }); } } else { state.records.push({ id: Date.now(), type, date, amt, cat, ins: 1, insIndex: 1, note }); }
             saveToCloud(); closeDrawer();
         }
-        function handleDelete() { const target = state.records.find(r => r.id === state.editingId); if(!target) return; if(target.gid && !confirm('將刪除整組分期數據？')) return; if(!target.gid && !confirm('確定刪除？')) return; if(target.gid) state.records = state.records.filter(r => r.gid !== target.gid); else state.records = state.records.filter(r => r.id !== state.editingId); saveToCloud(); closeDrawer(); }
+
+        function handleDelete() {
+            if (state.currentMode === 'subEdit') { if(confirm('確定刪除此訂閱？未來將不再自動扣款。')){ state.subs = state.subs.filter(s => s.id !== state.editingId); saveToCloud(); closeDrawer(); } return; }
+            const target = state.records.find(r => r.id === state.editingId); if(!target) return; if(target.gid && !confirm('將刪除整組分期數據？')) return; if(!target.gid && !confirm('確定刪除？')) return; if(target.gid) state.records = state.records.filter(r => r.gid !== target.gid); else state.records = state.records.filter(r => r.id !== state.editingId); saveToCloud(); closeDrawer(); 
+        }
+
         function upCat(id, v) { const catObj = state.cats.find(x => x.id === id); if(catObj) { const oldName = catObj.name, newName = v.trim(); if (oldName === newName || !newName) return; state.records.forEach(r => { if (r.cat === oldName) r.cat = newName; }); catObj.name = newName; saveToCloud(); render(); } }
         function delCat(id){ if(confirm('確定刪除類別？')){state.cats=state.cats.filter(x=>x.id!==id); saveToCloud(); renderCatManager();}}
         function addCat(){ const n=prompt('類別名稱:'); if(n){state.cats.push({id:Date.now(), name:n, type:state.activeCatType, sort:state.cats.length}); saveToCloud(); renderCatManager();}}
@@ -467,7 +586,7 @@
         function setListTab(t) { state.listTab = t; render(); }
         function changeMonth(n) { state.viewDate.setMonth(state.viewDate.getMonth()+n); render(); }
         function exportData() { if(!confirm('確定要備份 (JSON)？')) return; const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'wallet_backup.json'; a.click(); }
-        function importData(e) { const r = new FileReader(); r.onload = (ev) => { const d = JSON.parse(ev.target.result); state.records = d.records || []; state.cats = d.cats || state.cats; saveToCloud(); alert('還原成功'); }; r.readAsText(e.target.files[0]); }
+        function importData(e) { const r = new FileReader(); r.onload = (ev) => { const d = JSON.parse(ev.target.result); Object.assign(state, d); saveToCloud(); alert('還原成功'); }; r.readAsText(e.target.files[0]); }
         window.onload = () => { if(!state.accountId) document.getElementById('sync-overlay').style.display='flex'; };
     </script>
 </body>
