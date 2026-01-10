@@ -147,7 +147,7 @@
                 <div class="summary-item"><small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span></div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag" onclick="openDrawer('changelog')">v26.23.1</div>
+            <div class="version-tag" onclick="openDrawer('changelog')">v26.23.2</div>
         </div>
 
         <div class="transaction-section">
@@ -225,7 +225,7 @@
             activeCatType: 'expense',
             statsView: 'monthly',
             yearlySubView: 'year',
-            trendView: '30d', // 修正 26.23.1: 預設改為 30d
+            trendView: '30d',
             trendCat: '全部',
             editingId: null,
             currentMode: '',
@@ -233,8 +233,9 @@
         };
 
         const changelogs = [
+            { v: "v26.23.2", items: ["UI 優化：隱藏平均支出中「(排除空白)」之字樣，維持介面簡潔"] },
             { v: "v26.23.1", items: ["短期趨勢由 14 日調整為 30 日", "平均支出計算邏輯優化：自動排除無紀錄之月份/日期"] },
-            { v: "v26.23", items: ["新增消費趨勢分析功能", "支援近 14 日短期趨勢與近 12 個月長期趨勢圖表", "支援查看特定類別近 12 個月支出趨勢", "採用平滑曲線設計符合 Android 16 視覺語彙"] },
+            { v: "v26.23", items: ["新增消費趨勢 analysis 功能", "支援近 14 日短期趨勢與近 12 個月長期趨勢圖表", "支援查看特定類別近 12 個月支出趨勢", "採用平滑曲線設計符合 Android 16 視覺語彙"] },
             { v: "v26.22", items: ["實裝訂閱制自動扣款與變價功能", "新增扣款成功提示視窗", "支援每月/每季/每年固定日期自動生成支出", "修改訂閱金額不連動影響歷史紀錄"] },
             { v: "v26.21", items: ["收支統計報告/年度類別總結新增百分比 (%) 顯示", "金額與占比併行顯示，計算該年總額占比"] },
             { v: "v26.20", items: ["類別管理介面優化：新增類別按鈕移至右上角，改為圓形 + 號圖示"] },
@@ -390,7 +391,6 @@
             XLSX.writeFile(wb, `GooglePay_財務報告_${dateStr}.xlsx`);
         }
 
-        // --- 修正 26.23.1: 趨勢分析渲染與統計邏輯 (30日與平均排除零值) ---
         function renderTrendAnalysis() {
             const container = document.getElementById('statsList');
             let catOptions = `<option value="全部">全部支出</option>` + state.cats.filter(c => c.type === 'expense').map(c => `<option value="${c.name}" ${state.trendCat === c.name ? 'selected' : ''}>${c.name}</option>`).join('');
@@ -423,7 +423,7 @@
             const now = getTaipeiNow();
 
             if (state.trendView === '30d') {
-                for (let i = 29; i >= 0; i--) { // 修正為 30 日
+                for (let i = 29; i >= 0; i--) {
                     const d = new Date(now); d.setDate(d.getDate() - i);
                     const ds = d.toISOString().split('T')[0];
                     labels.push(ds.slice(5));
@@ -465,14 +465,14 @@
                 }
             });
 
-            // 修正 26.23.1: 平均支出計算排除零值
             const validData = data.filter(v => v > 0);
             const avg = validData.length > 0 ? Math.round(validData.reduce((a,b)=>a+b,0)/validData.length) : 0;
             const max = data.length > 0 ? Math.max(...data) : 0;
             
+            // 修正 26.23.2: 隱藏「排除空白」字樣
             document.getElementById('trendSummary').innerHTML = `
                 <div class="stats-detail-card" style="margin-top:16px;">
-                    <div class="detail-row"><span>平均支出 (排除空白)</span><span>$${avg.toLocaleString()}</span></div>
+                    <div class="detail-row"><span>平均支出</span><span>$${avg.toLocaleString()}</span></div>
                     <div class="detail-row"><span>最高支出</span><span>$${max.toLocaleString()}</span></div>
                 </div>
             `;
