@@ -38,6 +38,9 @@
         .version-tag { position: absolute; right: 20px; bottom: 12px; font-size: 8px; color: #555555; opacity: 0.8; font-weight: 500; cursor: pointer; padding: 4px; border-radius: 4px; }
         .sync-status { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); font-size: 9px; color: var(--md-sys-color-outline); display: flex; align-items: center; justify-content: center; white-space: nowrap; }
 
+        /* 金額預警樣式 */
+        .payment-alert { font-size: 11px; color: var(--md-sys-color-error); font-weight: 700; margin-top: 8px; text-align: center; cursor: pointer; text-decoration: underline; display: none; }
+
         .month-selector { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .month-label { font-size: 20px; font-weight: 700; color: var(--md-sys-color-primary); }
         .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -130,10 +133,13 @@
                 <div class="summary-item" onclick="toggleIncomeDisplay()">
                     <small>總收入</small><span id="totalIncome" style="color:#2E7D32;">-----</span>
                 </div>
-                <div class="summary-item"><small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span></div>
+                <div class="summary-item">
+                    <small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span>
+                    <div class="payment-alert" id="paymentAlert" onclick="openDrawer('subs_confirm')">有 0 筆定期支出準備入帳 [點我確認]</div>
+                </div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag" onclick="openDrawer('changelog')">v26.21</div>
+            <div class="version-tag" onclick="openDrawer('changelog')">v26.22</div>
         </div>
 
         <div class="transaction-section">
@@ -151,6 +157,7 @@
         <div class="fab-menu" id="fabMenu">
             <div class="fab-item" onclick="openDrawer('expense')">新增支出</div>
             <div class="fab-item" onclick="openDrawer('income')">新增收入</div>
+            <div class="fab-item" onclick="openDrawer('subs_manage')">定期扣款中心</div>
             <div class="fab-item" onclick="openDrawer('category')">類別管理</div>
         </div>
         <div class="fab" onclick="toggleFab()"><span class="material-symbols-outlined" id="fabIcon">add</span></div>
@@ -163,7 +170,7 @@
                     <div class="header-actions">
                         <button class="circle-btn" id="excelBtn" style="display:none; color:#2E7D32; background:#E8F5E9;" onclick="exportToExcel()"><span class="material-symbols-outlined">description</span></button>
                         <div id="catActions" style="display:none;">
-                            <button class="circle-btn" style="background:#EADDFF; color:#6750A4;" onclick="addCat()"><span class="material-symbols-outlined">add</span></button>
+                            <button class="circle-btn" id="addBtnHeader" style="background:#EADDFF; color:#6750A4;"><span class="material-symbols-outlined">add</span></button>
                         </div>
                         <button class="circle-btn" id="closeBtnHeader" style="background:#ECE6F0;" onclick="closeDrawer()"><span class="material-symbols-outlined">close</span></button>
                     </div>
@@ -202,6 +209,7 @@
             viewDate: new Date(2026, 0, 1),
             records: [],
             cats: [{ id: 1, name: '餐飲', type: 'expense', sort: 0 }],
+            subs: [], // v26.22 定期設定
             listTab: 'expense',
             activeCatType: 'expense',
             statsView: 'monthly',
@@ -211,29 +219,29 @@
             showIncome: false
         };
 
-        // 完整歷史更新紀錄
         const changelogs = [
-            { v: "v26.21", items: ["收支統計報告/年度類別總結新增百分比 (%) 顯示", "金額與占比併行顯示，計算該年總額占比"] },
-            { v: "v26.20", items: ["類別管理介面優化：新增類別按鈕移至右上角，改為圓形 + 號圖示"] },
-            { v: "v26.19", items: ["修正金額欄位 Enter 不收起鍵盤問題", "優化 Gboard 數字模式送出鍵監聽"] },
-            { v: "v26.18", items: ["修正統計報告標頭按鈕左右對齊", "移除報告視窗底部冗餘按鍵"] },
-            { v: "v26.17", items: ["底層按鈕左右並列排版", "恢復 Android 16 標準輸入窗格樣式"] },
-            { v: "v26.16", items: ["統計明細 Bar 視覺回歸設計", "圓餅圖中心點鎖定防止位移"] },
+            { v: "v26.22", items: ["新增定期扣款預警系統，主畫面顯示待確認入帳項目", "新增訂閱制管理中心，支援修改金額應對隨時漲價", "自動偵測日期並生成入帳明細，強化財務自動化"] },
+            { v: "v26.21", items: ["年度類別總結新增百分比 (%) 顯示", "金額與占比併行顯示"] },
+            { v: "v26.20", items: ["類別管理介面優化：新增按鈕移至右上角圓形圖示"] },
+            { v: "v26.19", items: ["修正金額欄位 Enter 不收起鍵盤問題"] },
+            { v: "v26.18", items: ["修正統計報告標頭按鈕對齊，移除冗餘按鍵"] },
+            { v: "v26.17", items: ["優化按鈕排版為左右並列", "恢復 Android 16 標準輸入比例"] },
+            { v: "v26.16", items: ["統計明細 Bar 視覺回歸設計", "圓餅圖中心點鎖定防位移"] },
             { v: "v26.15", items: ["Excel 多工作表匯出功能實裝", "類別管理樣式恢復 v26.10"] },
-            { v: "v26.14", items: ["修正電腦版滾動條產生的排版跳動"] },
-            { v: "v26.13", items: ["動作按鈕恢復膠囊 Pill 圓角樣式", "固定統計視窗標題"] },
-            { v: "v26.12", items: ["修正分段按鈕樣式偏移，回歸 Android 16"] },
-            { v: "v26.11", items: ["金額運算方案 B (彈出計算機) 實裝", "修正備註中心線對齊"] },
-            { v: "v26.10", items: ["統計報告視窗高度升至 72.5%", "金額支援算式直接運算"] },
-            { v: "v26.9", items: ["同步狀態字樣與版本號水平對齊"] },
-            { v: "v26.8", items: ["新增更新日誌視窗功能"] },
-            { v: "v26.7", items: ["年度統計類別二級分層優化"] },
-            { v: "v26.6", items: ["主畫面收支紀錄新增備註圓角氣泡"] },
-            { v: "v26.5", items: ["圖例限制前六項", "統計報告 50% 高度設定"] },
-            { v: "v26.4", items: ["統計報告隱藏未來月份資料 (GMT+8)"] },
-            { v: "v26.3", items: ["年度統計新增平均月收入顯示"] },
-            { v: "v26.2", items: ["總收入金額支援點擊隱藏/顯示切換"] },
-            { v: "v26.1", items: ["版本號系統與雲端同步樣式優化"] }
+            { v: "v26.14", items: ["修正電腦版統計報告切換位移"] },
+            { v: "v26.13", items: ["動作按鈕恢復 Pill 膠囊風格", "固定統計報告標題位置"] },
+            { v: "v26.12", items: ["分段按鈕回歸 Android 16 置中設計"] },
+            { v: "v26.11", items: ["金額計算機方案 B 實裝", "修正備註中心線對齊"] },
+            { v: "v26.10", items: ["統計視窗高度 72.5%", "金額支援算式直接運算"] },
+            { v: "v26.9", items: ["修正同步字樣與版本號水平對齊"] },
+            { v: "v26.8", items: ["版本號可點擊開啟更新日誌"] },
+            { v: "v26.7", items: ["年度統計類別優化為年份分層"] },
+            { v: "v26.6", items: ["紀錄新增圓角備註氣泡"] },
+            { v: "v26.5", items: ["圖例限制前六項項目", "報表 50% 高度設定"] },
+            { v: "v26.4", items: ["隱藏未來月份統計數據 (GMT+8)"] },
+            { v: "v26.3", items: ["年度統計報告新增平均月收入"] },
+            { v: "v26.2", items: ["總收入金額支援點擊隱藏切換"] },
+            { v: "v26.1", items: ["同步狀態樣式優化", "版本號系統啟動"] }
         ];
 
         let db = null, mainChartObj = null, dragSrcIndex = null;
@@ -265,7 +273,9 @@
                 if (data) {
                     state.records = data.records || [];
                     state.cats = data.cats || state.cats;
+                    state.subs = data.subs || [];
                     document.getElementById('cloud-status').innerText = '雲端已同步 ✓';
+                    checkPendingSubs(); // 啟動預警偵測
                     render();
                 } else {
                     document.getElementById('cloud-status').innerText = '雲端連線成功';
@@ -274,8 +284,24 @@
             });
         }
 
-        function saveToCloud() { db.ref('users/' + state.accountId).set({ records: state.records, cats: state.cats }); }
+        function saveToCloud() { db.ref('users/' + state.accountId).set({ records: state.records, cats: state.cats, subs: state.subs }); }
         function toggleIncomeDisplay() { state.showIncome = !state.showIncome; render(); }
+
+        // v26.22 預警核心邏輯
+        function checkPendingSubs() {
+            const now = getTaipeiNow(), curY = now.getFullYear(), curM = now.getMonth() + 1, curD = now.getDate();
+            const ymKey = `${curY}-${curM}`;
+            const pending = state.subs.filter(s => {
+                const isDue = curD >= parseInt(s.day);
+                const notEntered = !state.records.some(r => r.subId === s.id && r.date.startsWith(ymKey));
+                return isDue && notEntered;
+            });
+            const banner = document.getElementById('paymentAlert');
+            if (pending.length > 0) {
+                banner.innerText = `有 ${pending.length} 筆定期支出準備入帳 [點我確認]`;
+                banner.style.display = 'block';
+            } else { banner.style.display = 'none'; }
+        }
 
         function updateMainChart(filteredData) {
             const ctx = document.getElementById('mainPieChart').getContext('2d');
@@ -305,12 +331,10 @@
             state.records.filter(r => { const d = new Date(r.date); return d.getFullYear() === year && d.getMonth() === month; }).forEach(r => { if(r.type==='income') ti+=r.amt; else te+=r.amt; });
             document.getElementById('totalIncome').innerText = state.showIncome ? `$${ti.toLocaleString()}` : '-----';
             document.getElementById('totalExpense').innerText = `$${te.toLocaleString()}`;
-            
             let html = filtered.sort((a,b) => new Date(b.date) - new Date(a.date)).map(r => {
-                const insLabel = r.ins > 1 ? ` (分期 ${r.insIndex}/${r.ins})` : '';
                 const noteHtml = r.note ? `<span class="note-pill">${r.note}</span>` : '';
                 return `<div class="item" onclick="openDrawer('edit', ${r.id})">
-                    <div class="item-info"><div class="item-title-row"><strong>${r.cat}</strong>${noteHtml}</div><small style="color:#49454F; opacity:0.7; margin-top:4px;">${r.date}${insLabel}</small></div>
+                    <div class="item-info"><div class="item-title-row"><strong>${r.cat}</strong>${noteHtml}</div><small style="color:#49454F; opacity:0.7; margin-top:4px;">${r.date}</small></div>
                     <span style="color:${r.type==='income'?'#2E7D32':'#C62828'}; font-weight:700;">$${r.amt.toLocaleString()}</span>
                 </div>`;
             }).join('');
@@ -345,7 +369,6 @@
             body.innerHTML = navHtml + `<div id="statsList"></div>`;
             const container = document.getElementById('statsList'), groups = {};
             const tpNow = getTaipeiNow(), curY = tpNow.getFullYear(), curM = tpNow.getMonth();
-
             if (state.statsView === 'monthly') {
                 state.records.forEach(r => { const d = new Date(r.date), recY = d.getFullYear(), recM = d.getMonth(); if (recY > curY || (recY === curY && recM > curM)) return; const key = `${recY}年${recM+1}月`; if(!groups[key]) groups[key] = { i: 0, e: 0, raw: [] }; if(r.type === 'income') groups[key].i += r.amt; else groups[key].e += r.amt; groups[key].raw.push(r); });
                 container.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a, undefined, {numeric: true})).map(key => {
@@ -359,48 +382,22 @@
                     container.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a)).map(key => { return `<div class="stats-report-item" onclick="showYearlyCatDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key} 類別詳情</strong><span class="material-symbols-outlined">chevron_right</span></div></div>`; }).join('');
                 }
             }
+            body.innerHTML += `<div class="btn-row"><button class="btn-filled" onclick="closeDrawer()">關閉視窗</button></div>`;
         }
 
-        // 修正 1: 年度類別總結新增百分比顯示
         function showYearlyCatDetail(title, data) {
             const body = document.getElementById('sheetBody');
             const yearCats = { income: {}, expense: {} };
             data.forEach(r => { const target = r.type === 'income' ? yearCats.income : yearCats.expense; target[r.cat] = (target[r.cat] || 0) + r.amt; });
-            
-            // 計算總額以供百分比計算
             const totalIncome = Object.values(yearCats.income).reduce((a, b) => a + b, 0);
             const totalExpense = Object.values(yearCats.expense).reduce((a, b) => a + b, 0);
-
-            const getRows = (catData, total) => Object.entries(catData)
-                .sort((a,b) => b[1]-a[1])
-                .map(([c, a]) => {
-                    const pct = total > 0 ? ((a / total) * 100).toFixed(0) : 0;
-                    return `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${pct}%)</span></div>`;
-                }).join('');
-            
-            body.innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div>
-                <h3 style="margin:0 0 16px 0;">${title} 類別總結</h3>
-                <div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">年度收入分布</div>${getRows(yearCats.income, totalIncome) || '無紀錄'}</div>
-                <div class="stats-detail-card"><div class="input-label" style="color:#C62828">年度支出分布</div>${getRows(yearCats.expense, totalExpense) || '無紀錄'}</div>
-                <div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`;
+            const getRows = (catData, total) => Object.entries(catData).sort((a,b) => b[1]-a[1]).map(([c, a]) => { const pct = total > 0 ? ((a / total) * 100).toFixed(0) : 0; return `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${pct}%)</span></div>`; }).join('');
+            body.innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3 style="margin:0 0 16px 0;">${title} 類別總結</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">年度收入分布</div>${getRows(yearCats.income, totalIncome) || '無紀錄'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">年度支出分布</div>${getRows(yearCats.expense, totalExpense) || '無紀錄'}</div><div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`;
         }
 
         function showStatsDetail(title, data) {
-            const total = data.reduce((s, r) => s + r.amt, 0);
-            const getRows = (items) => { 
-                const g = {}; 
-                items.forEach(r => { g[r.cat] = (g[r.cat] || 0) + r.amt; }); 
-                const subTotal = Object.values(g).reduce((a, b) => a + b, 0);
-                return Object.entries(g).sort((a,b) => b[1] - a[1]).map(([c, a]) => {
-                    const pct = subTotal > 0 ? ((a / subTotal) * 100).toFixed(0) : 0;
-                    return `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${pct}%)</span></div>`;
-                }).join(''); 
-            };
-            document.getElementById('sheetBody').innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div>
-                <h3 style="margin:0 0 16px 0;">${title} 細項</h3>
-                <div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">收入分佈</div>${getRows(data.filter(r => r.type === 'income')) || '無數據'}</div>
-                <div class="stats-detail-card"><div class="input-label" style="color:#C62828">支出分佈</div>${getRows(data.filter(r => r.type === 'expense')) || '無數據'}</div>
-                <div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`;
+            const getRows = (items) => { const g = {}; items.forEach(r => { g[r.cat] = (g[r.cat] || 0) + r.amt; }); const subTotal = Object.values(g).reduce((a, b) => a + b, 0); return Object.entries(g).sort((a,b) => b[1] - a[1]).map(([c, a]) => { const pct = subTotal > 0 ? ((a / subTotal) * 100).toFixed(0) : 0; return `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${pct}%)</span></div>`; }).join(''); };
+            document.getElementById('sheetBody').innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3 style="margin:0 0 16px 0;">${title} 細項</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">收入分佈</div>${getRows(data.filter(r => r.type === 'income')) || '無數據'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">支出分佈</div>${getRows(data.filter(r => r.type === 'expense')) || '無數據'}</div><div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`;
         }
 
         function renderChangelog() {
@@ -412,30 +409,86 @@
         function evaluateMath(str) { try { const sanitized = str.replace(/[^-()\d/*+.]/g, ''); return Function(`"use strict"; return (${sanitized})`)(); } catch (e) { return null; } }
         function insertOp(op) { const input = document.getElementById('in_amt'); input.value += op; input.focus(); }
 
+        // v26.22 定期管理邏輯
+        function addSub() {
+            const name = prompt('項目名稱 (如: Netflix):'); if(!name) return;
+            const amt = prompt('每月扣款金額:'); if(!amt || isNaN(amt)) return;
+            const day = prompt('每月扣款日 (1-31):'); if(!day || day < 1 || day > 31) return;
+            state.subs.push({ id: Date.now(), name, amt: parseInt(amt), day: parseInt(day), cat: '訂閱' });
+            saveToCloud(); renderSubsManage();
+        }
+        function delSub(id) { if(confirm('確定刪除此定期項目？')) { state.subs = state.subs.filter(s => s.id !== id); saveToCloud(); renderSubsManage(); } }
+        function renderSubsManage() {
+            document.getElementById('sheetBody').innerHTML = `
+                <div id="dragContainer">
+                    ${state.subs.map(s => `<div class="category-row">
+                        <div style="flex:1;"><strong>${s.name}</strong><br><small>每月 ${s.day} 號 / $${s.amt.toLocaleString()}</small></div>
+                        <span class="material-symbols-outlined" onclick="delSub(${s.id})" style="color:#B3261E; cursor:pointer;">delete</span>
+                    </div>`).join('')}
+                </div>
+                <div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`;
+        }
+
+        // v26.22 預警確認入帳介面
+        function renderSubsConfirm() {
+            const now = getTaipeiNow(), curY = now.getFullYear(), curM = now.getMonth() + 1;
+            const ymKey = `${curY}-${curM}`;
+            const pending = state.subs.filter(s => now.getDate() >= s.day && !state.records.some(r => r.subId === s.id && r.date.startsWith(ymKey)));
+            
+            document.getElementById('sheetBody').innerHTML = `
+                <h3 style="margin:0 0 16px 0;">待入帳明細 (可點擊金額修改)</h3>
+                <div id="confirmList">
+                    ${pending.map((s, idx) => `
+                        <div class="stats-detail-card">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span><strong>${s.name}</strong> (${s.day}號)</span>
+                                <input type="number" class="md-input" style="width:100px; padding:8px; border-width:1px;" id="conf_amt_${idx}" value="${s.amt}">
+                            </div>
+                        </div>`).join('')}
+                </div>
+                <div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="processSubsConfirm()">確認全部入帳</button></div>`;
+        }
+
+        function processSubsConfirm() {
+            const now = getTaipeiNow(), curY = now.getFullYear(), curM = now.getMonth() + 1;
+            const dateStr = `${curY}-${String(curM).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+            const ymKey = `${curY}-${curM}`;
+            const pending = state.subs.filter(s => now.getDate() >= s.day && !state.records.some(r => r.subId === s.id && r.date.startsWith(ymKey)));
+            
+            pending.forEach((s, idx) => {
+                const finalAmt = parseInt(document.getElementById(`conf_amt_${idx}`).value);
+                state.records.push({ id: Date.now() + idx, subId: s.id, type: 'expense', date: dateStr, amt: finalAmt, cat: s.cat, note: '自動定期入帳' });
+            });
+            saveToCloud(); closeDrawer(); alert('入帳完成');
+        }
+
         function openDrawer(mode, id=null) {
             state.currentMode = mode; state.editingId = id;
             if(document.getElementById('fabMenu').style.display==='flex') toggleFab();
-            const record = id ? state.records.find(r => r.id === id) : null;
-            if(id && record && record.ins > 1 && record.insIndex !== 1) return alert('請至第一個月作編輯');
-            const sheet = document.getElementById('mainSheet'), title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), excelBtn = document.getElementById('excelBtn'), catActions = document.getElementById('catActions'), modalActions = document.getElementById('modalActions');
+            const sheet = document.getElementById('mainSheet'), title = document.getElementById('sheetTitle'), body = document.getElementById('sheetBody'), delBtn = document.getElementById('deleteBtn'), excelBtn = document.getElementById('excelBtn'), catActions = document.getElementById('catActions'), modalActions = document.getElementById('modalActions'), addBtn = document.getElementById('addBtnHeader');
             document.getElementById('modalOverlay').classList.add('active');
             document.body.classList.add('no-scroll');
-            sheet.className = (mode === 'stats' || mode === 'changelog') ? 'bottom-sheet custom-height' : 'bottom-sheet';
+            sheet.className = (mode === 'stats' || mode === 'changelog' || mode === 'subs_manage') ? 'bottom-sheet custom-height' : 'bottom-sheet';
             
             delBtn.style.display = id ? 'block' : 'none';
             excelBtn.style.display = mode === 'stats' ? 'inline-flex' : 'none';
-            catActions.style.display = mode === 'category' ? 'inline-flex' : 'none';
-            modalActions.style.display = (mode === 'stats' || mode === 'changelog' || mode === 'category') ? 'none' : 'flex';
+            catActions.style.display = (mode === 'category' || mode === 'subs_manage') ? 'inline-flex' : 'none';
+            modalActions.style.display = (mode === 'stats' || mode === 'changelog' || mode === 'category' || mode === 'subs_manage' || mode === 'subs_confirm') ? 'none' : 'flex';
             
-            if(mode === 'category') { title.innerText = '類別管理'; renderCatManager(); }
+            if(mode === 'category') { title.innerText = '類別管理'; addBtn.onclick = addCat; renderCatManager(); }
+            else if(mode === 'subs_manage') { title.innerText = '定期扣款管理'; addBtn.onclick = addSub; renderSubsManage(); }
+            else if(mode === 'subs_confirm') { title.innerText = '定期支出預警'; renderSubsConfirm(); }
             else if(mode === 'stats') { title.innerText = '收支統計報告'; renderStatsReport(); }
             else if(mode === 'changelog') { title.innerText = '更新日誌'; renderChangelog(); }
             else {
+                const record = id ? state.records.find(r => r.id === id) : null;
                 title.innerText = id ? '編輯紀錄' : (mode==='expense'?'新增支出':'新增收入');
                 let displayAmt = record ? record.amt : '';
-                if(record && record.ins > 1) displayAmt = state.records.filter(r=>r.gid===record.gid).reduce((s,x)=>s+x.amt,0);
-                let insOpts = ''; for(let i=1;i<=80;i++) insOpts += `<option value="${i}" ${record && record.ins==i?'selected':''}>${i}</option>`;
-                body.innerHTML = `<div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div><div class="input-group"><label class="input-label">金額 (支援符號運算)</label><div class="amt-wrapper"><input type="text" id="in_amt" class="md-input" value="${displayAmt}" inputmode="decimal" onkeydown="if(event.key==='Enter') this.blur();"><span class="material-symbols-outlined calc-toggle" onclick="document.getElementById('opPopup').classList.toggle('active')">calculate</span><div class="op-popup" id="opPopup"><button class="op-btn" onclick="insertOp('+')">+</button><button class="op-btn" onclick="insertOp('-')">-</button><button class="op-btn" onclick="insertOp('*')">×</button><button class="op-btn" onclick="insertOp('/')">÷</button></div></div></div><div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}<div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..." onkeydown="if(event.key==='Enter') this.blur();"></div>`;
+                body.innerHTML = `
+                    <div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div>
+                    <div class="input-group"><label class="input-label">金額</label><div class="amt-wrapper"><input type="text" id="in_amt" class="md-input" value="${displayAmt}" inputmode="decimal" onkeydown="if(event.key==='Enter') this.blur();"><span class="material-symbols-outlined calc-toggle" onclick="document.getElementById('opPopup').classList.toggle('active')">calculate</span><div class="op-popup" id="opPopup"><button class="op-btn" onclick="insertOp('+')">+</button><button class="op-btn" onclick="insertOp('-')">-</button><button class="op-btn" onclick="insertOp('*')">×</button><button class="op-btn" onclick="insertOp('/')">÷</button></div></div></div>
+                    <div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>
+                    <div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..." onkeydown="if(event.key==='Enter') this.blur();"></div>`;
             }
         }
 
@@ -443,31 +496,29 @@
             let amtRaw = document.getElementById('in_amt').value; if(!amtRaw) return alert('請輸入金額');
             let amt = evaluateMath(amtRaw); if (amt === null || isNaN(amt)) return alert('金額運算錯誤');
             amt = Math.round(amt);
-            const date = document.getElementById('in_date').value, cat = document.getElementById('in_cat').value, note = document.getElementById('in_note').value, ins = parseInt(document.getElementById('in_ins')?.value || 1);
+            const date = document.getElementById('in_date').value, cat = document.getElementById('in_cat').value, note = document.getElementById('in_note').value;
             const type = state.editingId ? state.records.find(r => r.id === state.editingId).type : state.currentMode;
-            if(state.editingId) { const gid = state.records.find(r => r.id === state.editingId).gid; if(gid) state.records = state.records.filter(r => r.gid !== gid); else state.records = state.records.filter(r => r.id !== state.editingId); }
-            if(ins > 1 && type === 'expense') { const gid = Date.now(), base = Math.floor(amt / ins), extra = amt % ins; for(let i=0; i<ins; i++) { const d = new Date(date); d.setMonth(d.getMonth() + i); state.records.push({ id: Date.now()+i, gid, type, date: d.toISOString().split('T')[0], amt: i===0?base+extra:base, cat, ins, insIndex: i+1, note }); } } else { state.records.push({ id: Date.now(), type, date, amt, cat, ins: 1, insIndex: 1, note }); }
+            if(state.editingId) state.records = state.records.filter(r => r.id !== state.editingId);
+            state.records.push({ id: Date.now(), type, date, amt, cat, note });
             saveToCloud(); closeDrawer();
         }
-        function handleDelete() { const target = state.records.find(r => r.id === state.editingId); if(!target) return; if(target.gid && !confirm('將刪除整組分期數據？')) return; if(!target.gid && !confirm('確定刪除？')) return; if(target.gid) state.records = state.records.filter(r => r.gid !== target.gid); else state.records = state.records.filter(r => r.id !== state.editingId); saveToCloud(); closeDrawer(); }
+        function handleDelete() { if(confirm('確定刪除？')) { state.records = state.records.filter(r => r.id !== state.editingId); saveToCloud(); closeDrawer(); } }
         function upCat(id, v) { const catObj = state.cats.find(x => x.id === id); if(catObj) { const oldName = catObj.name, newName = v.trim(); if (oldName === newName || !newName) return; state.records.forEach(r => { if (r.cat === oldName) r.cat = newName; }); catObj.name = newName; saveToCloud(); render(); } }
         function delCat(id){ if(confirm('確定刪除類別？')){state.cats=state.cats.filter(x=>x.id!==id); saveToCloud(); renderCatManager();}}
         function addCat(){ const n=prompt('類別名稱:'); if(n){state.cats.push({id:Date.now(), name:n, type:state.activeCatType, sort:state.cats.length}); saveToCloud(); renderCatManager();}}
-        
         function renderCatManager() {
             const filtered = state.cats.filter(c => c.type === state.activeCatType).sort((a,b)=>a.sort-b.sort);
             document.getElementById('sheetBody').innerHTML = `<div class="segmented-control"><button class="segment-btn ${state.activeCatType==='expense'?'active':''}" onclick="state.activeCatType='expense';renderCatManager()">支出</button><button class="segment-btn ${state.activeCatType==='income'?'active':''}" onclick="state.activeCatType='income';renderCatManager()">收入</button></div><div id="dragContainer">${filtered.map((c, index) => `<div class="category-row" draggable="true" ondragstart="handleDragStart(event, ${index})" ondragover="handleDragOver(event)" ondrop="handleDrop(event, ${index})" ondragend="handleDragEnd(event)"><span class="material-symbols-outlined" style="opacity:0.5;">drag_indicator</span><input type="text" class="md-input" style="border:none;background:none;flex:1;padding:8px;" value="${c.name}" onchange="upCat(${c.id},this.value)"><span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:#B3261E; cursor:pointer;">delete</span></div>`).join('')}</div><div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`;
         }
-
-        function handleDragStart(e, index) { dragSrcIndex = index; e.target.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
-        function handleDragOver(e) { e.preventDefault(); return false; }
-        function handleDrop(e, targetIndex) { e.stopPropagation(); if (dragSrcIndex !== targetIndex) { const typeCats = state.cats.filter(c => c.type === state.activeCatType).sort((a,b) => a.sort - b.sort); const otherCats = state.cats.filter(c => c.type !== state.activeCatType); const [movedItem] = typeCats.splice(dragSrcIndex, 1); typeCats.splice(targetIndex, 0, movedItem); typeCats.forEach((c, i) => c.sort = i); state.cats = [...otherCats, ...typeCats]; saveToCloud(); renderCatManager(); } return false; }
+        function handleDragStart(e, index) { dragSrcIndex = index; e.target.classList.add('dragging'); }
+        function handleDragOver(e) { e.preventDefault(); }
+        function handleDrop(e, targetIndex) { if (dragSrcIndex !== targetIndex) { const typeCats = state.cats.filter(c => c.type === state.activeCatType).sort((a,b) => a.sort - b.sort); const otherCats = state.cats.filter(c => c.type !== state.activeCatType); const [movedItem] = typeCats.splice(dragSrcIndex, 1); typeCats.splice(targetIndex, 0, movedItem); typeCats.forEach((c, i) => c.sort = i); state.cats = [...otherCats, ...typeCats]; saveToCloud(); renderCatManager(); } }
         function toggleFab() { const m = document.getElementById('fabMenu'), i = document.getElementById('fabIcon'); const v = m.style.display==='flex'; m.style.display=v?'none':'flex'; i.innerText=v?'add':'close'; }
         function closeDrawer() { document.getElementById('modalOverlay').classList.remove('active'); document.body.classList.remove('no-scroll'); }
         function setListTab(t) { state.listTab = t; render(); }
         function changeMonth(n) { state.viewDate.setMonth(state.viewDate.getMonth()+n); render(); }
-        function exportData() { if(!confirm('確定要備份 (JSON)？')) return; const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'wallet_backup.json'; a.click(); }
-        function importData(e) { const r = new FileReader(); r.onload = (ev) => { const d = JSON.parse(ev.target.result); state.records = d.records || []; state.cats = d.cats || state.cats; saveToCloud(); alert('還原成功'); }; r.readAsText(e.target.files[0]); }
+        function exportData() { if(!confirm('備份 (JSON)？')) return; const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'wallet_backup.json'; a.click(); }
+        function importData(e) { const r = new FileReader(); r.onload = (ev) => { const d = JSON.parse(ev.target.result); state.records = d.records || []; state.cats = d.cats || state.cats; state.subs = d.subs || []; saveToCloud(); alert('還原成功'); }; r.readAsText(e.target.files[0]); }
         window.onload = () => { if(!state.accountId) document.getElementById('sync-overlay').style.display='flex'; };
     </script>
 </body>
