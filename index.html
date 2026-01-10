@@ -133,7 +133,7 @@
                 <div class="summary-item"><small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span></div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag" onclick="openDrawer('changelog')">v26.20</div>
+            <div class="version-tag" onclick="openDrawer('changelog')">v26.21</div>
         </div>
 
         <div class="transaction-section">
@@ -211,28 +211,29 @@
             showIncome: false
         };
 
-        // 版本校正：完整歷史更新日誌 (v26.1 - v26.20)
+        // 完整歷史更新紀錄
         const changelogs = [
-            { v: "v26.20", items: ["類別管理介面優化：新增類別按鈕移至右上角，改為圓形 + 號圖示", "調整標頭按鈕間距與對齊，提升操作流暢度"] },
-            { v: "v26.19", items: ["修正金額欄位輸入完按 Enter 後不自動收起鍵盤的問題", "強化對 Gboard 數字模式送出鍵的監聽邏輯"] },
-            { v: "v26.18", items: ["修正統計報告標頭按鈕左右對齊 (Excel 與關閉鈕)", "移除統計報告視窗底部冗餘按鍵"] },
-            { v: "v26.17", items: ["優化底層按鈕排版為左右並列", "修正新增/編輯介面 Android 16 標準比例樣式"] },
-            { v: "v26.16", items: ["修正統計明細 Bar 視覺回歸 Android 16 設計", "鎖定圓餅圖中心點，解決位移問題"] },
-            { v: "v26.15", items: ["新增 Excel 匯出功能 (支援多工作表)", "移除底部修正程式碼區塊", "類別管理 Bar 樣式復原"] },
-            { v: "v26.14", items: ["修正電腦版統計報告切換位移之 Scrollbar 問題"] },
-            { v: "v26.13", items: ["動作按鈕恢復 Pill (膠囊) 風格", "固定統計報告標題位置"] },
-            { v: "v26.12", items: ["修復分段按鈕樣式偏移，回歸 Android 16 置中設計"] },
-            { v: "v26.11", items: ["金額計算機方案 B 實裝", "修正備註中心線對齊"] },
-            { v: "v26.10", items: ["統計視窗高度提升至 72.5%", "金額欄位支援算式運算", "備註移至類別右側"] },
-            { v: "v26.9", items: ["修正雲端同步字樣與版本號水平對齊"] },
-            { v: "v26.8", items: ["版本號改為可點擊開啟更新日誌"] },
-            { v: "v26.7", items: ["年度統計之「類別」分頁優化為年份分層"] },
-            { v: "v26.6", items: ["主畫面收支紀錄新增「圓角備註氣泡」設計"] },
-            { v: "v26.5", items: ["圓餅圖圖例限制前六項項目", "統計報告視窗 50% 高度"] },
+            { v: "v26.21", items: ["收支統計報告/年度類別總結新增百分比 (%) 顯示", "金額與占比併行顯示，計算該年總額占比"] },
+            { v: "v26.20", items: ["類別管理介面優化：新增類別按鈕移至右上角，改為圓形 + 號圖示"] },
+            { v: "v26.19", items: ["修正金額欄位 Enter 不收起鍵盤問題", "優化 Gboard 數字模式送出鍵監聽"] },
+            { v: "v26.18", items: ["修正統計報告標頭按鈕左右對齊", "移除報告視窗底部冗餘按鍵"] },
+            { v: "v26.17", items: ["底層按鈕左右並列排版", "恢復 Android 16 標準輸入窗格樣式"] },
+            { v: "v26.16", items: ["統計明細 Bar 視覺回歸設計", "圓餅圖中心點鎖定防止位移"] },
+            { v: "v26.15", items: ["Excel 多工作表匯出功能實裝", "類別管理樣式恢復 v26.10"] },
+            { v: "v26.14", items: ["修正電腦版滾動條產生的排版跳動"] },
+            { v: "v26.13", items: ["動作按鈕恢復膠囊 Pill 圓角樣式", "固定統計視窗標題"] },
+            { v: "v26.12", items: ["修正分段按鈕樣式偏移，回歸 Android 16"] },
+            { v: "v26.11", items: ["金額運算方案 B (彈出計算機) 實裝", "修正備註中心線對齊"] },
+            { v: "v26.10", items: ["統計報告視窗高度升至 72.5%", "金額支援算式直接運算"] },
+            { v: "v26.9", items: ["同步狀態字樣與版本號水平對齊"] },
+            { v: "v26.8", items: ["新增更新日誌視窗功能"] },
+            { v: "v26.7", items: ["年度統計類別二級分層優化"] },
+            { v: "v26.6", items: ["主畫面收支紀錄新增備註圓角氣泡"] },
+            { v: "v26.5", items: ["圖例限制前六項", "統計報告 50% 高度設定"] },
             { v: "v26.4", items: ["統計報告隱藏未來月份資料 (GMT+8)"] },
-            { v: "v26.3", items: ["年度統計報告新增「平均月收入」顯示"] },
-            { v: "v26.2", items: ["總收入金額支援點擊隱藏切換", "FAB 選單美化"] },
-            { v: "v26.1", items: ["版本號系統與同步樣式啟動"] }
+            { v: "v26.3", items: ["年度統計新增平均月收入顯示"] },
+            { v: "v26.2", items: ["總收入金額支援點擊隱藏/顯示切換"] },
+            { v: "v26.1", items: ["版本號系統與雲端同步樣式優化"] }
         ];
 
         let db = null, mainChartObj = null, dragSrcIndex = null;
@@ -360,17 +361,46 @@
             }
         }
 
+        // 修正 1: 年度類別總結新增百分比顯示
         function showYearlyCatDetail(title, data) {
             const body = document.getElementById('sheetBody');
             const yearCats = { income: {}, expense: {} };
             data.forEach(r => { const target = r.type === 'income' ? yearCats.income : yearCats.expense; target[r.cat] = (target[r.cat] || 0) + r.amt; });
-            const getRows = (catData) => Object.entries(catData).sort((a,b) => b[1]-a[1]).map(([c, a]) => `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()}</span></div>`).join('');
-            body.innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3 style="margin:0 0 16px 0;">${title} 類別總結</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">年度收入分佈</div>${getRows(yearCats.income) || '無紀錄'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">年度支出分佈</div>${getRows(yearCats.expense) || '無紀錄'}</div><div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`;
+            
+            // 計算總額以供百分比計算
+            const totalIncome = Object.values(yearCats.income).reduce((a, b) => a + b, 0);
+            const totalExpense = Object.values(yearCats.expense).reduce((a, b) => a + b, 0);
+
+            const getRows = (catData, total) => Object.entries(catData)
+                .sort((a,b) => b[1]-a[1])
+                .map(([c, a]) => {
+                    const pct = total > 0 ? ((a / total) * 100).toFixed(0) : 0;
+                    return `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${pct}%)</span></div>`;
+                }).join('');
+            
+            body.innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div>
+                <h3 style="margin:0 0 16px 0;">${title} 類別總結</h3>
+                <div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">年度收入分布</div>${getRows(yearCats.income, totalIncome) || '無紀錄'}</div>
+                <div class="stats-detail-card"><div class="input-label" style="color:#C62828">年度支出分布</div>${getRows(yearCats.expense, totalExpense) || '無紀錄'}</div>
+                <div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`;
         }
 
         function showStatsDetail(title, data) {
-            const getRows = (items) => { const g = {}; items.forEach(r => { g[r.cat] = (g[r.cat] || 0) + r.amt; }); return Object.entries(g).sort((a,b) => b[1] - a[1]).map(([c, a]) => `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()}</span></div>`).join(''); };
-            document.getElementById('sheetBody').innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div><h3 style="margin:0 0 16px 0;">${title} 細項</h3><div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">收入分佈</div>${getRows(data.filter(r => r.type === 'income')) || '無數據'}</div><div class="stats-detail-card"><div class="input-label" style="color:#C62828">支出分佈</div>${getRows(data.filter(r => r.type === 'expense')) || '無數據'}</div><div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`;
+            const total = data.reduce((s, r) => s + r.amt, 0);
+            const getRows = (items) => { 
+                const g = {}; 
+                items.forEach(r => { g[r.cat] = (g[r.cat] || 0) + r.amt; }); 
+                const subTotal = Object.values(g).reduce((a, b) => a + b, 0);
+                return Object.entries(g).sort((a,b) => b[1] - a[1]).map(([c, a]) => {
+                    const pct = subTotal > 0 ? ((a / subTotal) * 100).toFixed(0) : 0;
+                    return `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${pct}%)</span></div>`;
+                }).join(''); 
+            };
+            document.getElementById('sheetBody').innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div>
+                <h3 style="margin:0 0 16px 0;">${title} 細項</h3>
+                <div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">收入分佈</div>${getRows(data.filter(r => r.type === 'income')) || '無數據'}</div>
+                <div class="stats-detail-card"><div class="input-label" style="color:#C62828">支出分佈</div>${getRows(data.filter(r => r.type === 'expense')) || '無數據'}</div>
+                <div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`;
         }
 
         function renderChangelog() {
@@ -405,13 +435,7 @@
                 let displayAmt = record ? record.amt : '';
                 if(record && record.ins > 1) displayAmt = state.records.filter(r=>r.gid===record.gid).reduce((s,x)=>s+x.amt,0);
                 let insOpts = ''; for(let i=1;i<=80;i++) insOpts += `<option value="${i}" ${record && record.ins==i?'selected':''}>${i}</option>`;
-                
-                body.innerHTML = `
-                    <div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div>
-                    <div class="input-group"><label class="input-label">金額 (支援符號運算)</label><div class="amt-wrapper"><input type="text" id="in_amt" class="md-input" value="${displayAmt}" inputmode="decimal" onkeydown="if(event.key==='Enter') this.blur();"><span class="material-symbols-outlined calc-toggle" onclick="document.getElementById('opPopup').classList.toggle('active')">calculate</span><div class="op-popup" id="opPopup"><button class="op-btn" onclick="insertOp('+')">+</button><button class="op-btn" onclick="insertOp('-')">-</button><button class="op-btn" onclick="insertOp('*')">×</button><button class="op-btn" onclick="insertOp('/')">÷</button></div></div></div>
-                    <div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>
-                    ${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}
-                    <div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..." onkeydown="if(event.key==='Enter') this.blur();"></div>`;
+                body.innerHTML = `<div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div><div class="input-group"><label class="input-label">金額 (支援符號運算)</label><div class="amt-wrapper"><input type="text" id="in_amt" class="md-input" value="${displayAmt}" inputmode="decimal" onkeydown="if(event.key==='Enter') this.blur();"><span class="material-symbols-outlined calc-toggle" onclick="document.getElementById('opPopup').classList.toggle('active')">calculate</span><div class="op-popup" id="opPopup"><button class="op-btn" onclick="insertOp('+')">+</button><button class="op-btn" onclick="insertOp('-')">-</button><button class="op-btn" onclick="insertOp('*')">×</button><button class="op-btn" onclick="insertOp('/')">÷</button></div></div></div><div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}<div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..." onkeydown="if(event.key==='Enter') this.blur();"></div>`;
             }
         }
 
