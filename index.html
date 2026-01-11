@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GooglePay v26.25.1</title>
+    <title>GooglePay v26.25.2</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
     
@@ -121,12 +121,13 @@
         .manual-section { margin-bottom: 24px; }
         .manual-title { font-weight: 700; color: var(--md-sys-color-primary); border-left: 4px solid var(--md-sys-color-primary); padding-left: 10px; margin-bottom: 10px; font-size: 16px; }
         .manual-text { font-size: 14px; line-height: 1.8; color: var(--md-sys-color-on-surface-variant); padding-left: 14px; }
+        .manual-sub-title { font-weight: 700; color: var(--md-sys-color-on-surface); margin: 12px 0 6px 14px; font-size: 14px; display: block; }
     </style>
 </head>
 <body>
 
     <div id="sync-overlay">
-        <h2 style="color:var(--md-sys-color-primary); margin-bottom:8px;">GooglePay v26.25.1</h2>
+        <h2 style="color:var(--md-sys-color-primary); margin-bottom:8px;">GooglePay v26.25.2</h2>
         <input type="text" id="account-id" class="md-input" placeholder="帳號 ID" style="margin-bottom:12px; text-align:center;">
         <input type="password" id="account-pw" class="md-input" placeholder="密碼 (首次請輸入新密碼)" style="margin-bottom:24px; text-align:center;">
         <button class="btn-filled" style="width:200px;" id="loginBtn" onclick="startApp()">登入 / 同步</button>
@@ -151,7 +152,7 @@
                 <div class="summary-item"><small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span></div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag" onclick="openDrawer('changelog')">v26.25.1</div>
+            <div class="version-tag" onclick="openDrawer('changelog')">v26.25.2</div>
         </div>
 
         <div class="transaction-section">
@@ -200,7 +201,6 @@
 
         <div class="system-footer" style="padding:24px 16px; background:#F3EDF7; margin-top:auto; opacity: 0.5; text-align:center;">
             <span style="font-size: 12px;">GooglePay 個人記帳系統</span>
-            <input type="file" id="importFile" style="display:none" onchange="importData(event)">
         </div>
     </div>
 
@@ -223,11 +223,12 @@
         let state = { uid: '', viewDate: new Date(2026, 0, 1), records: [], cats: [{ id: 1, name: '餐飲', type: 'expense', sort: 0 }], subs: [], listTab: 'expense', activeCatType: 'expense', statsView: 'monthly', yearlySubView: 'year', trendView: '30d', trendCat: '全部', editingId: null, currentMode: '', showIncome: false };
 
         const changelogs = [
+            { v: "v26.25.2", items: ["優化 Excel 匯出：新增儲存格寬度自動計算功能，確保匯出內容完整顯示不溢出。","強化說明手冊：系統化擴充統計報告、趨勢分析與核心功能的詳細解釋。"] },
             { v: "v26.25.1", items: ["新增系統手冊：於選單中加入［說明］功能，系統化介紹軟體操作指南。","補齊日誌：修正先前版本省略之日誌，恢復 v26.1 起之完整紀錄。"] },
             { v: "v26.24.6", items: ["版本號進位修正。"] },
             { v: "v26.24.5.1", items: ["訂閱邏輯優化：新增項目時自動生成首筆支出。","版面對齊修正：三條線選單按鈕與月份箭頭中心線完美對齊。"] },
             { v: "v26.24.5", items: ["版面架構優化：新增左上角選單整合備份、還原與登出功能。","FAB 功能重組，提升操作直覺性。"] },
-            { v: "v26.24.4", items: ["登入穩定性修復：解決舊帳號初次升級時的 INVALID_LOGIN_CREDENTIALS 錯誤攔截。"] },
+            { v: "v26.24.4", items: ["登入穩定性修復：解決舊帳號初次升級時可能出現的 INVALID_LOGIN_CREDENTIALS 錯誤攔截。"] },
             { v: "v26.24.3", items: ["強化登入相容性：處理舊帳號初次設定密碼時的錯誤捕捉。"] },
             { v: "v26.24.2", items: ["優化登入持久化：自動保持登入狀態，開啟免輸入密碼。"] },
             { v: "v26.24.1", items: ["登入引導優化：新增密碼設定說明與舊用戶遷移提示。"] },
@@ -241,8 +242,8 @@
             { v: "v26.20", items: ["類別管理優化：按鈕移至右上角圓形圖示。"] },
             { v: "v26.19", items: ["修正鍵盤收起問題與 Gboard 相容性。"] },
             { v: "v26.18", items: ["統計標頭按鈕對齊修正。"] },
-            { v: "v26.17", items: ["底層按鈕左右排列，回歸標準輸入窗格。"] },
-            { v: "v26.16", items: ["圓餅圖中心鎖定，Bar 視覺回歸設計。"] },
+            { v: "v26.17", items: ["底層按鈕排版修正，恢復 Android 16 輸入樣式。"] },
+            { v: "v26.16", items: ["統計明細 Bar 視覺回歸設計。"] },
             { v: "v26.15", items: ["Excel 多工作表匯出功能實裝。"] },
             { v: "v26.14", items: ["修正滾動條排版跳動問題。"] },
             { v: "v26.13", items: ["動作按鈕恢復膠囊樣式，固定視窗標題。"] },
@@ -280,7 +281,7 @@
                 if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || errStr.includes('INVALID_LOGIN_CREDENTIALS')) {
                     try {
                         const newUser = await auth.createUserWithEmailAndPassword(email, password);
-                        alert('帳號密碼設定完成！您的資料路徑現已受到保護。');
+                        alert('帳號密碼設定完成！');
                         handleAuthSuccess(newUser.user);
                     } catch (regError) { alert('設定失敗：' + regError.message); }
                 } else if (error.code === 'auth/wrong-password') { alert('密碼錯誤，請再試一次'); } else { alert('連線失敗：' + error.message); }
@@ -307,51 +308,74 @@
                 <div class="settings-item" onclick="document.getElementById('importFile').click()"><span class="material-symbols-outlined">restore</span><div>還原 (JSON)</div></div>
                 <div class="settings-item" onclick="openDrawer('instructions')"><span class="material-symbols-outlined">help</span><div>軟體功能說明</div></div>
                 <div class="settings-item" style="margin-top: 32px; background: rgba(179,38,30,0.05);" onclick="logout()"><span class="material-symbols-outlined" style="color:var(--md-sys-color-error)">logout</span><div style="color:var(--md-sys-color-error); font-weight:700;">登出帳號</div></div>
-                <div class="btn-row" style="margin-top:20px;"><button class="btn-tonal" style="flex:1;" onclick="closeDrawer()">關閉選單</button></div>`;
+                <div class="btn-row" style="margin-top:20px;"><button class="btn-tonal" style="flex:1;" onclick="closeDrawer()">關閉選單</button></div>
+                <input type="file" id="importFile" style="display:none" onchange="importData(event)">`;
         }
 
         function renderInstructions() {
             const body = document.getElementById('sheetBody');
             body.innerHTML = `
                 <div class="manual-section">
-                    <div class="manual-title">系統簡介</div>
-                    <div class="manual-text">這是一款現代化雲端記帳軟體，旨在透過視覺化圖表與自動化機制，協助您精確追蹤日常開銷與收入。</div>
+                    <div class="manual-title">系統核心與安全</div>
+                    <div class="manual-text">這是一款基於雲端同步的個人財務管理工具。所有資料透過 Firebase 高強度加密，並與您的帳號 ID 綁定。系統具備持久登入功能，讓您在同一裝置上只需一次登入即可快速記帳。</div>
                 </div>
                 <div class="manual-section">
-                    <div class="manual-title">核心操作</div>
-                    <div class="manual-text">
-                        • <b>新增收支：</b>點擊右下角 + 號。金額支援算式輸入，如輸入「50+120」會自動加總。<br>
-                        • <b>分期功能：</b>支出支援分期錄入，系統會按月自動拆分金額。<br>
-                        • <b>月份導覽：</b>點擊頂部箭頭可切換不同月份的帳務明細。
-                    </div>
+                    <div class="manual-title">收支統計報告專欄</div>
+                    <span class="manual-sub-title">1. 月份明細報告</span>
+                    <div class="manual-text">以月為單位，直觀展示收入與支出的分布。點擊圓餅圖可查看各類別佔比，下方清單則呈現每日細項。</div>
+                    <span class="manual-sub-title">2. 年度結算統計</span>
+                    <div class="manual-text">切換至「年度」視角，系統會自動結算全年度總額，並計算「平均月收入」與「平均月支出」，幫助您評估長期的財務健康度。</div>
+                    <span class="manual-sub-title">3. 消費趨勢分析</span>
+                    <div class="manual-text">採用平滑曲線圖，支持「近30日」與「近12個月」兩種視角。您也可以選定特定類別（如：餐飲），分析該項目的支出波動趨勢。</div>
+                    <span class="manual-sub-title">4. 專業報表匯出</span>
+                    <div class="manual-text">點擊報表內的「Excel 圖示」，系統會將所有月份紀錄與年度結算轉化為多工作表的 Excel 檔案。最新版本已優化「自動欄寬計算」，確保匯出的報表排版工整。</div>
                 </div>
                 <div class="manual-section">
-                    <div class="manual-title">自動化與管理</div>
+                    <div class="manual-title">日常記帳進階功能</div>
                     <div class="manual-text">
-                        • <b>定期訂閱：</b>設定串流平台或月費項目後，系統會在扣款日自動生成紀錄。<br>
-                        • <b>自訂類別：</b>可隨意新增、刪除或透過長按拖動來調整類別排序。
-                    </div>
-                </div>
-                <div class="manual-section">
-                    <div class="manual-title">數據與報表</div>
-                    <div class="manual-text">
-                        • <b>統計報告：</b>左下角分析圖示可開啟月報表、年報表與消費趨勢分析圖。<br>
-                        • <b>報表導出：</b>支援一鍵匯出全年度 Excel 帳務明細，方便電腦端檢視。
-                    </div>
-                </div>
-                <div class="manual-section">
-                    <div class="manual-title">資料安全</div>
-                    <div class="manual-text">
-                        • <b>雲端同步：</b>所有異動即時同步至加密空間，換機不掉資料。<br>
-                        • <b>離線備份：</b>支援 JSON 備份還原，給資料雙重保障。
+                        • <b>智慧算式輸入：</b>金額欄位可直接輸入運算式（如 500+25*3），點擊計算機按鈕可輔助運算。<br>
+                        • <b>多期分期攤提：</b>支援最長 80 期分期付款，系統會自動在未來月份產生對應紀錄，並精確處理餘數。<br>
+                        • <b>定期訂閱管理：</b>針對 Netflix 等固定月費，設定後系統會自動扣款，新增當下亦會同步計入第一筆消費。<br>
+                        • <b>動態類別排序：</b>進入類別管理，可透過左側圖示直接拖動調整類別的前後順序。
                     </div>
                 </div>
                 <div class="btn-row" style="margin-top:20px;"><button class="btn-filled" style="flex:1;" onclick="openDrawer('settingsMenu')">返回功能選單</button></div>
             `;
         }
 
+        // 修改後的匯出功能：加入欄寬自動偵測
+        function exportToExcel() {
+            const tpNow = getTaipeiNow(); const dateStr = tpNow.toISOString().split('T')[0]; const wb = XLSX.utils.book_new();
+            
+            // 月份統計頁
+            const monthlyData = [["統計年月", "項目類型", "消費類別", "總金額"]];
+            const mGroups = {};
+            state.records.forEach(r => { const d = new Date(r.date), key = `${d.getFullYear()}年 ${d.getMonth()+1}月`; if(!mGroups[key]) mGroups[key] = {}; const typeKey = r.type === 'income' ? '收入' : '支出'; const subKey = `${typeKey}_${r.cat}`; mGroups[key][subKey] = (mGroups[key][subKey] || 0) + r.amt; });
+            Object.keys(mGroups).sort((a,b) => b.localeCompare(a)).forEach(month => { Object.entries(mGroups[month]).forEach(([combined, amt]) => { const [type, cat] = combined.split('_'); monthlyData.push([month, type, cat, amt]); }); });
+            const ws_m = XLSX.utils.aoa_to_sheet(monthlyData);
+            // 自動計算欄寬
+            ws_m['!cols'] = monthlyData[0].map((_, i) => ({ wch: Math.max(...monthlyData.map(row => row[i] ? row[i].toString().length : 0)) + 5 }));
+            XLSX.utils.book_append_sheet(wb, ws_m, "月份統計");
+
+            // 年度統計頁
+            const yearlyData = [["【年度結算總覽表】"], ["統計年份", "總收入", "平均月收入", "總支出", "平均月支出", "結餘"]];
+            const yGroups = {};
+            state.records.forEach(r => { const y = new Date(r.date).getFullYear(); if(!yGroups[y]) yGroups[y] = { i: 0, e: 0, mSet: new Set(), cats: {} }; yGroups[y].mSet.add(new Date(r.date).getMonth()); if(r.type==='income') yGroups[y].i += r.amt; else yGroups[y].e += r.amt; const catKey = `${r.type === 'income' ? '收入' : '支出'}_${r.cat}`; yGroups[y].cats[catKey] = (yGroups[y].cats[catKey] || 0) + r.amt; });
+            const sortedYears = Object.keys(yGroups).sort((a,b) => b-a);
+            sortedYears.forEach(y => { const g = yGroups[y], mCount = g.mSet.size || 1; yearlyData.push([y+"年", g.i, Math.round(g.i/mCount), g.e, Math.round(g.e/mCount), (g.i - g.e)]); });
+            yearlyData.push([]); yearlyData.push(["【年度類別細項明細】"]); yearlyData.push(["統計年份", "項目類型", "消費類別", "類別總金額"]);
+            sortedYears.forEach(y => { Object.entries(yGroups[y].cats).forEach(([combined, amt]) => { const [type, cat] = combined.split('_'); yearlyData.push([y+"年", type, cat, amt]); }); });
+            const ws_y = XLSX.utils.aoa_to_sheet(yearlyData);
+            // 自動計算欄寬
+            ws_y['!cols'] = [0,1,2,3,4,5].map(i => ({ wch: 15 })); // 年度頁欄寬相對固定
+            XLSX.utils.book_append_sheet(wb, ws_y, "年度統計");
+            
+            XLSX.writeFile(wb, `GooglePay_財務報告_${dateStr}.xlsx`);
+        }
+
+        // 其餘功能保持不變
         function checkSubscriptions() {
-            const now = getTaipeiNow(); let generatedCount = 0; let generatedNames = [];
+            const now = getTaipeiNow(); let generatedCount = 0;
             state.subs.forEach(sub => {
                 if (!sub.active) return;
                 let nextGen = new Date(sub.lastGenerated || '2000-01-01');
@@ -362,7 +386,7 @@
                 while (nextGen <= now) {
                     const dateStr = nextGen.toISOString().split('T')[0];
                     state.records.push({ id: Date.now() + generatedCount, type: 'expense', date: dateStr, amt: sub.amt, cat: sub.cat, ins: 1, insIndex: 1, note: `自動訂閱: ${sub.name}`, isAuto: true });
-                    sub.lastGenerated = dateStr; generatedCount++; generatedNames.push(`${sub.name} ($${sub.amt})`);
+                    sub.lastGenerated = dateStr; generatedCount++;
                     if (sub.cycle === 'monthly') nextGen.setMonth(nextGen.getMonth() + 1);
                     else if (sub.cycle === 'quarterly') nextGen.setMonth(nextGen.getMonth() + 3);
                     else if (sub.cycle === 'yearly') nextGen.setFullYear(nextGen.getFullYear() + 1);
@@ -403,21 +427,6 @@
                 return `<div class="item" onclick="openDrawer('edit', ${r.id})"><div class="item-info"><div class="item-title-row"><strong>${r.cat}</strong>${noteHtml}</div><small style="color:#49454F; opacity:0.7; margin-top:4px;">${r.date}${insLabel}</small></div><span style="color:${r.type==='income'?'#2E7D32':'#C62828'}; font-weight:700;">$${r.amt.toLocaleString()}</span></div>`;
             }).join('');
             document.getElementById('listContent').innerHTML = html || `<div style="padding:40px; text-align:center; color:#999;">無紀錄</div>`;
-        }
-
-        function exportToExcel() {
-            const tpNow = getTaipeiNow(); const dateStr = tpNow.toISOString().split('T')[0]; const wb = XLSX.utils.book_new();
-            const monthlyData = [["統計年月", "項目類型", "消費類別", "總金額"]]; const mGroups = {};
-            state.records.forEach(r => { const d = new Date(r.date), key = `${d.getFullYear()}年 ${d.getMonth()+1}月`; if(!mGroups[key]) mGroups[key] = {}; const typeKey = r.type === 'income' ? '收入' : '支出'; const subKey = `${typeKey}_${r.cat}`; mGroups[key][subKey] = (mGroups[key][subKey] || 0) + r.amt; });
-            Object.keys(mGroups).sort((a,b) => b.localeCompare(a)).forEach(month => { Object.entries(mGroups[month]).forEach(([combined, amt]) => { const [type, cat] = combined.split('_'); monthlyData.push([month, type, cat, amt]); }); });
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(monthlyData), "月份統計");
-            const yearlyData = [["【年度結算總覽表】"], ["統計年份", "總收入", "平均月收入", "總支出", "平均月支出", "結餘"]]; const yGroups = {};
-            state.records.forEach(r => { const y = new Date(r.date).getFullYear(); if(!yGroups[y]) yGroups[y] = { i: 0, e: 0, mSet: new Set(), cats: {} }; yGroups[y].mSet.add(new Date(r.date).getMonth()); if(r.type==='income') yGroups[y].i += r.amt; else yGroups[y].e += r.amt; const catKey = `${r.type === 'income' ? '收入' : '支出'}_${r.cat}`; yGroups[y].cats[catKey] = (yGroups[y].cats[catKey] || 0) + r.amt; });
-            const sortedYears = Object.keys(yGroups).sort((a,b) => b-a);
-            sortedYears.forEach(y => { const g = yGroups[y], mCount = g.mSet.size || 1; yearlyData.push([y+"年", g.i, Math.round(g.i/mCount), g.e, Math.round(g.e/mCount), (g.i - g.e)]); });
-            yearlyData.push([]); yearlyData.push(["【年度類別細項明細】"]); yearlyData.push(["統計年份", "項目類型", "消費類別", "類別總金額"]);
-            sortedYears.forEach(y => { Object.entries(yGroups[y].cats).forEach(([combined, amt]) => { const [type, cat] = combined.split('_'); yearlyData.push([y+"年", type, cat, amt]); }); });
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(yearlyData), "年度統計"); XLSX.writeFile(wb, `GooglePay_財務報告_${dateStr}.xlsx`);
         }
 
         function renderTrendAnalysis() {
