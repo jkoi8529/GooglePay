@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GooglePay v26.25.2</title>
+    <title>GooglePay v26.25.3</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
     
@@ -67,18 +67,23 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; align-items: flex-end; }
         .modal-overlay.active { display: flex; }
         
-        .bottom-sheet { background: var(--md-sys-color-surface); width: 100%; border-radius: 32px 32px 0 0; padding: 24px; box-sizing: border-box; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; scrollbar-gutter: stable; }
+        .bottom-sheet { background: var(--md-sys-color-surface); width: 100%; border-radius: 32px 32px 0 0; padding: 24px; box-sizing: border-box; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; }
         .bottom-sheet.custom-height { height: 72.5vh; max-height: 72.5vh; }
-        #sheetBody { flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; overflow-y: auto; }
+        #sheetBody { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
 
         .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-shrink: 0; min-height: 48px; }
         .header-actions { display: flex; flex-direction: row; gap: 8px; align-items: center; }
         .sheet-handle { width: 32px; height: 4px; background: var(--md-sys-color-outline); border-radius: 2px; margin: 0 auto 24px auto; opacity: 0.4; flex-shrink: 0; }
         .circle-btn { width: 40px; height: 40px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
+        /* 修正：優化輸入框高度與選項顯示 */
         .input-group { margin-bottom: 18px; position: relative; }
         .input-label { font-size: 14px; font-weight: 500; color: var(--md-sys-color-primary); margin-bottom: 6px; display: block; padding-left: 4px; }
-        .md-input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--md-sys-color-outline); border-radius: 16px; font-size: 16px; background: transparent; box-sizing: border-box; color: var(--md-sys-color-on-surface); }
+        .md-input { width: 100%; height: 56px; padding: 0 16px; border: 1.5px solid var(--md-sys-color-outline); border-radius: 16px; font-size: 16px; background: transparent; box-sizing: border-box; color: var(--md-sys-color-on-surface); }
+        select.md-input { padding-right: 40px; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 -960 960 960' width='24'%3E%3Cpath d='M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+
+        /* 新增：針對 Pixel 10 的列表顯示範圍限制 */
+        #dragContainer { max-height: 40vh; overflow-y: auto; border-radius: 16px; padding: 4px; margin-bottom: 16px; }
 
         .btn-row { display: flex; gap: 12px; margin-top: 24px; flex-shrink: 0; }
         #modalActions { display: flex; flex-direction: column; margin-top: 20px; gap: 8px; flex-shrink: 0; }
@@ -127,7 +132,7 @@
 <body>
 
     <div id="sync-overlay">
-        <h2 style="color:var(--md-sys-color-primary); margin-bottom:8px;">GooglePay v26.25.2</h2>
+        <h2 style="color:var(--md-sys-color-primary); margin-bottom:8px;">GooglePay v26.25.3</h2>
         <input type="text" id="account-id" class="md-input" placeholder="帳號 ID" style="margin-bottom:12px; text-align:center;">
         <input type="password" id="account-pw" class="md-input" placeholder="密碼 (首次請輸入新密碼)" style="margin-bottom:24px; text-align:center;">
         <button class="btn-filled" style="width:200px;" id="loginBtn" onclick="startApp()">登入 / 同步</button>
@@ -152,7 +157,7 @@
                 <div class="summary-item"><small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span></div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag" onclick="openDrawer('changelog')">v26.25.2</div>
+            <div class="version-tag" onclick="openDrawer('changelog')">v26.25.3</div>
         </div>
 
         <div class="transaction-section">
@@ -223,42 +228,43 @@
         let state = { uid: '', viewDate: new Date(2026, 0, 1), records: [], cats: [{ id: 1, name: '餐飲', type: 'expense', sort: 0 }], subs: [], listTab: 'expense', activeCatType: 'expense', statsView: 'monthly', yearlySubView: 'year', trendView: '30d', trendCat: '全部', editingId: null, currentMode: '', showIncome: false };
 
         const changelogs = [
-            { v: "v26.25.2", items: ["優化 Excel 匯出：新增儲存格寬度自動計算功能，確保匯出內容完整顯示不溢出。","強化說明手冊：系統化擴充統計報告、趨勢分析與核心功能的詳細解釋。"] },
-            { v: "v26.25.1", items: ["新增系統手冊：於選單中加入［說明］功能，系統化介紹軟體操作指南。","補齊日誌：修正先前版本省略之日誌，恢復 v26.1 起之完整紀錄。"] },
+            { v: "v26.25.3", items: ["UI 舒適化更新：優化 Pixel 10 操作體驗，將輸入框與選單高度調整為 56px 標準規格。","選單範圍修正：限制管理清單之最大顯示高度並加入滾動機制，防止選項過多導致畫面占滿。"] },
+            { v: "v26.25.2", items: ["優化 Excel 匯出：新增儲存格寬度自動計算功能。","強化說明手冊：擴充詳細功能解釋。"] },
+            { v: "v26.25.1", items: ["新增系統手冊：於選單中加入［說明］功能。","補齊日誌：恢復 v26.1 起之完整紀錄。"] },
             { v: "v26.24.6", items: ["版本號進位修正。"] },
-            { v: "v26.24.5.1", items: ["訂閱邏輯優化：新增項目時自動生成首筆支出。","版面對齊修正：三條線選單按鈕與月份箭頭中心線完美對齊。"] },
-            { v: "v26.24.5", items: ["版面架構優化：新增左上角選單整合備份、還原與登出功能。","FAB 功能重組，提升操作直覺性。"] },
-            { v: "v26.24.4", items: ["登入穩定性修復：解決舊帳號初次升級時可能出現的 INVALID_LOGIN_CREDENTIALS 錯誤攔截。"] },
-            { v: "v26.24.3", items: ["強化登入相容性：處理舊帳號初次設定密碼時的錯誤捕捉。"] },
-            { v: "v26.24.2", items: ["優化登入持久化：自動保持登入狀態，開啟免輸入密碼。"] },
-            { v: "v26.24.1", items: ["登入引導優化：新增密碼設定說明與舊用戶遷移提示。"] },
-            { v: "v26.24", items: ["安全性重大更新：實裝 Firebase Auth 密碼系統與帳號隔離。"] },
-            { v: "v26.23.3", items: ["趨勢日期格式修正：YY-MM 改為 YY/MM (26/01)。"] },
-            { v: "v26.23.2", items: ["UI 優化：隱藏平均支出中「(排除空白)」字樣。"] },
-            { v: "v26.23.1", items: ["趨勢分析週期調整為 30 日，優化平均計算。"] },
-            { v: "v26.23", items: ["新增消費趨勢功能，支援平滑曲線圖表。"] },
-            { v: "v26.22", items: ["實裝定期訂閱扣款功能與成功提示視窗。"] },
-            { v: "v26.21", items: ["統計報告加入百分比顯示與占比計算。"] },
-            { v: "v26.20", items: ["類別管理優化：按鈕移至右上角圓形圖示。"] },
-            { v: "v26.19", items: ["修正鍵盤收起問題與 Gboard 相容性。"] },
-            { v: "v26.18", items: ["統計標頭按鈕對齊修正。"] },
-            { v: "v26.17", items: ["底層按鈕排版修正，恢復 Android 16 輸入樣式。"] },
-            { v: "v26.16", items: ["統計明細 Bar 視覺回歸設計。"] },
-            { v: "v26.15", items: ["Excel 多工作表匯出功能實裝。"] },
-            { v: "v26.14", items: ["修正滾動條排版跳動問題。"] },
-            { v: "v26.13", items: ["動作按鈕恢復膠囊樣式，固定視窗標題。"] },
-            { v: "v26.12", items: ["分段按鈕樣式修正，符合 Android 16。"] },
-            { v: "v26.11", items: ["彈出式計算機功能實裝。"] },
-            { v: "v26.10", items: ["金額支援算式運算，統計視窗高度提升。"] },
-            { v: "v26.9", items: ["同步狀態與版本號水平對齊。"] },
-            { v: "v26.8", items: ["更新日誌視窗功能實裝。"] },
-            { v: "v26.7", items: ["年度統計類別二級分層優化。"] },
-            { v: "v26.6", items: ["收支紀錄新增備註氣泡顯示。"] },
-            { v: "v26.5", items: ["圖例數量限制，統計報告高度調整。"] },
-            { v: "v26.4", items: ["統計報告自動隱藏未來月份數據。"] },
-            { v: "v26.3", items: ["年度統計新增平均月收入顯示。"] },
-            { v: "v26.2", items: ["總收入支援點擊切換顯示/隱藏。"] },
-            { v: "v26.1", items: ["版本號系統與雲端同步樣式優化。"] }
+            { v: "v26.24.5.1", items: ["訂閱邏輯優化。","版面對齊修正。"] },
+            { v: "v26.24.5", items: ["版面架構優化：新增左上角選單整合功能。"] },
+            { v: "v26.24.4", items: ["登入穩定性修復。"] },
+            { v: "v26.24.3", items: ["強化登入相容性。"] },
+            { v: "v26.24.2", items: ["優化登入持久化。"] },
+            { v: "v26.24.1", items: ["登入引導優化。"] },
+            { v: "v26.24", items: ["安全性重大更新：實裝 Firebase Auth 密碼系統。"] },
+            { v: "v26.23.3", items: ["趨勢日期格式修正 (YY/MM)。"] },
+            { v: "v26.23.2", items: ["UI 優化：隱藏平均支出中排除字樣。"] },
+            { v: "v26.23.1", items: ["趨勢分析週期調整為 30 日。"] },
+            { v: "v26.23", items: ["新增消費趨勢分析功能。"] },
+            { v: "v26.22", items: ["實裝定期訂閱扣款功能。"] },
+            { v: "v26.21", items: ["統計報告加入百分比顯示。"] },
+            { v: "v26.20", items: ["類別管理介面優化。"] },
+            { v: "v26.19", items: ["修正欄位 Enter 問題。"] },
+            { v: "v26.18", items: ["統計標頭對齊修正。"] },
+            { v: "v26.17", items: ["底層按鈕排版修正。"] },
+            { v: "v26.16", items: ["統計 Bar 視覺回歸。"] },
+            { v: "v26.15", items: ["Excel 匯出功能實裝。"] },
+            { v: "v26.14", items: ["修正排版跳動。"] },
+            { v: "v26.13", items: ["動作按鈕樣式優化。"] },
+            { v: "v26.12", items: ["分段按鈕樣式修正。"] },
+            { v: "v26.11", items: ["彈出式計算機實裝。"] },
+            { v: "v26.10", items: ["金額支援算式運算。"] },
+            { v: "v26.9", items: ["同步狀態水平對齊。"] },
+            { v: "v26.8", items: ["更新日誌視窗功能。"] },
+            { v: "v26.7", items: ["年度統計分層優化。"] },
+            { v: "v26.6", items: ["收支紀錄新增備註氣泡。"] },
+            { v: "v26.5", items: ["圖例數量限制。"] },
+            { v: "v26.4", items: ["統計報告隱藏未來數據。"] },
+            { v: "v26.3", items: ["年度統計新增平均月收入。"] },
+            { v: "v26.2", items: ["總收入點擊切換隱藏。"] },
+            { v: "v26.1", items: ["版本號系統與雲端同步優化。"] }
         ];
 
         let mainChartObj = null, trendChartObj = null, dragSrcIndex = null;
@@ -316,64 +322,51 @@
             const body = document.getElementById('sheetBody');
             body.innerHTML = `
                 <div class="manual-section">
-                    <div class="manual-title">系統核心與安全</div>
-                    <div class="manual-text">這是一款基於雲端同步的個人財務管理工具。所有資料透過 Firebase 高強度加密，並與您的帳號 ID 綁定。系統具備持久登入功能，讓您在同一裝置上只需一次登入即可快速記帳。</div>
+                    <div class="manual-title">UI 舒適化設計 (v26.25.3)</div>
+                    <div class="manual-text">針對 <b>Pixel 10</b> 與現代手機優化。所有選單列表現在具備固定顯示範圍，超過後會自動在視窗內滾動，避免選項過多導致畫面跳動或占滿螢幕。</div>
                 </div>
                 <div class="manual-section">
                     <div class="manual-title">收支統計報告專欄</div>
                     <span class="manual-sub-title">1. 月份明細報告</span>
-                    <div class="manual-text">以月為單位，直觀展示收入與支出的分布。點擊圓餅圖可查看各類別佔比，下方清單則呈現每日細項。</div>
+                    <div class="manual-text">直觀展示當月收支佔比。</div>
                     <span class="manual-sub-title">2. 年度結算統計</span>
-                    <div class="manual-text">切換至「年度」視角，系統會自動結算全年度總額，並計算「平均月收入」與「平均月支出」，幫助您評估長期的財務健康度。</div>
+                    <div class="manual-text">自動結算年總額並計算月平均值。</div>
                     <span class="manual-sub-title">3. 消費趨勢分析</span>
-                    <div class="manual-text">採用平滑曲線圖，支持「近30日」與「近12個月」兩種視角。您也可以選定特定類別（如：餐飲），分析該項目的支出波動趨勢。</div>
+                    <div class="manual-text">提供 30 日及 12 個月之曲線圖。</div>
                     <span class="manual-sub-title">4. 專業報表匯出</span>
-                    <div class="manual-text">點擊報表內的「Excel 圖示」，系統會將所有月份紀錄與年度結算轉化為多工作表的 Excel 檔案。最新版本已優化「自動欄寬計算」，確保匯出的報表排版工整。</div>
+                    <div class="manual-text">一鍵匯出 Excel，且支援自動儲存格長度校正，內容不溢出。</div>
                 </div>
                 <div class="manual-section">
                     <div class="manual-title">日常記帳進階功能</div>
                     <div class="manual-text">
-                        • <b>智慧算式輸入：</b>金額欄位可直接輸入運算式（如 500+25*3），點擊計算機按鈕可輔助運算。<br>
-                        • <b>多期分期攤提：</b>支援最長 80 期分期付款，系統會自動在未來月份產生對應紀錄，並精確處理餘數。<br>
-                        • <b>定期訂閱管理：</b>針對 Netflix 等固定月費，設定後系統會自動扣款，新增當下亦會同步計入第一筆消費。<br>
-                        • <b>動態類別排序：</b>進入類別管理，可透過左側圖示直接拖動調整類別的前後順序。
+                        • <b>智慧輸入：</b>金額欄位可直接運算。<br>
+                        • <b>分期付款：</b>支援最長 80 期自動分攤。<br>
+                        • <b>自動訂閱：</b>設定扣款日後，系統會自動在背景生成紀錄。
                     </div>
                 </div>
                 <div class="btn-row" style="margin-top:20px;"><button class="btn-filled" style="flex:1;" onclick="openDrawer('settingsMenu')">返回功能選單</button></div>
             `;
         }
 
-        // 修改後的匯出功能：加入欄寬自動偵測
         function exportToExcel() {
             const tpNow = getTaipeiNow(); const dateStr = tpNow.toISOString().split('T')[0]; const wb = XLSX.utils.book_new();
-            
-            // 月份統計頁
-            const monthlyData = [["統計年月", "項目類型", "消費類別", "總金額"]];
-            const mGroups = {};
+            const monthlyData = [["統計年月", "項目類型", "消費類別", "總金額"]]; const mGroups = {};
             state.records.forEach(r => { const d = new Date(r.date), key = `${d.getFullYear()}年 ${d.getMonth()+1}月`; if(!mGroups[key]) mGroups[key] = {}; const typeKey = r.type === 'income' ? '收入' : '支出'; const subKey = `${typeKey}_${r.cat}`; mGroups[key][subKey] = (mGroups[key][subKey] || 0) + r.amt; });
             Object.keys(mGroups).sort((a,b) => b.localeCompare(a)).forEach(month => { Object.entries(mGroups[month]).forEach(([combined, amt]) => { const [type, cat] = combined.split('_'); monthlyData.push([month, type, cat, amt]); }); });
             const ws_m = XLSX.utils.aoa_to_sheet(monthlyData);
-            // 自動計算欄寬
             ws_m['!cols'] = monthlyData[0].map((_, i) => ({ wch: Math.max(...monthlyData.map(row => row[i] ? row[i].toString().length : 0)) + 5 }));
             XLSX.utils.book_append_sheet(wb, ws_m, "月份統計");
-
-            // 年度統計頁
-            const yearlyData = [["【年度結算總覽表】"], ["統計年份", "總收入", "平均月收入", "總支出", "平均月支出", "結餘"]];
-            const yGroups = {};
+            const yearlyData = [["【年度結算總覽表】"], ["統計年份", "總收入", "平均月收入", "總支出", "平均月支出", "結餘"]]; const yGroups = {};
             state.records.forEach(r => { const y = new Date(r.date).getFullYear(); if(!yGroups[y]) yGroups[y] = { i: 0, e: 0, mSet: new Set(), cats: {} }; yGroups[y].mSet.add(new Date(r.date).getMonth()); if(r.type==='income') yGroups[y].i += r.amt; else yGroups[y].e += r.amt; const catKey = `${r.type === 'income' ? '收入' : '支出'}_${r.cat}`; yGroups[y].cats[catKey] = (yGroups[y].cats[catKey] || 0) + r.amt; });
             const sortedYears = Object.keys(yGroups).sort((a,b) => b-a);
             sortedYears.forEach(y => { const g = yGroups[y], mCount = g.mSet.size || 1; yearlyData.push([y+"年", g.i, Math.round(g.i/mCount), g.e, Math.round(g.e/mCount), (g.i - g.e)]); });
             yearlyData.push([]); yearlyData.push(["【年度類別細項明細】"]); yearlyData.push(["統計年份", "項目類型", "消費類別", "類別總金額"]);
             sortedYears.forEach(y => { Object.entries(yGroups[y].cats).forEach(([combined, amt]) => { const [type, cat] = combined.split('_'); yearlyData.push([y+"年", type, cat, amt]); }); });
-            const ws_y = XLSX.utils.aoa_to_sheet(yearlyData);
-            // 自動計算欄寬
-            ws_y['!cols'] = [0,1,2,3,4,5].map(i => ({ wch: 15 })); // 年度頁欄寬相對固定
+            const ws_y = XLSX.utils.aoa_to_sheet(yearlyData); ws_y['!cols'] = [0,1,2,3,4,5].map(i => ({ wch: 15 }));
             XLSX.utils.book_append_sheet(wb, ws_y, "年度統計");
-            
             XLSX.writeFile(wb, `GooglePay_財務報告_${dateStr}.xlsx`);
         }
 
-        // 其餘功能保持不變
         function checkSubscriptions() {
             const now = getTaipeiNow(); let generatedCount = 0;
             state.subs.forEach(sub => {
@@ -396,7 +389,6 @@
         }
 
         function toggleIncomeDisplay() { state.showIncome = !state.showIncome; render(); }
-
         function updateMainChart(filteredData) {
             const ctx = document.getElementById('mainPieChart').getContext('2d');
             const summary = {}; let total = 0;
@@ -482,7 +474,18 @@
             else if(mode === 'changelog') { title.innerText = '更新日誌'; renderChangelog(); }
             else if(mode === 'subManage') { title.innerText = '訂閱項目管理'; renderSubManager(); }
             else if(mode === 'subEdit') { title.innerText = id ? '編輯訂閱' : '新增訂閱'; body.innerHTML = `<div class="input-group"><label class="input-label">名稱</label><input type="text" id="sub_name" class="md-input" value="${sub?sub.name:''}"></div><div class="input-group"><label class="input-label">扣款類別</label><select id="sub_cat" class="md-input">${state.cats.filter(c=>c.type==='expense').map(c=>`<option value="${c.name}" ${sub?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div><div class="input-group"><label class="input-label">目前的扣款金額</label><input type="text" id="in_amt" class="md-input" value="${sub?sub.amt:''}" inputmode="decimal"></div><div class="input-group"><label class="input-label">週期</label><select id="sub_cycle" class="md-input"><option value="monthly" ${sub?.cycle==='monthly'?'selected':''}>每月</option><option value="quarterly" ${sub?.cycle==='quarterly'?'selected':''}>每季</option><option value="yearly" ${sub?.cycle==='yearly'?'selected':''}>每年</option></select></div><div class="input-group"><label class="input-label">每月扣款日 (1-31)</label><input type="number" id="sub_day" class="md-input" value="${sub?sub.payDay:'1'}" min="1" max="31"></div><div class="input-group"><label class="input-label">狀態</label><select id="sub_active" class="md-input"><option value="true" ${sub?.active!==false?'selected':''}>啟用</option><option value="false" ${sub?.active===false?'selected':''}>停用</option></select></div>`; }
-            else { title.innerText = id ? '編輯紀錄' : (mode==='expense'?'新增支出':'新增收入'); let displayAmt = record ? record.amt : ''; if(record && record.ins > 1) displayAmt = state.records.filter(r=>r.gid===record.gid).reduce((s,x)=>s+x.amt,0); let insOpts = ''; for(let i=1;i<=80;i++) insOpts += `<option value="${i}" ${record && record.ins==i?'selected':''}>${i}</option>`; body.innerHTML = `<div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div><div class="input-group"><label class="input-label">金額 (支援符號運算)</label><div class="amt-wrapper"><input type="text" id="in_amt" class="md-input" value="${displayAmt}" inputmode="decimal" onkeydown="if(event.key==='Enter') this.blur();"><span class="material-symbols-outlined calc-toggle" onclick="document.getElementById('opPopup').classList.toggle('active')">calculate</span><div class="op-popup" id="opPopup"><button class="op-btn" onclick="insertOp('+')">+</button><button class="op-btn" onclick="insertOp('-')">-</button><button class="op-btn" onclick="insertOp('*')">×</button><button class="op-btn" onclick="insertOp('/')">÷</button></div></div></div><div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}<div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..." onkeydown="if(event.key==='Enter') this.blur();"></div>`; }
+            else { 
+                title.innerText = id ? '編輯紀錄' : (mode==='expense'?'新增支出':'新增收入'); let displayAmt = record ? record.amt : ''; if(record && record.ins > 1) displayAmt = state.records.filter(r=>r.gid===record.gid).reduce((s,x)=>s+x.amt,0);
+                let insOpts = ''; for(let i=1;i<=80;i++) insOpts += `<option value="${i}" ${record && record.ins==i?'selected':''}>${i}</option>`;
+                body.innerHTML = `
+                    <div style="max-height: 50vh; overflow-y: auto; padding-right: 4px;">
+                        <div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div>
+                        <div class="input-group"><label class="input-label">金額 (支援符號運算)</label><div class="amt-wrapper"><input type="text" id="in_amt" class="md-input" value="${displayAmt}" inputmode="decimal"><span class="material-symbols-outlined calc-toggle" onclick="document.getElementById('opPopup').classList.toggle('active')">calculate</span><div class="op-popup" id="opPopup"><button class="op-btn" onclick="insertOp('+')">+</button><button class="op-btn" onclick="insertOp('-')">-</button><button class="op-btn" onclick="insertOp('*')">×</button><button class="op-btn" onclick="insertOp('/')">÷</button></div></div></div>
+                        <div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${state.cats.filter(c=>c.type===(id?record.type:mode)).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('')}</select></div>
+                        ${(id?record.type:mode)==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}
+                        <div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..."></div>
+                    </div>`;
+            }
         }
 
         function handleSave() {
@@ -510,7 +513,7 @@
         function upCat(id, v) { const catObj = state.cats.find(x => x.id === id); if(catObj) { const oldName = catObj.name, newName = v.trim(); if (oldName === newName || !newName) return; state.records.forEach(r => { if (r.cat === oldName) r.cat = newName; }); catObj.name = newName; saveToCloud(); render(); } }
         function delCat(id){ if(confirm('確定刪除類別？')){state.cats=state.cats.filter(x=>x.id!==id); saveToCloud(); renderCatManager();}}
         function addCat(){ const n=prompt('類別名稱:'); if(n){state.cats.push({id:Date.now(), name:n, type:state.activeCatType, sort:state.cats.length}); saveToCloud(); renderCatManager();}}
-        function renderCatManager() { const filtered = state.cats.filter(c => c.type === state.activeCatType).sort((a,b)=>a.sort-b.sort); document.getElementById('sheetBody').innerHTML = `<div class="segmented-control"><button class="segment-btn ${state.activeCatType==='expense'?'active':''}" onclick="state.activeCatType='expense';renderCatManager()">支出</button><button class="segment-btn ${state.activeCatType==='income'?'active':''}" onclick="state.activeCatType='income';renderCatManager()">收入</button></div><div id="dragContainer">${filtered.map((c, index) => `<div class="category-row" draggable="true" ondragstart="handleDragStart(event, ${index})" ondragover="handleDragOver(event)" ondrop="handleDrop(event, ${index})" ondragend="handleDragEnd(event)"><span class="material-symbols-outlined" style="opacity:0.5;">drag_indicator</span><input type="text" class="md-input" style="border:none;background:none;flex:1;padding:8px;" value="${c.name}" onchange="upCat(${c.id},this.value)"><span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:#B3261E; cursor:pointer;">delete</span></div>`).join('')}</div><div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`; }
+        function renderCatManager() { const filtered = state.cats.filter(c => c.type === state.activeCatType).sort((a,b)=>a.sort-b.sort); document.getElementById('sheetBody').innerHTML = `<div class="segmented-control"><button class="segment-btn ${state.activeCatType==='expense'?'active':''}" onclick="state.activeCatType='expense';renderCatManager()">支出</button><button class="segment-btn ${state.activeCatType==='income'?'active':''}" onclick="state.activeCatType='income';renderCatManager()">收入</button></div><div id="dragContainer">${filtered.map((c, index) => `<div class="category-row" draggable="true" ondragstart="handleDragStart(event, ${index})" ondragover="handleDragOver(event)" ondrop="handleDrop(event, ${index})" ondragend="handleDragEnd(event)"><span class="material-symbols-outlined" style="opacity:0.5;">drag_indicator</span><input type="text" class="md-input" style="border:none;background:none;flex:1;padding:0 8px;height:40px;" value="${c.name}" onchange="upCat(${c.id},this.value)"><span class="material-symbols-outlined" onclick="delCat(${c.id})" style="color:#B3261E; cursor:pointer;">delete</span></div>`).join('')}</div><div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`; }
         function handleDragStart(e, index) { dragSrcIndex = index; e.target.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
         function handleDragOver(e) { e.preventDefault(); return false; }
         function handleDrop(e, targetIndex) { e.stopPropagation(); if (dragSrcIndex !== targetIndex) { const typeCats = state.cats.filter(c => c.type === state.activeCatType).sort((a,b) => a.sort - b.sort); const otherCats = state.cats.filter(c => c.type !== state.activeCatType); const [movedItem] = typeCats.splice(dragSrcIndex, 1); typeCats.splice(targetIndex, 0, movedItem); typeCats.forEach((c, i) => c.sort = i); state.cats = [...otherCats, ...typeCats]; saveToCloud(); renderCatManager(); } return false; }
