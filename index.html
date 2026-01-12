@@ -87,6 +87,12 @@
         .btn-tonal { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); border: none; padding: 16px; width: 100%; border-radius: 100px; font-size: 16px; font-weight: 700; cursor: pointer; }
         .btn-text-error { background: none; color: var(--md-sys-color-error); border: none; padding: 12px; width: 100%; font-weight: 700; cursor: pointer; border-radius: 100px; }
 
+        /* 復原：懸浮按鈕樣式 */
+        .fab { position: fixed; right: 20px; bottom: 32px; width: 64px; height: 64px; border-radius: 20px; background: var(--md-sys-color-primary-container); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; cursor: pointer; }
+        .fab-left { position: fixed; left: 20px; bottom: 32px; width: 64px; height: 64px; border-radius: 20px; background: var(--md-sys-color-secondary-container); display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer; }
+        .fab-menu { position: fixed; right: 20px; bottom: 105px; display: none; flex-direction: column; gap: 12px; z-index: 100; align-items: flex-end; }
+        .fab-item { background: #F5F5F5; padding: 12px 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: 500; cursor: pointer; }
+
         .settings-item { display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--md-sys-color-surface-container-high); border-radius: 16px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
         .settings-item:hover { background: var(--md-sys-color-primary-container); }
         .settings-item .material-symbols-outlined { color: var(--md-sys-color-primary); }
@@ -197,47 +203,47 @@
         let state = { uid: '', viewDate: new Date(2026, 0, 1), records: [], cats: [{ id: 1, name: '餐飲', type: 'expense', sort: 0 }], subs: [], listTab: 'expense', activeCatType: 'expense', statsView: 'monthly', yearlySubView: 'year', trendView: '30d', trendCat: '全部', editingId: null, currentMode: '', showIncome: false };
 
         const changelogs = [
-            { v: "v26.25.7", items: ["邏輯修正：年度統計平均值計算現在會自動排除「未來月份」及「無紀錄月份」，確保平均數據真實反映目前支出狀況。","補齊日誌：完整顯示 v26.1 起之所有歷史更新內容。"] },
-            { v: "v26.25.6", items: ["核心錯誤修復：解決 openDrawer 生成 HTML 時選單標籤錯誤導致 handleSave 無法抓取資料而儲存失效的問題。"] },
+            { v: "v26.25.7", items: ["功能修復：復原先前意外失蹤的底部懸浮按鈕（FAB）及其功能。","年度統計修正：總支出與平均支出現在會自動排除「未來月份」的預定帳目，僅統計實績。","補齊日誌：完整列出 v26.1 起之所有歷史內容。"] },
+            { v: "v26.25.6", items: ["核心錯誤修復：修正 openDrawer 生成 HTML 時選單標籤錯誤導致儲存失效的問題。"] },
             { v: "v26.25.5", items: ["錯誤修復：修正確認儲存按鈕無反應問題。"] },
-            { v: "v26.25.4", items: ["邏輯修正：年度統計平均值計算自動排除未來月份數據。","手冊重編：轉化為系統化［操作使用手冊］。","Excel 儲存格優化：自動計算欄寬。"] },
-            { v: "v26.25.3", items: ["UI 舒適化深度優化：還原原生彈出式選單並強化觸控範圍，提升 Pixel 10 操作舒適度。"] },
-            { v: "v26.25.2", items: ["優化 Excel 匯出：新增儲存格寬度自動計算功能。","強化說明手冊內容。"] },
-            { v: "v26.25.1", items: ["新增系統手冊：於選單中加入［說明］功能，系統化介紹軟體操作指南。"] },
+            { v: "v26.25.4", items: ["邏輯修正：年度統計平均值計算自動排除未來月份數據。","手冊重編：轉化為系統化操作手冊。","Excel 儲存格優化。"] },
+            { v: "v26.25.3", items: ["UI 舒適化深度優化：還原原生下拉選單，強化 Pixel 10 觸控範圍。"] },
+            { v: "v26.25.2", items: ["優化 Excel 匯出：新增儲存格寬度自動計算功能。"] },
+            { v: "v26.25.1", items: ["新增系統手冊與［說明］功能。"] },
             { v: "v26.24.6", items: ["版本號進位修正。"] },
-            { v: "v26.24.5.1", items: ["訂閱邏輯優化：新增項目時自動生成首筆支出紀錄入帳。","版面對齊修正：三條線選單按鈕與月份箭頭按鈕中心線對齊。"] },
-            { v: "v26.24.5", items: ["版面架構優化：新增左上角選單整合備份、還原與登出功能。","FAB 功能重組：右下角懸浮按鈕保留核心記帳操作。"] },
-            { v: "v26.24.4", items: ["登入穩定性修復：解決 INVALID_LOGIN_CREDENTIALS 錯誤捕捉問題。"] },
-            { v: "v26.24.3", items: ["強化登入相容性：處理舊帳號初次設定密碼時的錯誤攔截。"] },
-            { v: "v26.24.2", items: ["優化登入持久化：自動保持登入狀態，下次開啟免輸入密碼。"] },
-            { v: "v26.24.1", items: ["登入引導優化：新增密碼設定說明與舊用戶遷移提示。"] },
-            { v: "v26.24", items: ["實裝 Firebase Authentication 密碼系統，強化安全性與登出功能。"] },
-            { v: "v26.23.3", items: ["趨勢日期格式修正：將圖表 X 軸時間顯示格式更改為 YY/MM。"] },
+            { v: "v26.24.5.1", items: ["訂閱邏輯優化與版面對齊修正。"] },
+            { v: "v26.24.5", items: ["版面架構優化：新增左上角選單整合備份、還原與登出。"] },
+            { v: "v26.24.4", items: ["登入穩定性修復。"] },
+            { v: "v26.24.3", items: ["強化登入相容性與錯誤處理。"] },
+            { v: "v26.24.2", items: ["優化登入持久化：自動保持登入狀態。"] },
+            { v: "v26.24.1", items: ["登入畫面新增密碼說明文字。"] },
+            { v: "v26.24", items: ["實裝 Firebase Auth 密碼系統，強化安全性。"] },
+            { v: "v26.23.3", items: ["趨勢日期格式修正。"] },
             { v: "v26.23.2", items: ["UI 優化：隱藏平均支出中排除字樣。"] },
-            { v: "v26.23.1", items: ["趨勢分析週期調整為 30 日，優化平均計算。"] },
-            { v: "v26.23", items: ["新增消費趨勢分析功能，支援平滑曲線圖表。"] },
+            { v: "v26.23.1", items: ["趨勢分析週期調整為 30 日。"] },
+            { v: "v26.23", items: ["新增消費趨勢分析功能。"] },
             { v: "v26.22", items: ["實裝定期訂閱扣款功能。"] },
             { v: "v26.21", items: ["統計報告加入百分比顯示與佔比計算。"] },
-            { v: "v26.20", items: ["類別管理介面優化：按鈕移至右上角圓形圖示。"] },
+            { v: "v26.20", items: ["類別管理介面優化。"] },
             { v: "v26.19", items: ["修正欄位 Enter 問題與 Gboard 相容性。"] },
             { v: "v26.18", items: ["統計標頭按鈕對齊修正。"] },
             { v: "v26.17", items: ["底層按鈕排版修正，恢復 Android 16 輸入樣式。"] },
-            { v: "v26.16", items: ["圓餅圖中心鎖定，Bar 視覺回歸設計。"] },
+            { v: "v26.16", items: ["統計 Bar 視覺回歸設計。"] },
             { v: "v26.15", items: ["Excel 匯出功能實裝。"] },
-            { v: "v26.14", items: ["修正排版跳動問題。"] },
+            { v: "v26.14", items: ["修正滾動條排版跳動。"] },
             { v: "v26.13", items: ["動作按鈕恢復膠囊樣式，固定視窗標題。"] },
             { v: "v26.12", items: ["修正分段按鈕樣式。"] },
             { v: "v26.11", items: ["金額彈出計算機實裝。"] },
             { v: "v26.10", items: ["金額支援算式運算，統計視窗高度提升。"] },
-            { v: "v26.9", items: ["同步狀態與版本號水平對齊。"] },
+            { v: "v26.9", items: ["同步狀態對齊。"] },
             { v: "v26.8", items: ["更新日誌視窗功能實裝。"] },
             { v: "v26.7", items: ["年度統計類別二級分層優化。"] },
             { v: "v26.6", items: ["紀錄新增備註氣泡顯示。"] },
-            { v: "v26.5", items: ["圖例數量限制，統計報告高度調整。"] },
-            { v: "v26.4", items: ["統計報告隱藏未來月份資料。"] },
+            { v: "v26.5", items: ["圖例數量限制。"] },
+            { v: "v26.4", items: ["統計報告隱藏未來數據。"] },
             { v: "v26.3", items: ["年度統計新增平均月收入。"] },
-            { v: "v26.2", items: ["總收入支援點擊切換隱藏。"] },
-            { v: "v26.1", items: ["版本號系統與雲端同步樣式優化。"] }
+            { v: "v26.2", items: ["總收入點擊切換。"] },
+            { v: "v26.1", items: ["版本號系統與雲端同步優化。"] }
         ];
 
         let mainChartObj = null, trendChartObj = null;
@@ -412,9 +418,13 @@
             if (state.statsView === 'trend') { body.innerHTML = navHtml + `<div id="statsList"></div>`; renderTrendAnalysis(); return; }
             if(state.statsView === 'yearly') { navHtml += `<div class="list-toggle-container" style="margin-bottom:20px;"><div class="small-segmented-control" style="width:180px;"><button class="small-segment-btn ${state.yearlySubView==='year'?'active':''}" onclick="state.yearlySubView='year';renderStatsReport()">年度</button><button class="small-segment-btn ${state.yearlySubView==='cat'?'active':''}" onclick="state.yearlySubView='cat';renderStatsReport()">類別</button></div></div>`; }
             body.innerHTML = navHtml + `<div id="statsList"></div>`; const container = document.getElementById('statsList'), groups = {}; const tpNow = getTaipeiNow(), curY = tpNow.getFullYear(), curM = tpNow.getMonth();
-            if (state.statsView === 'monthly') { state.records.forEach(r => { const d = new Date(r.date), recY = d.getFullYear(), recM = d.getMonth(); if (recY > curY || (recY === curY && recM > curM)) return; const key = `${recY}年${recM+1}月`; if(!groups[key]) groups[key] = { i: 0, e: 0, raw: [] }; if(r.type === 'income') groups[key].i += r.amt; else groups[key].e += r.amt; groups[key].raw.push(r); }); container.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a, undefined, {numeric: true})).map(key => { return `<div class="stats-report-item" onclick="showStatsDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key}</strong><span class="material-symbols-outlined">chevron_right</span></div><div style="display:flex; gap:12px; margin-top:8px; font-size:14px;"><span style="color:#2E7D32">收: $${groups[key].i.toLocaleString()}</span><span style="color:#C62828">支: $${groups[key].e.toLocaleString()}</span></div></div>`; }).join(''); } 
+            
+            if (state.statsView === 'monthly') { 
+                state.records.forEach(r => { const d = new Date(r.date), recY = d.getFullYear(), recM = d.getMonth(); if (recY > curY || (recY === curY && recM > curM)) return; const key = `${recY}年${recM+1}月`; if(!groups[key]) groups[key] = { i: 0, e: 0, raw: [] }; if(r.type === 'income') groups[key].i += r.amt; else groups[key].e += r.amt; groups[key].raw.push(r); });
+                container.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a, undefined, {numeric: true})).map(key => { return `<div class="stats-report-item" onclick="showStatsDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key}</strong><span class="material-symbols-outlined">chevron_right</span></div><div style="display:flex; gap:12px; margin-top:8px; font-size:14px;"><span style="color:#2E7D32">收: $${groups[key].i.toLocaleString()}</span><span style="color:#C62828">支: $${groups[key].e.toLocaleString()}</span></div></div>`; }).join(''); 
+            } 
             else { 
-                state.records.forEach(r => { const d = new Date(r.date), recY = d.getFullYear(); if (recY > curY) return; const key = `${recY}年`; if(!groups[key]) groups[key] = { i: 0, e: 0, raw: [] };
+                state.records.forEach(r => { const d = new Date(r.date); const recY = d.getFullYear(); if (recY > curY) return; const key = `${recY}年`; if(!groups[key]) groups[key] = { i: 0, e: 0, raw: [] };
                     if (recY < curY || (recY === curY && d.getMonth() <= curM)) { if(r.type === 'income') groups[key].i += r.amt; else groups[key].e += r.amt; }
                     groups[key].raw.push(r);
                 }); 
@@ -449,16 +459,16 @@
             else if(mode === 'changelog') { title.innerText = '更新日誌'; renderChangelog(); }
             else if(mode === 'subManage') { title.innerText = '訂閱項目管理'; renderSubManager(); }
             else if(mode === 'subEdit') {
-                const subCats = state.cats.filter(c=>c.type==='expense').map(c=>`<option value="${c.name}" ${sub?.cat===c.name?'selected':''}>${c.name}</option>`).join('');
+                const subCatsHtml = state.cats.filter(c=>c.type==='expense').map(c=>`<option value="${c.name}" ${sub?.cat===c.name?'selected':''}>${c.name}</option>`).join('');
                 title.innerText = id ? '編輯訂閱' : '新增訂閱';
-                body.innerHTML = `<div class="input-group"><label class="input-label">名稱</label><input type="text" id="sub_name" class="md-input" value="${sub?sub.name:''}"></div><div class="input-group"><label class="input-label">扣款類別</label><select id="sub_cat" class="md-input">${subCats}</select></div><div class="input-group"><label class="input-label">扣款金額</label><input type="text" id="in_amt" class="md-input" value="${sub?sub.amt:''}" inputmode="decimal"></div><div class="input-group"><label class="input-label">週期</label><select id="sub_cycle" class="md-input"><option value="monthly" ${sub?.cycle==='monthly'?'selected':''}>每月</option><option value="quarterly" ${sub?.cycle==='quarterly'?'selected':''}>每季</option><option value="yearly" ${sub?.cycle==='yearly'?'selected':''}>每年</option></select></div><div class="input-group"><label class="input-label">每月扣款日</label><input type="number" id="sub_day" class="md-input" value="${sub?sub.payDay:'1'}" min="1" max="31"></div><div class="input-group"><label class="input-label">狀態</label><select id="sub_active" class="md-input"><option value="true" ${sub?.active!==false?'selected':''}>啟用</option><option value="false" ${sub?.active===false?'selected':''}>停用</option></select></div>`;
+                body.innerHTML = `<div class="input-group"><label class="input-label">名稱</label><input type="text" id="sub_name" class="md-input" value="${sub?sub.name:''}"></div><div class="input-group"><label class="input-label">扣款類別</label><select id="sub_cat" class="md-input">${subCatsHtml}</select></div><div class="input-group"><label class="input-label">扣款金額</label><input type="text" id="in_amt" class="md-input" value="${sub?sub.amt:''}" inputmode="decimal"></div><div class="input-group"><label class="input-label">週期</label><select id="sub_cycle" class="md-input"><option value="monthly" ${sub?.cycle==='monthly'?'selected':''}>每月</option><option value="quarterly" ${sub?.cycle==='quarterly'?'selected':''}>每季</option><option value="yearly" ${sub?.cycle==='yearly'?'selected':''}>每年</option></select></div><div class="input-group"><label class="input-label">每月扣款日</label><input type="number" id="sub_day" class="md-input" value="${sub?sub.payDay:'1'}" min="1" max="31"></div><div class="input-group"><label class="input-label">狀態</label><select id="sub_active" class="md-input"><option value="true" ${sub?.active!==false?'selected':''}>啟用</option><option value="false" ${sub?.active===false?'selected':''}>停用</option></select></div>`;
             }
             else { 
                 const currentType = id ? record.type : mode;
                 const typeCatsHtml = state.cats.filter(c=>c.type===currentType).sort((a,b)=>a.sort-b.sort).map(c=>`<option value="${c.name}" ${record?.cat===c.name?'selected':''}>${c.name}</option>`).join('');
                 let insOpts = ''; for(let i=1;i<=80;i++) insOpts += `<option value="${i}" ${record && record.ins==i?'selected':''}>${i}</option>`;
                 title.innerText = id ? '編輯紀錄' : (mode==='expense'?'新增支出':'新增收入');
-                body.innerHTML = `<div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div><div class="input-group"><label class="input-label">金額 (支援運算)</label><div class="amt-wrapper"><input type="text" id="in_amt" class="md-input" value="${record ? record.amt : ''}" inputmode="decimal"><span class="material-symbols-outlined calc-toggle" onclick="document.getElementById('opPopup').classList.toggle('active')">calculate</span><div class="op-popup" id="opPopup"><button class="op-btn" onclick="insertOp('+')">+</button><button class="op-btn" onclick="insertOp('-')">-</button><button class="op-btn" onclick="insertOp('*')">×</button><button class="op-btn" onclick="insertOp('/')">÷</button></div></div></div><div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${typeCatsHtml}</select></div>${currentType==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}<div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="輸入備註..."></div>`;
+                body.innerHTML = `<div class="input-group"><label class="input-label">日期</label><input type="date" id="in_date" class="md-input" value="${record?record.date:new Date().toISOString().split('T')[0]}"></div><div class="input-group"><label class="input-label">金額 (支援運算)</label><div class="amt-wrapper"><input type="text" id="in_amt" class="md-input" value="${record ? record.amt : ''}" inputmode="decimal"><span class="material-symbols-outlined calc-toggle" onclick="document.getElementById('opPopup').classList.toggle('active')">calculate</span><div class="op-popup" id="opPopup"><button class="op-btn" onclick="insertOp('+')">+</button><button class="op-btn" onclick="insertOp('-')">-</button><button class="op-btn" onclick="insertOp('*')">×</button><button class="op-btn" onclick="insertOp('/')">÷</button></div></div></div><div class="input-group"><label class="input-label">類別</label><select id="in_cat" class="md-input">${typeCatsHtml}</select></div>${currentType==='expense'?`<div class="input-group"><label class="input-label">分期</label><select id="in_ins" class="md-input">${insOpts}</select></div>`:''}<div class="input-group"><label class="input-label">備註</label><input type="text" id="in_note" class="md-input" value="${record?record.note:''}" placeholder="點擊輸入備註..."></div>`;
             }
         }
 
@@ -493,6 +503,7 @@
         function changeMonth(n) { state.viewDate.setMonth(state.viewDate.getMonth()+n); render(); }
         function exportData() { if(!confirm('確定要備份 (JSON)？')) return; const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'wallet_backup.json'; a.click(); }
         function importData(e) { const r = new FileReader(); r.onload = (ev) => { const d = JSON.parse(ev.target.result); Object.assign(state, d); saveToCloud(); alert('還原成功'); }; r.readAsText(e.target.files[0]); }
+        
         function showYearlyCatDetail(title, data) { const body = document.getElementById('sheetBody'); const yearCats = { income: {}, expense: {} }; data.forEach(r => { const target = r.type === 'income' ? yearCats.income : yearCats.expense; target[r.cat] = (target[r.cat] || 0) + r.amt; }); const totalIncome = Object.values(yearCats.income).reduce((a, b) => a + b, 0); const totalExpense = Object.values(yearCats.expense).reduce((a, b) => a + b, 0); const getRows = (catData, total) => Object.entries(catData).sort((a,b) => b[1]-a[1]).map(([c, a]) => { const pct = total > 0 ? ((a / total) * 100).toFixed(0) : 0; return `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${pct}%)</span></div>`; }).join(''); body.innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div> <h3 style="margin:0 0 16px 0;">${title} 類別總結</h3> <div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">年度收入分布</div>${getRows(yearCats.income, totalIncome) || '無紀錄'}</div> <div class="stats-detail-card"><div class="input-label" style="color:#C62828">年度支出分布</div>${getRows(yearCats.expense, totalExpense) || '無紀錄'}</div> <div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`; }
         function showStatsDetail(title, data) { const getRows = (items) => { const g = {}; items.forEach(r => { g[r.cat] = (g[r.cat] || 0) + r.amt; }); const subTotal = Object.values(g).reduce((a, b) => a + b, 0); return Object.entries(g).sort((a,b) => b[1] - a[1]).map(([c, a]) => { const pct = subTotal > 0 ? ((a / subTotal) * 100).toFixed(0) : 0; return `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${pct}%)</span></div>`; }).join(''); }; document.getElementById('sheetBody').innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div> <h3 style="margin:0 0 16px 0;">${title} 細項</h3> <div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">收入分佈</div>${getRows(data.filter(r => r.type === 'income')) || '無數據'}</div> <div class="stats-detail-card"><div class="input-label" style="color:#C62828">支出分佈</div>${getRows(data.filter(r => r.type === 'expense')) || '無數據'}</div> <div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`; }
         function renderChangelog() { const body = document.getElementById('sheetBody'); body.innerHTML = changelogs.map(log => `<div class="log-item"><div class="log-version">${log.v}</div><div class="log-content">${log.items.map(item => `<div>${item}</div>`).join('')}</div></div>`).join(''); body.innerHTML += `<div class="btn-row"><button class="btn-filled" style="flex:1" onclick="closeDrawer()">關閉視窗</button></div>`; }
