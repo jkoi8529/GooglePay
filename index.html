@@ -509,7 +509,7 @@
         function renderChangelog() { const body = document.getElementById('sheetBody'); body.innerHTML = changelogs.map(log => `<div class="log-item"><div class="log-version">${log.v}</div><div class="log-content">${log.items.map(item => `<div>${item}</div>`).join('')}</div></div>`).join(''); body.innerHTML += `<div class="btn-row"><button class="btn-filled" style="flex:1" onclick="closeDrawer()">關閉視窗</button></div>`; }
         function evaluateMath(str) { try { const sanitized = str.replace(/[^-()\d/*+.]/g, ''); return Function(`"use strict"; return (${sanitized})`)(); } catch (e) { return null; } }
         function insertOp(op) { const input = document.getElementById('in_amt'); input.value += op; input.focus(); }
-
+ 
         window.onload = () => { auth.onAuthStateChanged((user) => { if (user) handleAuthSuccess(user); else document.getElementById('sync-overlay').style.display='flex'; }); };
     </script>
 </body>
