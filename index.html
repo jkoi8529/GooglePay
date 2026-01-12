@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GooglePay v26.25.7</title>
+    <title>GooglePay v26.25.6</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
     
@@ -87,12 +87,34 @@
         .btn-tonal { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); border: none; padding: 16px; width: 100%; border-radius: 100px; font-size: 16px; font-weight: 700; cursor: pointer; }
         .btn-text-error { background: none; color: var(--md-sys-color-error); border: none; padding: 12px; width: 100%; font-weight: 700; cursor: pointer; border-radius: 100px; }
 
-        /* 復原：懸浮按鈕樣式 */
+        .stats-detail-card { background: var(--md-sys-color-surface-container-high); padding: 16px; border-radius: 20px; margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.05); }
+        .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--md-sys-color-outline); opacity: 0.8; }
+        .detail-row span:first-child { font-weight: 700; color: var(--md-sys-color-on-surface); }
+        .detail-row span:last-child { font-weight: 700; color: var(--md-sys-color-primary); }
+
+        .amt-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+        .calc-toggle { position: absolute; right: 12px; color: var(--md-sys-color-primary); cursor: pointer; }
+        .op-popup { position: absolute; right: 0; top: -52px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 12px; display: none; padding: 4px; gap: 4px; z-index: 10; border: 1px solid var(--md-sys-color-outline); }
+        .op-popup.active { display: flex; }
+        .op-btn { width: 40px; height: 40px; border-radius: 8px; border: none; background: var(--md-sys-color-surface-container-high); font-size: 18px; font-weight: 700; color: var(--md-sys-color-primary); }
+
         .fab { position: fixed; right: 20px; bottom: 32px; width: 64px; height: 64px; border-radius: 20px; background: var(--md-sys-color-primary-container); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 100; cursor: pointer; }
         .fab-left { position: fixed; left: 20px; bottom: 32px; width: 64px; height: 64px; border-radius: 20px; background: var(--md-sys-color-secondary-container); display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer; }
         .fab-menu { position: fixed; right: 20px; bottom: 105px; display: none; flex-direction: column; gap: 12px; z-index: 100; align-items: flex-end; }
         .fab-item { background: #F5F5F5; padding: 12px 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-weight: 500; cursor: pointer; }
 
+        .category-row { display: flex; align-items: center; background: var(--md-sys-color-surface-container-high); margin-bottom: 8px; padding: 12px; border-radius: 16px; gap: 12px; cursor: move; }
+        .segmented-control { display: flex; background: var(--md-sys-color-surface-container-high); padding: 4px; border-radius: 100px; margin-bottom: 24px; flex-shrink: 0; }
+        .segment-btn { flex: 1; border: none; background: none; padding: 10px; border-radius: 100px; font-size: 14px; font-weight: 500; cursor: pointer; }
+        .segment-btn.active { background: white; color: var(--md-sys-color-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
+        .stats-report-item { background: white; padding: 16px; border-radius: 20px; margin-bottom: 12px; border: 1px solid var(--md-sys-color-surface-container-high); cursor: pointer; }
+        .log-item { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #ECE6F0; }
+        .log-version { display: inline-block; background: #6750A4; color: white; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+        .log-content { font-size: 14px; line-height: 1.6; color: #49454F; }
+        .log-content div { position: relative; padding-left: 14px; margin-bottom: 4px; }
+        .log-content div::before { content: "•"; position: absolute; left: 0; color: #6750A4; font-weight: bold; }
+        
         .settings-item { display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--md-sys-color-surface-container-high); border-radius: 16px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
         .settings-item:hover { background: var(--md-sys-color-primary-container); }
         .settings-item .material-symbols-outlined { color: var(--md-sys-color-primary); }
@@ -106,9 +128,9 @@
 <body>
 
     <div id="sync-overlay">
-        <h2 style="color:var(--md-sys-color-primary); margin-bottom:8px;">GooglePay v26.25.7</h2>
+        <h2 style="color:var(--md-sys-color-primary); margin-bottom:8px;">GooglePay v26.25.6</h2>
         <input type="text" id="account-id" class="md-input" placeholder="帳號 ID" style="margin-bottom:12px; text-align:center;">
-        <input type="password" id="account-pw" class="md-input" placeholder="密碼" style="margin-bottom:24px; text-align:center;">
+        <input type="password" id="account-pw" class="md-input" placeholder="密碼 (首次請輸入新密碼)" style="margin-bottom:24px; text-align:center;">
         <button class="btn-filled" style="width:200px;" id="loginBtn" onclick="startApp()">登入 / 同步</button>
         <p style="font-size:11px; color:var(--md-sys-color-outline); margin-top:20px; line-height:1.5; padding:0 20px; text-align:center;">
             ※ 登入後將自動保持連線，下次開啟免輸入。<br>
@@ -131,7 +153,7 @@
                 <div class="summary-item"><small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span></div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag" onclick="openDrawer('changelog')">v26.25.7</div>
+            <div class="version-tag" onclick="openDrawer('changelog')">v26.25.6</div>
         </div>
 
         <div class="transaction-section">
@@ -180,7 +202,6 @@
 
         <div class="system-footer" style="padding:24px 16px; background:#F3EDF7; margin-top:auto; opacity: 0.5; text-align:center;">
             <span style="font-size: 12px;">GooglePay 個人記帳系統</span>
-            <input type="file" id="importFile" style="display:none" onchange="importData(event)">
         </div>
     </div>
 
@@ -203,50 +224,49 @@
         let state = { uid: '', viewDate: new Date(2026, 0, 1), records: [], cats: [{ id: 1, name: '餐飲', type: 'expense', sort: 0 }], subs: [], listTab: 'expense', activeCatType: 'expense', statsView: 'monthly', yearlySubView: 'year', trendView: '30d', trendCat: '全部', editingId: null, currentMode: '', showIncome: false };
 
         const changelogs = [
-            { v: "v26.25.7", items: ["功能修復：復原先前意外失蹤的底部懸浮按鈕（FAB）及其功能。","年度統計修正：總支出與平均支出現在會自動排除「未來月份」的預定帳目，僅統計實績。","補齊日誌：完整列出 v26.1 起之所有歷史內容。"] },
-            { v: "v26.25.6", items: ["核心錯誤修復：修正 openDrawer 生成 HTML 時選單標籤錯誤導致儲存失效的問題。"] },
+            { v: "v26.25.6", items: ["核心錯誤修復：解決 openDrawer 生成 HTML 時選單標籤錯誤導致 handleSave 無法抓取資料而儲存失效的問題。"] },
             { v: "v26.25.5", items: ["錯誤修復：修正確認儲存按鈕無反應問題。"] },
-            { v: "v26.25.4", items: ["邏輯修正：年度統計平均值計算自動排除未來月份數據。","手冊重編：轉化為系統化操作手冊。","Excel 儲存格優化。"] },
-            { v: "v26.25.3", items: ["UI 舒適化深度優化：還原原生下拉選單，強化 Pixel 10 觸控範圍。"] },
-            { v: "v26.25.2", items: ["優化 Excel 匯出：新增儲存格寬度自動計算功能。"] },
-            { v: "v26.25.1", items: ["新增系統手冊與［說明］功能。"] },
+            { v: "v26.25.4", items: ["邏輯修正：年度統計平均值計算自動排除未來月份數據。","手冊重編：轉化為系統化［操作使用手冊］。","Excel 儲存格優化：自動計算欄寬。"] },
+            { v: "v26.25.3", items: ["UI 舒適化深度優化：還原原生彈出式選單並強化觸控範圍，提升 Pixel 10 操作舒適度。"] },
+            { v: "v26.25.2", items: ["優化 Excel 匯出：新增儲存格寬度自動計算功能。","強化說明手冊內容。"] },
+            { v: "v26.25.1", items: ["新增系統手冊：於選單中加入［說明］功能。","補齊日誌：恢復 v26.1 起之完整紀錄。"] },
             { v: "v26.24.6", items: ["版本號進位修正。"] },
-            { v: "v26.24.5.1", items: ["訂閱邏輯優化與版面對齊修正。"] },
-            { v: "v26.24.5", items: ["版面架構優化：新增左上角選單整合備份、還原與登出。"] },
-            { v: "v26.24.4", items: ["登入穩定性修復。"] },
-            { v: "v26.24.3", items: ["強化登入相容性與錯誤處理。"] },
-            { v: "v26.24.2", items: ["優化登入持久化：自動保持登入狀態。"] },
-            { v: "v26.24.1", items: ["登入畫面新增密碼說明文字。"] },
-            { v: "v26.24", items: ["實裝 Firebase Auth 密碼系統，強化安全性。"] },
-            { v: "v26.23.3", items: ["趨勢日期格式修正。"] },
-            { v: "v26.23.2", items: ["UI 優化：隱藏平均支出中排除字樣。"] },
-            { v: "v26.23.1", items: ["趨勢分析週期調整為 30 日。"] },
-            { v: "v26.23", items: ["新增消費趨勢分析功能。"] },
-            { v: "v26.22", items: ["實裝定期訂閱扣款功能。"] },
-            { v: "v26.21", items: ["統計報告加入百分比顯示與佔比計算。"] },
-            { v: "v26.20", items: ["類別管理介面優化。"] },
-            { v: "v26.19", items: ["修正欄位 Enter 問題與 Gboard 相容性。"] },
-            { v: "v26.18", items: ["統計標頭按鈕對齊修正。"] },
-            { v: "v26.17", items: ["底層按鈕排版修正，恢復 Android 16 輸入樣式。"] },
-            { v: "v26.16", items: ["統計 Bar 視覺回歸設計。"] },
-            { v: "v26.15", items: ["Excel 匯出功能實裝。"] },
-            { v: "v26.14", items: ["修正滾動條排版跳動。"] },
-            { v: "v26.13", items: ["動作按鈕恢復膠囊樣式，固定視窗標題。"] },
-            { v: "v26.12", items: ["修正分段按鈕樣式。"] },
-            { v: "v26.11", items: ["金額彈出計算機實裝。"] },
-            { v: "v26.10", items: ["金額支援算式運算，統計視窗高度提升。"] },
-            { v: "v26.9", items: ["同步狀態對齊。"] },
-            { v: "v26.8", items: ["更新日誌視窗功能實裝。"] },
-            { v: "v26.7", items: ["年度統計類別二級分層優化。"] },
-            { v: "v26.6", items: ["紀錄新增備註氣泡顯示。"] },
-            { v: "v26.5", items: ["圖例數量限制。"] },
-            { v: "v26.4", items: ["統計報告隱藏未來數據。"] },
-            { v: "v26.3", items: ["年度統計新增平均月收入。"] },
-            { v: "v26.2", items: ["總收入點擊切換。"] },
-            { v: "v26.1", items: ["版本號系統與雲端同步優化。"] }
+            { v: "v26.24.5.1", items: ["訂閱邏輯優化：新增項目時自動生成首筆支出紀錄入帳。","版面對齊修正：三條線選單按鈕與月份箭頭按鈕的中心線對齊。"] },
+            { v: "v26.24.5", items: ["版面架構優化：新增左上角選單整合備份、還原與登出功能。","FAB 功能重組：右下角懸浮按鈕保留核心記帳操作。"] },
+            { v: "v26.24.4", items: ["登入穩定性修復：解決舊帳號初次升級時可能出現的 INVALID_LOGIN_CREDENTIALS 錯誤捕捉問題。"] },
+            { v: "v26.24.3", items: ["強化登入相容性：處理舊帳號初次設定密碼時的錯誤攔截。"] },
+            { v: "v26.24.2", items: ["優化登入持久化：自動保持登入狀態，下次開啟免輸入密碼"] },
+            { v: "v26.24.1", items: ["登入引導優化：新增密碼設定說明文字，優化新舊帳號遷移引導"] },
+            { v: "v26.24", items: ["實裝 Firebase Authentication 密碼系統，強化安全性與登出功能"] },
+            { v: "v26.23.3", items: ["趨勢日期格式修正：將圖表 X 軸時間顯示格式由 YY-MM 更改為 YY/MM (例如 26/01)。"] },
+            { v: "v26.23.2", items: ["UI 優化：隱藏平均支出中「(排除空白)」之字樣，維持介面簡潔"] },
+            { v: "v26.23.1", items: ["短期趨勢由 14 日調整為 30 日，平均支出計算邏輯優化：自動排除無紀錄之月份/日期"] },
+            { v: "v26.23", items: ["新增消費趨勢 analysis 功能，支援近 14 日短期趨勢與近 12 個月長期趨勢圖表"] },
+            { v: "v26.22", items: ["實裝訂閱制自動扣款與變價功能，新增扣款成功提示視窗"] },
+            { v: "v26.21", items: ["收支統計報告/年度類別總結新增百分比 (%) 顯示"] },
+            { v: "v26.20", items: ["類別管理介面優化：新增類別按鈕移至右上角，改為圓形 + 號圖示"] },
+            { v: "v26.19", items: ["修正金額欄位 Enter 不收起鍵盤問題，優化 Gboard 數字模式送出鍵監聽"] },
+            { v: "v26.18", items: ["修正統計報告標頭按鈕左右對齊，移除報告視窗底部冗餘按鍵"] },
+            { v: "v26.17", items: ["底層按鈕左右並列排版越，恢復 Android 16 標準輸入窗格樣式"] },
+            { v: "v26.16", items: ["統計明細 Bar 視覺回歸設計，圓餅圖中心點鎖定防止位移"] },
+            { v: "v26.15", items: ["Excel 多工作表匯出功能實裝，類別管理樣式恢復 v26.10"] },
+            { v: "v26.14", items: ["修正電腦版滾動條產生的排版跳動"] },
+            { v: "v26.13", items: ["動作按鈕恢復膠囊 Pill 圓角樣式，固定統計視窗標題"] },
+            { v: "v26.12", items: ["修正分段按鈕樣式偏移，回歸 Android 16"] },
+            { v: "v26.11", items: ["金額運算方案 B (彈出計算機) 實裝，修正備註中心線對齊"] },
+            { v: "v26.10", items: ["統計報告視窗高度升至 72.5%，金額支援算式直接運算"] },
+            { v: "v26.9", items: ["同步狀態字樣與版本號水平對齊"] },
+            { v: "v26.8", items: ["更新日誌視窗功能"] },
+            { v: "v26.7", items: ["年度統計類別二級分層優化"] },
+            { v: "v26.6", items: ["主畫面收支紀錄新增備註圓角氣泡"] },
+            { v: "v26.5", items: ["圖例限制前六項，統計報告 50% 高度設定"] },
+            { v: "v26.4", items: ["統計報告隱藏未來月份資料 (GMT+8)"] },
+            { v: "v26.3", items: ["年度統計新增平均月收入顯示"] },
+            { v: "v26.2", items: ["總收入金額支援點擊隱藏/顯示切換"] },
+            { v: "v26.1", items: ["版本號系統與雲端同步樣式優化"] }
         ];
 
-        let mainChartObj = null, trendChartObj = null;
+        let mainChartObj = null, trendChartObj = null, dragSrcIndex = null;
         Chart.register(ChartDataLabels);
 
         function getTaipeiNow() { const now = new Date(); const utc = now.getTime() + (now.getTimezoneOffset() * 60000); return new Date(utc + (3600000 * 8)); }
@@ -279,15 +299,8 @@
         function listenToCloud() {
             db.ref('users/' + state.uid).on('value', (snap) => {
                 const data = snap.val();
-                if (data) {
-                    state.records = data.records || [];
-                    state.cats = data.cats || state.cats;
-                    state.subs = data.subs || [];
-                    document.getElementById('cloud-status').innerText = '雲端已同步 ✓';
-                    render();
-                } else {
-                    document.getElementById('cloud-status').innerText = '空間已就緒';
-                }
+                if (data) { state.records = data.records || []; state.cats = data.cats || state.cats; state.subs = data.subs || []; document.getElementById('cloud-status').innerText = '雲端已同步 ✓'; render(); } 
+                else { document.getElementById('cloud-status').innerText = '空間已就緒'; saveToCloud(); }
             });
         }
 
@@ -298,19 +311,34 @@
             body.innerHTML = `
                 <div class="settings-item" onclick="exportData()"><span class="material-symbols-outlined">backup</span><div>備份 (JSON)</div></div>
                 <div class="settings-item" onclick="document.getElementById('importFile').click()"><span class="material-symbols-outlined">restore</span><div>還原 (JSON)</div></div>
-                <div class="settings-item" onclick="openDrawer('instructions')"><span class="material-symbols-outlined">help</span><div>操作使用手冊</div></div>
+                <div class="settings-item" onclick="openDrawer('instructions')"><span class="material-symbols-outlined">help</span><div>操作手冊指南</div></div>
                 <div class="settings-item" style="margin-top: 32px; background: rgba(179,38,30,0.05);" onclick="logout()"><span class="material-symbols-outlined" style="color:var(--md-sys-color-error)">logout</span><div style="color:var(--md-sys-color-error); font-weight:700;">登出帳號</div></div>
-                <div class="btn-row" style="margin-top:20px;"><button class="btn-tonal" style="flex:1;" onclick="closeDrawer()">關閉選單</button></div>`;
+                <div class="btn-row" style="margin-top:20px;"><button class="btn-tonal" style="flex:1;" onclick="closeDrawer()">關閉選單</button></div>
+                <input type="file" id="importFile" style="display:none" onchange="importData(event)">`;
         }
 
         function renderInstructions() {
             const body = document.getElementById('sheetBody');
             body.innerHTML = `
-                <div class="manual-section"><div class="manual-title">系統概述</div><div class="manual-text">本軟體為雲端即時同步記帳系統，數據加密存放於 Google Firebase。持久登入技術讓您同一裝置無需重複登入。</div></div>
-                <div class="manual-section"><div class="manual-title">核心記帳指南</div><div class="manual-text">• <b>智慧紀錄：</b>支援算式直接輸入金額 (如 100+250)。<br>• <b>分期機制：</b>大額支出可選分期，系統自動分配至未來月份。<br>• <b>自動訂閱：</b>月費項目設定後，系統於扣款日自動補帳。</div></div>
-                <div class="manual-section"><div class="manual-title">報表分析說明</div><div class="manual-text">• <b>實績原則：</b>年度統計僅累計「當前及過去月份」支出，避免未來分期稀釋平均值。<br>• <b>報表導出：</b>支援 Excel 匯出並具備自動欄寬排版。</div></div>
-                <div class="manual-section"><div class="manual-title">數據維護</div><div class="manual-text">除了自動同步，建議定期執行「備份 (JSON)」下載數據存檔。</div></div>
-                <div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="openDrawer('settingsMenu')">返回功能選單</button></div>`;
+                <div class="manual-section">
+                    <div class="manual-title">系統簡介</div>
+                    <div class="manual-text">這是一款專為行動裝置優化的雲端同步記帳軟體，支援即時分析、報表匯出與自動化扣款，協助您精確掌握資產流向。</div>
+                </div>
+                <div class="manual-section">
+                    <div class="manual-title">核心操作指南</div>
+                    <div class="manual-text">
+                        • <b>快速記帳：</b>點擊「+」號即可記錄。金額欄位支援算式運算 (例如 100+250)。<br>
+                        • <b>分期管理：</b>大額支出可選分期，系統會自動在未來月份生成紀錄。<br>
+                        • <b>智慧平均：</b>年度報告會自動排除「未來月份」，確保平均支出的數據準確。<br>
+                        • <b>數據報表：</b>支援 Excel 一鍵導出並自動校正欄寬。
+                    </div>
+                </div>
+                <div class="manual-section">
+                    <div class="manual-title">資料安全</div>
+                    <div class="manual-text">數據加密存放於 Firebase 雲端。建議定期導出 JSON 備份檔，確保存放於您個人的離線空間。</div>
+                </div>
+                <div class="btn-row" style="margin-top:20px;"><button class="btn-filled" style="flex:1;" onclick="openDrawer('settingsMenu')">返回功能選單</button></div>
+            `;
         }
 
         function exportToExcel() {
@@ -321,16 +349,11 @@
             const ws_m = XLSX.utils.aoa_to_sheet(monthlyData);
             ws_m['!cols'] = monthlyData[0].map((_, i) => ({ wch: 20 }));
             XLSX.utils.book_append_sheet(wb, ws_m, "月份統計");
-
-            const yearlyData = [["【年度結算總覽表】"], ["統計年份", "總收入(實績)", "平均月收入", "總支出(實績)", "平均月支出", "結餘(實績)"]]; const yGroups = {};
-            state.records.forEach(r => { 
-                const d = new Date(r.date); const y = d.getFullYear(); 
-                if(!yGroups[y]) yGroups[y] = { i: 0, e: 0, raw: [] };
-                const curY = tpNow.getFullYear(), curM = tpNow.getMonth();
-                if (y < curY || (y === curY && d.getMonth() <= curM)) { if(r.type==='income') yGroups[y].i += r.amt; else yGroups[y].e += r.amt; }
-                yGroups[y].raw.push(r);
-            });
-            Object.keys(yGroups).sort((a,b) => b-a).forEach(y => { 
+            
+            const yearlyData = [["【年度結算總覽表】"], ["統計年份", "總收入", "平均月收入", "總支出", "平均月支出", "結餘"]]; const yGroups = {};
+            state.records.forEach(r => { const y = new Date(r.date).getFullYear(); if(!yGroups[y]) yGroups[y] = { i: 0, e: 0, mSet: new Set(), raw: [] }; if(r.type==='income') yGroups[y].i += r.amt; else yGroups[y].e += r.amt; yGroups[y].raw.push(r); });
+            const sortedYears = Object.keys(yGroups).sort((a,b) => b-a);
+            sortedYears.forEach(y => { 
                 const g = yGroups[y]; const curY = tpNow.getFullYear(), curM = tpNow.getMonth();
                 const validMonths = new Set();
                 g.raw.forEach(r => { const d = new Date(r.date); if(parseInt(y) < curY || (parseInt(y) === curY && d.getMonth() <= curM)) validMonths.add(d.getMonth()); });
@@ -424,10 +447,7 @@
                 container.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a, undefined, {numeric: true})).map(key => { return `<div class="stats-report-item" onclick="showStatsDetail('${key}', ${JSON.stringify(groups[key].raw).replace(/"/g, '&quot;')})"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${key}</strong><span class="material-symbols-outlined">chevron_right</span></div><div style="display:flex; gap:12px; margin-top:8px; font-size:14px;"><span style="color:#2E7D32">收: $${groups[key].i.toLocaleString()}</span><span style="color:#C62828">支: $${groups[key].e.toLocaleString()}</span></div></div>`; }).join(''); 
             } 
             else { 
-                state.records.forEach(r => { const d = new Date(r.date); const recY = d.getFullYear(); if (recY > curY) return; const key = `${recY}年`; if(!groups[key]) groups[key] = { i: 0, e: 0, raw: [] };
-                    if (recY < curY || (recY === curY && d.getMonth() <= curM)) { if(r.type === 'income') groups[key].i += r.amt; else groups[key].e += r.amt; }
-                    groups[key].raw.push(r);
-                }); 
+                state.records.forEach(r => { const d = new Date(r.date), recY = d.getFullYear(); if (recY > curY) return; const key = `${recY}年`; if(!groups[key]) groups[key] = { i: 0, e: 0, raw: [] }; if(r.type === 'income') groups[key].i += r.amt; else groups[key].e += r.amt; groups[key].raw.push(r); }); 
                 if (state.yearlySubView === 'year') { 
                     container.innerHTML = Object.keys(groups).sort((a,b) => b.localeCompare(a)).map(key => { 
                         const g = groups[key]; const validMonths = new Set();
@@ -461,7 +481,7 @@
             else if(mode === 'subEdit') {
                 const subCatsHtml = state.cats.filter(c=>c.type==='expense').map(c=>`<option value="${c.name}" ${sub?.cat===c.name?'selected':''}>${c.name}</option>`).join('');
                 title.innerText = id ? '編輯訂閱' : '新增訂閱';
-                body.innerHTML = `<div class="input-group"><label class="input-label">名稱</label><input type="text" id="sub_name" class="md-input" value="${sub?sub.name:''}"></div><div class="input-group"><label class="input-label">扣款類別</label><select id="sub_cat" class="md-input">${subCatsHtml}</select></div><div class="input-group"><label class="input-label">扣款金額</label><input type="text" id="in_amt" class="md-input" value="${sub?sub.amt:''}" inputmode="decimal"></div><div class="input-group"><label class="input-label">週期</label><select id="sub_cycle" class="md-input"><option value="monthly" ${sub?.cycle==='monthly'?'selected':''}>每月</option><option value="quarterly" ${sub?.cycle==='quarterly'?'selected':''}>每季</option><option value="yearly" ${sub?.cycle==='yearly'?'selected':''}>每年</option></select></div><div class="input-group"><label class="input-label">每月扣款日</label><input type="number" id="sub_day" class="md-input" value="${sub?sub.payDay:'1'}" min="1" max="31"></div><div class="input-group"><label class="input-label">狀態</label><select id="sub_active" class="md-input"><option value="true" ${sub?.active!==false?'selected':''}>啟用</option><option value="false" ${sub?.active===false?'selected':''}>停用</option></select></div>`;
+                body.innerHTML = `<div class="input-group"><label class="input-label">名稱</label><input type="text" id="sub_name" class="md-input" value="${sub?sub.name:''}"></div><div class="input-group"><label class="input-label">扣款類別</label><select id="sub_cat" class="md-input">${subCatsHtml}</select></div><div class="input-group"><label class="input-label">扣款金額</label><input type="text" id="in_amt" class="md-input" value="${sub?sub.amt:''}" inputmode="decimal"></div><div class="input-group"><label class="input-label">週期</label><select id="sub_cycle" class="md-input"><option value="monthly" ${sub?.cycle==='monthly'?'selected':''}>每月</option><option value="quarterly" ${sub?.cycle==='quarterly'?'selected':''}>每季</option><option value="yearly" ${sub?.cycle==='yearly'?'selected':''}>每年</option></select></div><div class="input-group"><label class="input-label">每月扣款日 (1-31)</label><input type="number" id="sub_day" class="md-input" value="${sub?sub.payDay:'1'}" min="1" max="31"></div><div class="input-group"><label class="input-label">狀態</label><select id="sub_active" class="md-input"><option value="true" ${sub?.active!==false?'selected':''}>啟用</option><option value="false" ${sub?.active===false?'selected':''}>停用</option></select></div>`;
             }
             else { 
                 const currentType = id ? record.type : mode;
@@ -474,14 +494,26 @@
 
         function handleSave() {
             if (state.currentMode === 'subEdit') {
-                const name = document.getElementById('sub_name').value; const amtRaw = document.getElementById('in_amt').value; const cat = document.getElementById('sub_cat').value; const cycle = document.getElementById('sub_cycle').value; const day = parseInt(document.getElementById('sub_day').value); const active = document.getElementById('sub_active').value === 'true';
+                const name = document.getElementById('sub_name').value;
+                const amtRaw = document.getElementById('in_amt').value;
+                const cat = document.getElementById('sub_cat').value;
+                const cycle = document.getElementById('sub_cycle').value;
+                const day = parseInt(document.getElementById('sub_day').value);
+                const active = document.getElementById('sub_active').value === 'true';
                 if(!name || !amtRaw) return alert('資料不全'); let amt = evaluateMath(amtRaw);
                 if(state.editingId) { let sub = state.subs.find(s => s.id === state.editingId); Object.assign(sub, { name, amt, cat, cycle, payDay: day, active }); } 
-                else { const nowStr = getTaipeiNow().toISOString().split('T')[0]; state.records.push({ id: Date.now() + 1, type: 'expense', date: nowStr, amt: amt, cat: cat, ins: 1, insIndex: 1, note: `自動訂閱: ${name} (首筆)`, isAuto: true }); state.subs.push({ id: Date.now(), name, amt, cat, cycle, payDay: day, active, lastGenerated: nowStr }); }
+                else {
+                    const nowStr = getTaipeiNow().toISOString().split('T')[0];
+                    state.records.push({ id: Date.now() + 1, type: 'expense', date: nowStr, amt: amt, cat: cat, ins: 1, insIndex: 1, note: `自動訂閱: ${name} (首筆)`, isAuto: true });
+                    state.subs.push({ id: Date.now(), name, amt, cat, cycle, payDay: day, active, lastGenerated: nowStr });
+                }
                 saveToCloud(); closeDrawer(); return;
             }
             let amtRaw = document.getElementById('in_amt').value; if(!amtRaw) return alert('請輸入金額'); let amt = evaluateMath(amtRaw); if (amt === null || isNaN(amt)) return alert('金額運算錯誤'); amt = Math.round(amt);
-            const date = document.getElementById('in_date').value; const cat = document.getElementById('in_cat').value; const note = document.getElementById('in_note').value; const ins = parseInt(document.getElementById('in_ins')?.value || 1);
+            const date = document.getElementById('in_date').value;
+            const cat = document.getElementById('in_cat').value;
+            const note = document.getElementById('in_note').value;
+            const ins = parseInt(document.getElementById('in_ins')?.value || 1);
             const type = state.editingId ? state.records.find(r => r.id === state.editingId).type : state.currentMode;
             if(state.editingId) { const gid = state.records.find(r => r.id === state.editingId).gid; if(gid) state.records = state.records.filter(r => r.gid !== gid); else state.records = state.records.filter(r => r.id !== state.editingId); }
             if(ins > 1 && type === 'expense') { const gid = Date.now(), base = Math.floor(amt / ins), extra = amt % ins; for(let i=0; i<ins; i++) { const d = new Date(date); d.setMonth(d.getMonth() + i); state.records.push({ id: Date.now()+i, gid, type, date: d.toISOString().split('T')[0], amt: i===0?base+extra:base, cat, ins, insIndex: i+1, note }); } } 
@@ -509,7 +541,7 @@
         function renderChangelog() { const body = document.getElementById('sheetBody'); body.innerHTML = changelogs.map(log => `<div class="log-item"><div class="log-version">${log.v}</div><div class="log-content">${log.items.map(item => `<div>${item}</div>`).join('')}</div></div>`).join(''); body.innerHTML += `<div class="btn-row"><button class="btn-filled" style="flex:1" onclick="closeDrawer()">關閉視窗</button></div>`; }
         function evaluateMath(str) { try { const sanitized = str.replace(/[^-()\d/*+.]/g, ''); return Function(`"use strict"; return (${sanitized})`)(); } catch (e) { return null; } }
         function insertOp(op) { const input = document.getElementById('in_amt'); input.value += op; input.focus(); }
- 
+
         window.onload = () => { auth.onAuthStateChanged((user) => { if (user) handleAuthSuccess(user); else document.getElementById('sync-overlay').style.display='flex'; }); };
     </script>
 </body>
