@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GooglePay v26.25.8</title>
+    <title>GooglePay v26.25.9</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
     
@@ -128,7 +128,7 @@
 <body>
 
     <div id="sync-overlay">
-        <h2 style="color:var(--md-sys-color-primary); margin-bottom:8px;">GooglePay v26.25.8</h2>
+        <h2 style="color:var(--md-sys-color-primary); margin-bottom:8px;">GooglePay v26.25.9</h2>
         <input type="text" id="account-id" class="md-input" placeholder="帳號 ID" style="margin-bottom:12px; text-align:center;">
         <input type="password" id="account-pw" class="md-input" placeholder="密碼 (首次請輸入新密碼)" style="margin-bottom:24px; text-align:center;">
         <button class="btn-filled" style="width:200px;" id="loginBtn" onclick="startApp()">登入 / 同步</button>
@@ -143,7 +143,7 @@
             <span class="material-symbols-outlined menu-btn-top" onclick="openDrawer('settingsMenu')">menu</span>
             <div class="month-selector">
                 <span class="material-symbols-outlined" onclick="changeMonth(-1)">chevron_left</span>
-                <div class="month-label" id="dateLabel">2026年 1月</div>
+                <div class="month-label" id="dateLabel">2026年 2月</div>
                 <span class="material-symbols-outlined" onclick="changeMonth(1)">chevron_right</span>
             </div>
             <div class="summary-grid">
@@ -153,7 +153,7 @@
                 <div class="summary-item"><small>總支出</small><span id="totalExpense" style="color:#C62828;">$0</span></div>
             </div>
             <div class="sync-status" id="cloud-status">正在連線...</div>
-            <div class="version-tag" onclick="openDrawer('changelog')">v26.25.8</div>
+            <div class="version-tag" onclick="openDrawer('changelog')">v26.25.9</div>
         </div>
 
         <div class="transaction-section">
@@ -221,27 +221,59 @@
         const auth = firebase.auth();
         const db = firebase.database();
 
-        let state = { uid: '', viewDate: new Date(2026, 0, 1), records: [], cats: [{ id: 1, name: '餐飲', type: 'expense', sort: 0 }], subs: [], listTab: 'expense', activeCatType: 'expense', statsView: 'monthly', yearlySubView: 'year', trendView: '30d', trendCat: '全部', editingId: null, currentMode: '', showIncome: false };
+        function getTaipeiNow() { const now = new Date(); const utc = now.getTime() + (now.getTimezoneOffset() * 60000); return new Date(utc + (3600000 * 8)); }
+
+        // 核心修正：初始顯示月份改為抓取當下月份
+        let state = { uid: '', viewDate: getTaipeiNow(), records: [], cats: [{ id: 1, name: '餐飲', type: 'expense', sort: 0 }], subs: [], listTab: 'expense', activeCatType: 'expense', statsView: 'monthly', yearlySubView: 'year', trendView: '30d', trendCat: '全部', editingId: null, currentMode: '', showIncome: false };
 
         const changelogs = [
-            { v: "v26.25.8", items: ["功能修正：修復點擊訂閱管理直接進入編輯畫面的錯誤，現在會正確顯示訂閱項目清單。","顯示優化：將訂閱管理新增項目時的預設類別調整為『3C電信虛擬費』。","邏輯修復：年度統計功能（包含詳細分佈）現在會自動過濾未來月份的預定帳目，確保統計數據反映當前實績。"] },
+            { v: "v26.25.9", items: ["登入優化：修正登入後初始顯示月份，改為自動抓取當前系統月份。"] },
+            { v: "v26.25.8", items: ["功能修正：修復點擊訂閱管理直接進入編輯畫面的錯誤，現在會正確顯示訂閱項目清單。","顯示優化：將訂閱管理新增項目時的預設類別調整為『3C電信虛擬費』。","邏輯修復：年度統計功能（包含詳細分佈）現在會自動過濾未來月份的預定帳目。"] },
             { v: "v26.25.7", items: ["年度統計修正：總支出與平均支出排除「未來月份」帳目。","Excel 優化：匯出報表同步實績統計原則。"] },
-            { v: "v26.25.6", items: ["核心錯誤修復：解決 openDrawer 生成 HTML 時選單標籤錯誤導致儲存失效的問題。"] },
+            { v: "v26.25.6", items: ["核心錯誤修復：解決 openDrawer 生成 HTML 時選單標籤錯誤導致 handleSave 無法抓取資料而儲存失效的問題。"] },
             { v: "v26.25.5", items: ["錯誤修復：修正確認儲存按鈕無反應問題。"] },
-            { v: "v26.25.4", items: ["邏輯修正：年度統計平均值計算自動排除未來月份數據。","手冊重編：轉化為系統化［操作使用手冊］。","Excel 儲存格優化。"] },
+            { v: "v26.25.4", items: ["邏輯修正：年度統計平均值計算自動排除未來月份數據。","手冊重編：轉化為系統化［操作使用手冊］。","Excel 儲存格優化：自動計算欄寬。"] },
             { v: "v26.25.3", items: ["UI 舒適化深度優化：還原原生彈出式選單並強化觸控範圍，提升 Pixel 10 操作舒適度。"] },
             { v: "v26.25.2", items: ["優化 Excel 匯出：新增儲存格寬度自動計算功能。","強化說明手冊內容。"] },
             { v: "v26.25.1", items: ["新增系統手冊：於選單中加入［說明］功能。","補齊日誌：恢復 v26.1 起之完整紀錄。"] },
             { v: "v26.24.6", items: ["版本號進位修正。"] },
-            { v: "v26.24.5.1", items: ["訂閱邏輯優化。","版面對齊修正。"] },
-            { v: "v26.24.5", items: ["版面架構優化：新增左上角選單整合備份、還原與登出功能。","FAB 功能重組。"] },
-            { v: "v26.1", items: ["版本號系統與雲端同步樣式優化。"] }
+            { v: "v26.24.5.1", items: ["訂閱邏輯優化：新增項目時自動生成首筆支出紀錄入帳。","版面對齊修正：三條線選單按鈕與月份箭頭按鈕的中心線對齊。"] },
+            { v: "v26.24.5", items: ["版面架構優化：新增左上角選單整合備份、還原與登出功能。","FAB 功能重組：右下角懸運按鈕保留核心記帳操作。"] },
+            { v: "v26.24.4", items: ["登入穩定性修復：解決舊帳號初次升級時可能出現的 INVALID_LOGIN_CREDENTIALS 錯誤捕捉問題。"] },
+            { v: "v26.24.3", items: ["強化登入相容性：處理舊帳號初次設定密碼時的錯誤攔截。"] },
+            { v: "v26.24.2", items: ["優化登入持久化：自動保持登入狀態，下次開啟免輸入密碼。"] },
+            { v: "v26.24.1", items: ["登入引導優化：新增密碼設定說明與遷移提示。"] },
+            { v: "v26.24", items: ["實裝 Firebase Auth 密碼系統，強化安全性。"] },
+            { v: "v26.23.3", items: ["趨勢日期格式修正 (YY/MM)。"] },
+            { v: "v26.23.2", items: ["UI 優化：隱藏平均支出中排除字樣。"] },
+            { v: "v26.23.1", items: ["趨勢分析週期調整為 30 日。"] },
+            { v: "v26.23", items: ["新增消費趨勢分析功能。"] },
+            { v: "v26.22", items: ["實裝定期訂閱扣款功能。"] },
+            { v: "v26.21", items: ["統計報告加入百分比顯示與佔比計算。"] },
+            { v: "v26.20", items: ["類別管理介面優化：按鈕移至右上角。"] },
+            { v: "v26.19", items: ["修正欄位 Enter 問題與 Gboard 相容性。"] },
+            { v: "v26.18", items: ["統計標頭對齊修正。"] },
+            { v: "v26.17", items: ["底層按鈕排版修正。"] },
+            { v: "v26.16", items: [" Bar 視覺回歸設計。"] },
+            { v: "v26.15", items: ["Excel 匯出功能實裝。"] },
+            { v: "v26.14", items: ["修正滾動條排版跳動問題。"] },
+            { v: "v26.13", items: ["動作按鈕恢復膠囊樣式。"] },
+            { v: "v26.12", items: ["修正分段按鈕樣式。"] },
+            { v: "v26.11", items: ["金額彈出式計算機實裝。"] },
+            { v: "v26.10", items: ["金額支援算式運算。"] },
+            { v: "v26.9", items: ["同步狀態與版本號對齊。"] },
+            { v: "v26.8", items: ["更新日誌視窗功能實裝。"] },
+            { v: "v26.7", items: ["年度統計類別二級分層優化。"] },
+            { v: "v26.6", items: ["紀錄新增備註氣泡顯示。"] },
+            { v: "v26.5", items: ["圖例數量限制，高度調整。"] },
+            { v: "v26.4", items: ["統計報告隱藏未來數據。"] },
+            { v: "v26.3", items: ["年度統計新增平均月收入。"] },
+            { v: "v26.2", items: ["總收入點擊切換隱藏。"] },
+            { v: "v26.1", items: ["版本號系統與雲端同步樣式優化"] }
         ];
 
         let mainChartObj = null, trendChartObj = null, dragSrcIndex = null;
         Chart.register(ChartDataLabels);
-
-        function getTaipeiNow() { const now = new Date(); const utc = now.getTime() + (now.getTimezoneOffset() * 60000); return new Date(utc + (3600000 * 8)); }
 
         async function startApp() {
             const accId = document.getElementById('account-id').value.trim();
@@ -283,7 +315,7 @@
             body.innerHTML = `
                 <div class="settings-item" onclick="exportData()"><span class="material-symbols-outlined">backup</span><div>備份 (JSON)</div></div>
                 <div class="settings-item" onclick="document.getElementById('importFile').click()"><span class="material-symbols-outlined">restore</span><div>還原 (JSON)</div></div>
-                <div class="settings-item" onclick="openDrawer('instructions')"><span class="material-symbols-outlined">help</span><div>操作手冊指南</div></div>
+                <div class="settings-item" onclick="openDrawer('instructions')"><span class="material-symbols-outlined">help</span><div>操作使用手冊</div></div>
                 <div class="settings-item" style="margin-top: 32px; background: rgba(179,38,30,0.05);" onclick="logout()"><span class="material-symbols-outlined" style="color:var(--md-sys-color-error)">logout</span><div style="color:var(--md-sys-color-error); font-weight:700;">登出帳號</div></div>
                 <div class="btn-row" style="margin-top:20px;"><button class="btn-tonal" style="flex:1;" onclick="closeDrawer()">關閉選單</button></div>
                 <input type="file" id="importFile" style="display:none" onchange="importData(event)">`;
@@ -298,7 +330,7 @@
                     • <b>分期管理：</b>支出可設定分期數，系統自動分配至未來月份，但預定帳目不計入當前實績。<br>
                     • <b>智慧平均：</b>年度報告會排除「未來月份」，確保平均數據真實反映目前現狀。
                 </div></div>
-                <div class="manual-section"><div class="manual-title">數據安全</div><div class="manual-text">數據加密存放於 Firebase 雲端。建議定期導出 JSON 備份檔至個人空間。</div></div>
+                <div class="manual-section"><div class="manual-title">數據分析與備份</div><div class="manual-text">提供分類圓餅圖、趨勢圖與 Excel 匯出。建議定期導出 JSON 備份檔至個人空間。</div></div>
                 <div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="openDrawer('settingsMenu')">返回功能選單</button></div>`;
         }
 
@@ -311,7 +343,7 @@
             ws_m['!cols'] = monthlyData[0].map((_, i) => ({ wch: 20 }));
             XLSX.utils.book_append_sheet(wb, ws_m, "月份統計");
 
-            const yearlyData = [["【年度結算總覽表】"], ["統計年份", "總收入", "平均月收入", "總支出", "平均月支出", "結餘"]]; const yGroups = {};
+            const yearlyData = [["【年度結算總覽表】"], ["統計年份", "總收入(實績)", "平均月收入", "總支出(實績)", "平均月支出", "結餘"]]; const yGroups = {};
             state.records.forEach(r => { 
                 const d = new Date(r.date); const y = d.getFullYear(); if(!yGroups[y]) yGroups[y] = { i: 0, e: 0, raw: [] };
                 const curY = tpNow.getFullYear(), curM = tpNow.getMonth();
@@ -508,32 +540,10 @@
         function exportData() { if(!confirm('確定要備份 (JSON)？')) return; const b = new Blob([JSON.stringify(state)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'wallet_backup.json'; a.click(); }
         function importData(e) { const r = new FileReader(); r.onload = (ev) => { const d = JSON.parse(ev.target.result); Object.assign(state, d); saveToCloud(); alert('還原成功'); }; r.readAsText(e.target.files[0]); }
         
-        function showYearlyCatDetail(title, data) { 
-            const body = document.getElementById('sheetBody'); 
-            const yearCats = { income: {}, expense: {} }; 
-            const curDate = getTaipeiNow();
-            const curY = curDate.getFullYear(), curM = curDate.getMonth();
-            const viewYear = parseInt(title);
-            
-            data.forEach(r => { 
-                const d = new Date(r.date);
-                if (viewYear < curY || (viewYear === curY && d.getMonth() <= curM)) {
-                    const target = r.type === 'income' ? yearCats.income : yearCats.expense; 
-                    target[r.cat] = (target[r.cat] || 0) + r.amt; 
-                }
-            }); 
-            
-            const totalIncome = Object.values(yearCats.income).reduce((a, b) => a + b, 0); 
-            const totalExpense = Object.values(yearCats.expense).reduce((a, b) => a + b, 0); 
-            const getRows = (catData, total) => Object.entries(catData).sort((a,b) => b[1]-a[1]).map(([c, a]) => { const pct = total > 0 ? ((a / total) * 100).toFixed(0) : 0; return `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${pct}%)</span></div>`; }).join(''); 
-            body.innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div> <h3 style="margin:0 0 16px 0;">${title} 類別總結</h3> <div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">年度收入分布</div>${getRows(yearCats.income, totalIncome) || '無紀錄'}</div> <div class="stats-detail-card"><div class="input-label" style="color:#C62828">年度支出分布</div>${getRows(yearCats.expense, totalExpense) || '無紀錄'}</div> <div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`; 
-        }
+        function showYearlyCatDetail(title, data) { const body = document.getElementById('sheetBody'); const yearCats = { income: {}, expense: {} }; const curDate = getTaipeiNow(); const curY = curDate.getFullYear(), curM = curDate.getMonth(); const viewYear = parseInt(title); data.forEach(r => { const d = new Date(r.date); if (viewYear < curY || (viewYear === curY && d.getMonth() <= curM)) { const target = r.type === 'income' ? yearCats.income : yearCats.expense; target[r.cat] = (target[r.cat] || 0) + r.amt; } }); const totalIncome = Object.values(yearCats.income).reduce((a, b) => a + b, 0); const totalExpense = Object.values(yearCats.expense).reduce((a, b) => a + b, 0); const getRows = (catData, total) => Object.entries(catData).sort((a,b) => b[1]-a[1]).map(([c, a]) => { const pct = total > 0 ? ((a / total) * 100).toFixed(0) : 0; return `<div class="detail-row"><span>${c}</span><span>$${a.toLocaleString()} (${pct}%)</span></div>`; }).join(''); body.innerHTML = `<div onclick="renderStatsReport()" style="cursor:pointer; color:#6750A4; margin-bottom:16px; display:flex; align-items:center;"><span class="material-symbols-outlined">arrow_back</span> 返回</div> <h3 style="margin:0 0 16px 0;">${title} 類別總結</h3> <div class="stats-detail-card"><div class="input-label" style="color:#2E7D32">年度收入分布</div>${getRows(yearCats.income, totalIncome) || '無紀錄'}</div> <div class="stats-detail-card"><div class="input-label" style="color:#C62828">年度支出分布</div>${getRows(yearCats.expense, totalExpense) || '無紀錄'}</div> <div class="btn-row"><button class="btn-filled" style="flex:1;" onclick="closeDrawer()">關閉視窗</button></div>`; }
         function showStatsDetail(title, data) { 
-            const curDate = getTaipeiNow();
-            const curY = curDate.getFullYear(), curM = curDate.getMonth();
-            const isYearly = title.endsWith('年');
-            const viewYear = parseInt(title);
-
+            const curDate = getTaipeiNow(); const curY = curDate.getFullYear(), curM = curDate.getMonth();
+            const isYearly = title.endsWith('年'); const viewYear = parseInt(title);
             const getRows = (items) => { 
                 const g = {}; 
                 items.forEach(r => { 
